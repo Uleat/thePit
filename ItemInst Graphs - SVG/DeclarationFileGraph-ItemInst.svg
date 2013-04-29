@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<svg width="444" height="652" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <rect x="11" y="239" width="264" height="406" stroke="#20208C" fill="white"/>
+ <text fill="#8C2020" font-family="Arial" font-size="10">
+  <tspan x="14" y="252">File</tspan>
+  <tspan x="14" y="262" xml:space='preserve'>   Item.h</tspan></text>
+ <text x="303" y="17" fill="black" font-family="Arial" font-size="10">Includes:</text>
+ <polyline points="275,242 288,242 288,38 303,38" stroke="#8C2020" fill="none"/>
+ <polygon points="303,38 297,35 297,41 303,38" stroke="#8C2020" fill="#8C2020"/>
+ <polyline points="275,242 288,242 288,64 303,64" stroke="#8C2020" fill="none"/>
+ <polygon points="303,64 297,61 297,67 303,64" stroke="#8C2020" fill="#8C2020"/>
+ <polyline points="275,242 288,242 288,90 303,90" stroke="#8C2020" fill="none"/>
+ <polygon points="303,90 297,87 297,93 303,90" stroke="#8C2020" fill="#8C2020"/>
+ <polyline points="275,242 288,242 288,116 303,116" stroke="#8C2020" fill="none"/>
+ <polygon points="303,116 297,113 297,119 303,116" stroke="#8C2020" fill="#8C2020"/>
+ <polyline points="275,242 288,242 288,142 303,142" stroke="#8C2020" fill="none"/>
+ <polygon points="303,142 297,139 297,145 303,142" stroke="#8C2020" fill="#8C2020"/>
+ <polyline points="275,242 288,242 288,168 303,168" stroke="#8C2020" fill="none"/>
+ <polygon points="303,168 297,165 297,171 303,168" stroke="#8C2020" fill="#8C2020"/>
+ <polyline points="275,242 288,242 288,194 303,194" stroke="#8C2020" fill="none"/>
+ <polygon points="303,194 297,191 297,197 303,194" stroke="#8C2020" fill="#8C2020"/>
+ <polyline points="275,242 288,242 288,220 303,220" stroke="#8C2020" fill="none"/>
+ <polygon points="303,220 297,217 297,223 303,220" stroke="#8C2020" fill="#8C2020"/>
+ <polygon points="308,27 351,27 346,49 303,49 308,27" stroke="#20208C" fill="white"/>
+ <text x="311" y="40" fill="black" font-family="Arial" font-size="10">string</text>
+ <polygon points="308,53 353,53 348,75 303,75 308,53" stroke="#20208C" fill="white"/>
+ <text x="311" y="66" fill="black" font-family="Arial" font-size="10">vector</text>
+ <polygon points="308,79 344,79 339,101 303,101 308,79" stroke="#20208C" fill="white"/>
+ <text x="311" y="92" fill="black" font-family="Arial" font-size="10">map</text>
+ <polygon points="308,105 336,105 331,127 303,127 308,105" stroke="#20208C" fill="white"/>
+ <text x="311" y="118" fill="black" font-family="Arial" font-size="10">list</text>
+ <polygon points="308,131 437,131 432,153 303,153 308,131" stroke="#20208C" fill="white"/>
+ <text x="311" y="144" fill="black" font-family="Arial" font-size="10">eq_packet_structs.h</text>
+ <polygon points="308,157 408,157 403,179 303,179 308,157" stroke="#20208C" fill="white"/>
+ <text x="311" y="170" fill="black" font-family="Arial" font-size="10">eq_constants.h</text>
+ <polygon points="308,183 395,183 390,205 303,205 308,183" stroke="#20208C" fill="white"/>
+ <text x="311" y="196" fill="black" font-family="Arial" font-size="10">item_struct.h</text>
+ <polygon points="308,209 402,209 397,231 303,231 308,209" stroke="#20208C" fill="white"/>
+ <text x="311" y="222" fill="black" font-family="Arial" font-size="10">item_fieldlist.h</text>
+ <polygon points="14,282 82,282 89,289 89,297 82,304 14,304 7,297 7,289 14,282" stroke="#20208C" fill="white"/>
+ <text x="18" y="295" fill="black" font-family="Arial" font-size="10">__ITEM_H</text>
+ <polygon points="14,308 88,308 95,315 95,323 88,330 14,330 7,323 7,315 14,308" stroke="#20208C" fill="white"/>
+ <text x="18" y="321" fill="black" font-family="Arial" font-size="10">IDX_EQUIP</text>
+ <polygon points="14,334 138,334 145,341 145,349 138,356 14,356 7,349 7,341 14,334" stroke="#20208C" fill="white"/>
+ <text x="18" y="347" fill="black" font-family="Arial" font-size="10">IDX_CURSOR_BAG</text>
+ <polygon points="14,360 70,360 77,367 77,375 70,382 14,382 7,375 7,367 14,360" stroke="#20208C" fill="white"/>
+ <text x="18" y="373" fill="black" font-family="Arial" font-size="10">IDX_INV</text>
+ <polygon points="14,386 104,386 111,393 111,401 104,408 14,408 7,401 7,393 14,386" stroke="#20208C" fill="white"/>
+ <text x="18" y="399" fill="black" font-family="Arial" font-size="10">IDX_INV_BAG</text>
+ <polygon points="14,412 101,412 108,419 108,427 101,434 14,434 7,427 7,419 14,412" stroke="#20208C" fill="white"/>
+ <text x="18" y="425" fill="black" font-family="Arial" font-size="10">IDX_TRIBUTE</text>
+ <polygon points="14,438 84,438 91,445 91,453 84,460 14,460 7,453 7,445 14,438" stroke="#20208C" fill="white"/>
+ <text x="18" y="451" fill="black" font-family="Arial" font-size="10">IDX_BANK</text>
+ <polygon points="14,464 119,464 126,471 126,479 119,486 14,486 7,479 7,471 14,464" stroke="#20208C" fill="white"/>
+ <text x="18" y="477" fill="black" font-family="Arial" font-size="10">IDX_BANK_BAG</text>
+ <polygon points="14,490 102,490 109,497 109,505 102,512 14,512 7,505 7,497 14,490" stroke="#20208C" fill="white"/>
+ <text x="18" y="503" fill="black" font-family="Arial" font-size="10">IDX_SHBANK</text>
+ <polygon points="14,516 137,516 144,523 144,531 137,538 14,538 7,531 7,523 14,516" stroke="#20208C" fill="white"/>
+ <text x="18" y="529" fill="black" font-family="Arial" font-size="10">IDX_SHBANK_BAG</text>
+ <polygon points="14,542 91,542 98,549 98,557 91,564 14,564 7,557 7,549 14,542" stroke="#20208C" fill="white"/>
+ <text x="18" y="555" fill="black" font-family="Arial" font-size="10">IDX_TRADE</text>
+ <polygon points="14,568 126,568 133,575 133,583 126,590 14,590 7,583 7,575 14,568" stroke="#20208C" fill="white"/>
+ <text x="18" y="581" fill="black" font-family="Arial" font-size="10">IDX_TRADE_BAG</text>
+ <polygon points="14,594 126,594 133,601 133,609 126,616 14,616 7,609 7,601 14,594" stroke="#20208C" fill="white"/>
+ <text x="18" y="607" fill="black" font-family="Arial" font-size="10">IDX_TRADESKILL</text>
+ <polygon points="14,620 164,620 171,627 171,635 164,642 14,642 7,635 7,627 14,620" stroke="#20208C" fill="white"/>
+ <text x="18" y="633" fill="black" font-family="Arial" font-size="10">MAX_ITEMS_PER_BAG</text>
+ <polygon points="203,293 208,282 274,282 279,293 274,304 208,304 203,293" stroke="#20208C" fill="white"/>
+ <text x="211" y="295" fill="black" font-family="Arial" font-size="10">iter_queue</text>
+ <polygon points="217,319 222,308 274,308 279,319 274,330 222,330 217,319" stroke="#20208C" fill="white"/>
+ <text x="225" y="321" fill="black" font-family="Arial" font-size="10">iter_inst</text>
+ <polygon points="188,345 193,334 274,334 279,345 274,356 193,356 188,345" stroke="#20208C" fill="white"/>
+ <text x="196" y="347" fill="black" font-family="Arial" font-size="10">iter_contents</text>
+ <polygon points="188,371 193,360 274,360 279,371 274,382 193,382 188,371" stroke="#20208C" fill="white"/>
+ <text x="196" y="373" fill="black" font-family="Arial" font-size="10">ItemUseType</text>
+ <polygon points="183,397 188,386 274,386 279,397 274,408 188,408 183,397" stroke="#20208C" fill="white"/>
+ <text x="191" y="399" fill="black" font-family="Arial" font-size="10">byFlagSetting</text>
+ <polygon points="179,423 184,412 274,412 279,423 274,434 184,434 179,423" stroke="#20208C" fill="white"/>
+ <text x="187" y="425" fill="black" font-family="Arial" font-size="10">ItemInstQueue</text>
+ <polygon points="212,449 217,438 274,438 279,449 274,460 217,460 212,449" stroke="#20208C" fill="white"/>
+ <text x="220" y="451" fill="black" font-family="Arial" font-size="10">Inventory</text>
+ <polygon points="217,475 222,464 274,464 279,475 274,486 222,486 217,475" stroke="#20208C" fill="white"/>
+ <text x="225" y="477" fill="black" font-family="Arial" font-size="10">ItemInst</text>
+ <polygon points="196,501 201,490 274,490 279,501 274,512 201,512 196,501" stroke="#20208C" fill="white"/>
+ <text x="204" y="503" fill="black" font-family="Arial" font-size="10">EvoItemInst</text>
+ <polygon points="207,527 212,516 274,516 279,527 274,538 212,538 207,527" stroke="#20208C" fill="white"/>
+ <text x="215" y="529" fill="black" font-family="Arial" font-size="10">EvolveInfo</text>
+</svg>

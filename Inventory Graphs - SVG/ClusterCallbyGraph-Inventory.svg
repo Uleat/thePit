@@ -1,0 +1,141 @@
+<?xml version="1.0"?>
+<svg width="296" height="780" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <polygon points="36,79 272,79 284,67 284,23 272,11 36,11 24,23 24,67 36,79" stroke="#FFFFE0" fill="#FFFFE0"/>
+ <polyline points="272,79 274,79 276,78 277,78 279,77 280,75 282,74 283,72 283,71 284,69 284,67" stroke="#FFFFE0" fill="none"/>
+ <polyline points="284,23 284,21 283,19 283,18 282,16 280,15 279,13 277,12 276,12 274,11 272,11" stroke="#FFFFE0" fill="none"/>
+ <polyline points="36,11 34,11 32,12 31,12 29,13 28,15 26,16 25,18 25,19 24,21 24,23" stroke="#FFFFE0" fill="none"/>
+ <polyline points="24,67 24,69 25,71 25,72 26,74 28,75 29,77 31,78 32,78 34,79 36,79" stroke="#FFFFE0" fill="none"/>
+ <polyline points="36,79 272,79" stroke="#000000" fill="none"/>
+ <polyline points="272,79 274,79 276,78 277,78 279,77 280,75 282,74 283,72 283,71 284,69 284,67" stroke="#000000" fill="none"/>
+ <polyline points="284,67 284,23" stroke="#000000" fill="none"/>
+ <polyline points="284,23 284,21 283,19 283,18 282,16 280,15 279,13 277,12 276,12 274,11 272,11" stroke="#000000" fill="none"/>
+ <polyline points="272,11 36,11" stroke="#000000" fill="none"/>
+ <polyline points="36,11 34,11 32,12 31,12 29,13 28,15 26,16 25,18 25,19 24,21 24,23" stroke="#000000" fill="none"/>
+ <polyline points="24,23 24,67" stroke="#000000" fill="none"/>
+ <polyline points="24,67 24,69 25,71 25,72 26,74 28,75 29,77 31,78 32,78 34,79 36,79" stroke="#000000" fill="none"/>
+ <text x="133" y="27" fill="#000000" font-family="Arial" font-size="12">Item.h</text>
+ <polygon points="276,45 203,45 200,48 200,71 273,71 276,68 276,45" stroke="#C0C0C0" fill="#FFFF00"/>
+ <polyline points="273,48 200,48" stroke="#C0C0C0" fill="none"/>
+ <polyline points="273,48 273,71" stroke="#C0C0C0" fill="none"/>
+ <polyline points="273,48 276,45" stroke="#C0C0C0" fill="none"/>
+ <text x="208" y="61" fill="#000000" font-family="Arial" font-size="12">Inventory</text>
+ <polygon points="100,89 35,89 32,92 32,115 97,115 100,112 100,89" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="97,92 32,92" stroke="#C0C0C0" fill="none"/>
+ <polyline points="97,92 97,115" stroke="#C0C0C0" fill="none"/>
+ <polyline points="97,92 100,89" stroke="#C0C0C0" fill="none"/>
+ <text x="40" y="105" fill="#000000" font-family="Arial" font-size="12">doors.h</text>
+ <polyline points="100,93 109,91 118,89 127,86 137,84 147,81 157,79 167,76 177,74 186,71 195,69" stroke="#0000CD" fill="none"/>
+ <polygon points="194,67 200,68 195,71 194,67" stroke="#0000CD" fill="#0000CD"/>
+ <polygon points="96,133 39,133 36,136 36,159 93,159 96,156 96,133" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="93,136 36,136" stroke="#C0C0C0" fill="none"/>
+ <polyline points="93,136 93,159" stroke="#C0C0C0" fill="none"/>
+ <polyline points="93,136 96,133" stroke="#C0C0C0" fill="none"/>
+ <text x="44" y="149" fill="#000000" font-family="Arial" font-size="12">titles.h</text>
+ <polyline points="96,137 99,136 102,135 105,133 109,132 112,131 115,130 119,128 122,127 125,125 128,124 137,119 147,114 156,109 166,104 175,99 184,93 192,88 200,83 208,78 215,74" stroke="#0000CD" fill="none"/>
+ <polygon points="214,72 219,71 216,75 214,72" stroke="#0000CD" fill="#0000CD"/>
+ <polygon points="107,177 28,177 25,180 25,203 104,203 107,200 107,177" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="104,180 25,180" stroke="#C0C0C0" fill="none"/>
+ <polyline points="104,180 104,203" stroke="#C0C0C0" fill="none"/>
+ <polyline points="104,180 107,177" stroke="#C0C0C0" fill="none"/>
+ <text x="32" y="193" fill="#000000" font-family="Arial" font-size="12">worlddb.h</text>
+ <polyline points="108,178 110,177 112,176 114,175 116,174 118,173 120,172 122,171 124,170 126,169 128,168 140,160 152,151 163,141 174,131 185,121 194,111 203,101 212,91 219,83 225,75" stroke="#0000CD" fill="none"/>
+ <polygon points="224,74 228,71 226,76 224,74" stroke="#0000CD" fill="#0000CD"/>
+ <polygon points="113,221 22,221 19,224 19,247 110,247 113,244 113,221" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="110,224 19,224" stroke="#C0C0C0" fill="none"/>
+ <polyline points="110,224 110,247" stroke="#C0C0C0" fill="none"/>
+ <polyline points="110,224 113,221" stroke="#C0C0C0" fill="none"/>
+ <text x="27" y="237" fill="#000000" font-family="Arial" font-size="12">database.h</text>
+ <polyline points="113,221 115,220 116,219 117,218 119,217 121,217 122,216 124,215 125,214 127,213 128,212 143,200 156,186 169,172 181,157 192,142 202,127 210,112 218,99 225,87 230,76" stroke="#0000CD" fill="none"/>
+ <polygon points="228,75 232,71 231,76 228,75" stroke="#0000CD" fill="#0000CD"/>
+ <polygon points="95,265 40,265 37,268 37,291 92,291 95,288 95,265" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="92,268 37,268" stroke="#C0C0C0" fill="none"/>
+ <polyline points="92,268 92,291" stroke="#C0C0C0" fill="none"/>
+ <polyline points="92,268 95,265" stroke="#C0C0C0" fill="none"/>
+ <text x="44" y="281" fill="#000000" font-family="Arial" font-size="12">mob.h</text>
+ <polyline points="96,272 99,271 103,270 106,269 109,267 113,266 116,264 119,262 122,260 125,258 128,256 145,240 160,222 174,202 187,182 198,162 208,142 216,123 223,105 229,89 233,76" stroke="#0000CD" fill="none"/>
+ <polygon points="231,75 234,71 234,76 231,75" stroke="#0000CD" fill="#0000CD"/>
+ <polygon points="107,309 28,309 25,312 25,335 104,335 107,332 107,309" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="104,312 25,312" stroke="#C0C0C0" fill="none"/>
+ <polyline points="104,312 104,335" stroke="#C0C0C0" fill="none"/>
+ <polyline points="104,312 107,309" stroke="#C0C0C0" fill="none"/>
+ <text x="32" y="325" fill="#000000" font-family="Arial" font-size="12">clientlist.h</text>
+ <polyline points="108,312 110,311 112,310 114,309 116,308 118,307 120,306 122,304 124,303 126,301 128,300 148,279 165,256 180,232 193,206 204,181 213,156 221,132 227,110 232,91 235,76" stroke="#0000CD" fill="none"/>
+ <polygon points="233,76 236,71 237,76 233,76" stroke="#0000CD" fill="#0000CD"/>
+ <polygon points="124,353 11,353 8,356 8,379 121,379 124,376 124,353" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="121,356 8,356" stroke="#C0C0C0" fill="none"/>
+ <polyline points="121,356 121,379" stroke="#C0C0C0" fill="none"/>
+ <polyline points="121,356 124,353" stroke="#C0C0C0" fill="none"/>
+ <text x="15" y="369" fill="#000000" font-family="Arial" font-size="12">perl_client.cpp</text>
+ <polyline points="116,353 117,352 118,351 120,350 121,350 122,349 123,348 124,347 126,346 127,345 128,344 150,319 169,291 185,262 198,231 209,200 218,170 225,141 230,116 234,94 236,76" stroke="#0000CD" fill="none"/>
+ <polygon points="234,76 237,71 238,76 234,76" stroke="#0000CD" fill="#0000CD"/>
+ <polygon points="114,397 21,397 18,400 18,423 111,423 114,420 114,397" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="111,400 18,400" stroke="#C0C0C0" fill="none"/>
+ <polyline points="111,400 111,423" stroke="#C0C0C0" fill="none"/>
+ <polyline points="111,400 114,397" stroke="#C0C0C0" fill="none"/>
+ <text x="25" y="413" fill="#000000" font-family="Arial" font-size="12">command.h</text>
+ <polyline points="115,398 116,397 118,396 119,395 121,394 122,393 123,392 124,391 126,390 127,389 128,388 153,359 173,326 190,291 204,255 215,219 223,183 229,150 233,121 236,96 237,76" stroke="#0000CD" fill="none"/>
+ <polygon points="236,76 238,71 239,76 236,76" stroke="#0000CD" fill="#0000CD"/>
+ <polygon points="112,441 23,441 20,444 20,467 109,467 112,464 112,441" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="109,444 20,444" stroke="#C0C0C0" fill="none"/>
+ <polyline points="109,444 109,467" stroke="#C0C0C0" fill="none"/>
+ <polyline points="109,444 112,441" stroke="#C0C0C0" fill="none"/>
+ <text x="28" y="457" fill="#000000" font-family="Arial" font-size="12">questmgr.h</text>
+ <polyline points="112,443 114,442 116,441 117,440 119,439 121,438 122,437 124,436 125,435 127,433 128,432 143,411 158,381 171,344 184,303 196,259 207,215 216,173 224,134 230,101 235,76" stroke="#0000CD" fill="none"/>
+ <polygon points="233,76 236,71 237,76 233,76" stroke="#0000CD" fill="#0000CD"/>
+ <polygon points="91,485 44,485 41,488 41,511 88,511 91,508 91,485" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="88,488 41,488" stroke="#C0C0C0" fill="none"/>
+ <polyline points="88,488 88,511" stroke="#C0C0C0" fill="none"/>
+ <polyline points="88,488 91,485" stroke="#C0C0C0" fill="none"/>
+ <text x="49" y="501" fill="#000000" font-family="Arial" font-size="12">bot.h</text>
+ <polyline points="91,495 95,494 99,493 103,491 107,490 111,488 114,486 118,484 122,482 125,479 128,476 144,452 160,418 174,377 187,330 199,281 209,231 218,184 225,141 231,104 235,77" stroke="#0000CD" fill="none"/>
+ <polygon points="234,76 236,71 237,76 234,76" stroke="#0000CD" fill="#0000CD"/>
+ <polygon points="100,45 35,45 32,48 32,71 97,71 100,68 100,45" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="97,48 32,48" stroke="#C0C0C0" fill="none"/>
+ <polyline points="97,48 97,71" stroke="#C0C0C0" fill="none"/>
+ <polyline points="97,48 100,45" stroke="#C0C0C0" fill="none"/>
+ <text x="40" y="61" fill="#000000" font-family="Arial" font-size="12">ItemInst</text>
+ <polyline points="100,58 108,58 117,58 127,58 136,58 146,58 156,58 166,58 176,58 185,58 194,58" stroke="#0000CD" fill="none"/>
+ <polygon points="195,56 200,58 195,60 195,56" stroke="#0000CD" fill="#0000CD"/>
+ <polygon points="97,529 38,529 35,532 35,555 94,555 97,552 97,529" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="94,532 35,532" stroke="#C0C0C0" fill="none"/>
+ <polyline points="94,532 94,555" stroke="#C0C0C0" fill="none"/>
+ <polyline points="94,532 97,529" stroke="#C0C0C0" fill="none"/>
+ <text x="42" y="545" fill="#000000" font-family="Arial" font-size="12">merc.h</text>
+ <polyline points="98,537 101,536 105,535 108,534 111,532 114,531 117,529 120,527 123,525 126,523 128,520 146,493 162,455 177,409 190,357 202,302 212,247 220,194 227,146 232,106 236,77" stroke="#0000CD" fill="none"/>
+ <polygon points="234,76 237,71 238,76 234,76" stroke="#0000CD" fill="#0000CD"/>
+ <polygon points="110,573 25,573 22,576 22,599 107,599 110,596 110,573" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="107,576 22,576" stroke="#C0C0C0" fill="none"/>
+ <polyline points="107,576 107,599" stroke="#C0C0C0" fill="none"/>
+ <polyline points="107,576 110,573" stroke="#C0C0C0" fill="none"/>
+ <text x="30" y="589" fill="#000000" font-family="Arial" font-size="12">common.h</text>
+ <polyline points="110,577 112,576 114,575 116,574 118,573 120,571 122,570 123,568 125,567 126,565 128,564 147,534 164,492 180,440 193,383 205,322 214,261 222,203 229,151 233,107 236,76" stroke="#0000CD" fill="none"/>
+ <polygon points="235,76 237,71 238,76 235,76" stroke="#0000CD" fill="#0000CD"/>
+ <polygon points="128,617 7,617 4,620 4,643 125,643 128,640 128,617" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="125,620 4,620" stroke="#C0C0C0" fill="none"/>
+ <polyline points="125,620 125,643" stroke="#C0C0C0" fill="none"/>
+ <polyline points="125,620 128,617" stroke="#C0C0C0" fill="none"/>
+ <text x="12" y="633" fill="#000000" font-family="Arial" font-size="12">PlayerCorpse.h</text>
+ <polyline points="118,617 119,616 120,615 121,614 122,613 123,613 124,612 125,611 126,610 127,609 128,608 148,575 166,529 182,473 195,410 207,343 216,277 224,213 230,156 234,110 237,76" stroke="#0000CD" fill="none"/>
+ <polygon points="235,76 237,71 238,76 235,76" stroke="#0000CD" fill="#0000CD"/>
+ <polygon points="92,661 43,661 40,664 40,687 89,687 92,684 92,661" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="89,664 40,664" stroke="#C0C0C0" fill="none"/>
+ <polyline points="89,664 89,687" stroke="#C0C0C0" fill="none"/>
+ <polyline points="89,664 92,661" stroke="#C0C0C0" fill="none"/>
+ <text x="47" y="677" fill="#000000" font-family="Arial" font-size="12">npc.h</text>
+ <polyline points="93,671 97,670 100,669 104,667 108,666 112,664 115,662 119,660 122,658 125,655 128,652 150,616 168,566 185,505 198,436 210,364 219,292 226,223 231,162 235,112 237,76" stroke="#0000CD" fill="none"/>
+ <polygon points="235,76 237,71 239,76 235,76" stroke="#0000CD" fill="#0000CD"/>
+ <polygon points="113,705 22,705 19,708 19,731 110,731 113,728 113,705" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="110,708 19,708" stroke="#C0C0C0" fill="none"/>
+ <polyline points="110,708 110,731" stroke="#C0C0C0" fill="none"/>
+ <polyline points="110,708 113,705" stroke="#C0C0C0" fill="none"/>
+ <text x="27" y="721" fill="#000000" font-family="Arial" font-size="12">shareddb.h</text>
+ <polyline points="113,707 115,706 116,706 118,705 120,704 121,703 123,701 124,700 125,699 127,697 128,696 151,657 170,603 187,537 201,462 212,385 221,307 227,233 232,167 235,114 237,76" stroke="#0000CD" fill="none"/>
+ <polygon points="236,76 237,71 239,76 236,76" stroke="#0000CD" fill="#0000CD"/>
+ <polygon points="101,749 34,749 31,752 31,775 98,775 101,772 101,749" stroke="#C0C0C0" fill="#FFFFFF"/>
+ <polyline points="98,752 31,752" stroke="#C0C0C0" fill="none"/>
+ <polyline points="98,752 98,775" stroke="#C0C0C0" fill="none"/>
+ <polyline points="98,752 101,749" stroke="#C0C0C0" fill="none"/>
+ <text x="39" y="765" fill="#000000" font-family="Arial" font-size="12">object.h</text>
+ <polyline points="101,757 104,756 107,754 110,753 113,752 116,750 118,748 121,746 123,744 126,742 128,740 152,699 173,640 190,569 204,489 214,405 223,322 229,243 233,173 236,116 237,76" stroke="#0000CD" fill="none"/>
+ <polygon points="236,76 238,71 239,76 236,76" stroke="#0000CD" fill="#0000CD"/>
+</svg>

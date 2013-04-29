@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<svg width="411" height="1106" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <rect x="11" y="7" width="393" height="1092" stroke="#20208C" fill="white"/>
+ <text fill="#8C2020" font-family="Arial" font-size="10">
+  <tspan x="14" y="20">Class: Inventory</tspan>>
+  <tspan x="14" y="40">defined as:</tspan>
+  <tspan x="14" y="50" xml:space='preserve'>  </tspan></text>
+ <rect x="11" y="82" width="118" height="22" stroke="#20208C" fill="white"/>
+ <text x="14" y="95" fill="black" font-family="Arial" font-size="10">ItemInst * _GetItem</text>
+ <rect x="11" y="108" width="90" height="22" stroke="#20208C" fill="white"/>
+ <text x="14" y="121" fill="black" font-family="Arial" font-size="10">int16 _PutItem</text>
+ <rect x="11" y="134" width="93" height="22" stroke="#20208C" fill="white"/>
+ <text x="14" y="147" fill="black" font-family="Arial" font-size="10">int16 _HasItem</text>
+ <rect x="11" y="160" width="93" height="22" stroke="#20208C" fill="white"/>
+ <text x="14" y="173" fill="black" font-family="Arial" font-size="10">int16 _HasItem</text>
+ <rect x="11" y="186" width="132" height="22" stroke="#20208C" fill="white"/>
+ <text x="14" y="199" fill="black" font-family="Arial" font-size="10">int16 _HasItemByUse</text>
+ <rect x="11" y="212" width="132" height="22" stroke="#20208C" fill="white"/>
+ <text x="14" y="225" fill="black" font-family="Arial" font-size="10">int16 _HasItemByUse</text>
+ <rect x="11" y="238" width="169" height="22" stroke="#20208C" fill="white"/>
+ <text x="14" y="251" fill="black" font-family="Arial" font-size="10">int16 _HasItemByLoreGroup</text>
+ <rect x="11" y="264" width="169" height="22" stroke="#20208C" fill="white"/>
+ <text x="14" y="277" fill="black" font-family="Arial" font-size="10">int16 _HasItemByLoreGroup</text>
+ <rect x="203" y="82" width="201" height="22" rx="8" stroke="#20208C" fill="white"/>
+ <text x="213" y="95" fill="black" font-family="Arial" font-size="10">map&lt;int16, ItemInst *&gt; m_worn</text>
+ <rect x="215" y="108" width="189" height="22" rx="8" stroke="#20208C" fill="white"/>
+ <text x="225" y="121" fill="black" font-family="Arial" font-size="10">map&lt;int16, ItemInst *&gt; m_inv</text>
+ <rect x="202" y="134" width="202" height="22" rx="8" stroke="#20208C" fill="white"/>
+ <text x="212" y="147" fill="black" font-family="Arial" font-size="10">map&lt;int16, ItemInst *&gt; m_bank</text>
+ <rect x="257" y="160" width="147" height="38" rx="8" stroke="#20208C" fill="white"/>
+ <text fill="black" font-family="Arial" font-size="10">
+  <tspan x="267" y="173">map&lt;int16,</tspan>
+  <tspan x="267" y="183">ItemInst *&gt; m_shbank</tspan></text>
+ <rect x="201" y="202" width="203" height="22" rx="8" stroke="#20208C" fill="white"/>
+ <text x="211" y="215" fill="black" font-family="Arial" font-size="10">map&lt;int16, ItemInst *&gt; m_trade</text>
+ <rect x="242" y="228" width="162" height="22" rx="8" stroke="#20208C" fill="white"/>
+ <text x="252" y="241" fill="black" font-family="Arial" font-size="10">ItemInstQueue m_cursor</text>
+ <rect x="7" y="294" width="91" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="307" fill="black" font-family="Arial" font-size="10">void ~Inventory</text>
+ <rect x="7" y="320" width="111" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="333" fill="black" font-family="Arial" font-size="10">ItemInst * GetItem</text>
+ <rect x="7" y="346" width="111" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="359" fill="black" font-family="Arial" font-size="10">ItemInst * GetItem</text>
+ <rect x="7" y="372" width="144" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="385" fill="black" font-family="Arial" font-size="10">iter_queue cursor_begin</text>
+ <rect x="7" y="398" width="134" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="411" fill="black" font-family="Arial" font-size="10">iter_queue cursor_end</text>
+ <rect x="7" y="424" width="110" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="437" fill="black" font-family="Arial" font-size="10">bool CursorEmpty</text>
+ <rect x="7" y="450" width="156" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="463" fill="black" font-family="Arial" font-size="10">const ItemInst * operator[]</text>
+ <rect x="7" y="476" width="83" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="489" fill="black" font-family="Arial" font-size="10">int16 PutItem</text>
+ <rect x="7" y="502" width="106" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="515" fill="black" font-family="Arial" font-size="10">int16 PushCursor</text>
+ <rect x="7" y="528" width="91" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="541" fill="black" font-family="Arial" font-size="10">bool SwapItem</text>
+ <rect x="7" y="554" width="96" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="567" fill="black" font-family="Arial" font-size="10">bool DeleteItem</text>
+ <rect x="7" y="580" width="114" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="593" fill="black" font-family="Arial" font-size="10">bool CheckNoDrop</text>
+ <rect x="7" y="606" width="113" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="619" fill="black" font-family="Arial" font-size="10">ItemInst * PopItem</text>
+ <rect x="7" y="632" width="86" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="645" fill="black" font-family="Arial" font-size="10">int16 HasItem</text>
+ <rect x="7" y="658" width="138" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="671" fill="black" font-family="Arial" font-size="10">bool HasSpaceForItem</text>
+ <rect x="7" y="684" width="125" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="697" fill="black" font-family="Arial" font-size="10">int16 HasItemByUse</text>
+ <rect x="7" y="710" width="162" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="723" fill="black" font-family="Arial" font-size="10">int16 HasItemByLoreGroup</text>
+ <rect x="7" y="736" width="112" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="749" fill="black" font-family="Arial" font-size="10">int16 FindFreeSlot</text>
+ <rect x="7" y="762" width="97" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="775" fill="black" font-family="Arial" font-size="10">int16 CalcSlotId</text>
+ <rect x="7" y="788" width="97" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="801" fill="black" font-family="Arial" font-size="10">int16 CalcSlotId</text>
+ <rect x="7" y="814" width="104" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="827" fill="black" font-family="Arial" font-size="10">uint8 CalcBagIdx</text>
+ <rect x="7" y="840" width="163" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="853" fill="black" font-family="Arial" font-size="10">int16 CalcSlotFromMaterial</text>
+ <rect x="7" y="866" width="163" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="879" fill="black" font-family="Arial" font-size="10">uint8 CalcMaterialFromSlot</text>
+ <rect x="7" y="892" width="162" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="905" fill="black" font-family="Arial" font-size="10">bool CanItemFitInContainer</text>
+ <rect x="7" y="918" width="148" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="931" fill="black" font-family="Arial" font-size="10">bool SupportsContainers</text>
+ <rect x="7" y="944" width="115" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="957" fill="black" font-family="Arial" font-size="10">void dumpInventory</text>
+ <rect x="7" y="970" width="149" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="983" fill="black" font-family="Arial" font-size="10">void SetCustomItemData</text>
+ <rect x="7" y="996" width="149" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="1009" fill="black" font-family="Arial" font-size="10">void SetCustomItemData</text>
+ <rect x="7" y="1022" width="149" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="1035" fill="black" font-family="Arial" font-size="10">void SetCustomItemData</text>
+ <rect x="7" y="1048" width="149" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="1061" fill="black" font-family="Arial" font-size="10">void SetCustomItemData</text>
+ <rect x="7" y="1074" width="186" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="1087" fill="black" font-family="Arial" font-size="10">std::string GetCustomItemData</text>
+</svg>

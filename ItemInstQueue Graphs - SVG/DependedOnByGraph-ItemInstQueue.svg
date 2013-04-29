@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<svg width="235" height="62" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <polyline points="84,18 92,18 102,31 128,31" stroke="#8C2020" fill="none"/>
+ <polyline points="84,44 92,44 102,31 128,31" stroke="#8C2020" fill="none"/>
+ <polygon points="128,31 133,20 223,20 228,31 223,42 133,42 128,31" stroke="#20208C" fill="#FFFFFF"/>
+ <text x="136" y="33" fill="#8C2020" font-family="Arial" font-size="10">ItemInstQueue</text>
+ <ellipse cx="124" cy="31" rx="4" ry="4" stroke="#8C2020" fill="#8C2020"/>
+ <polygon points="17,18 22,7 79,7 84,18 79,29 22,29 17,18" stroke="#20208C" fill="#FFFFFF"/>
+ <text x="25" y="20" fill="#000000" font-family="Arial" font-size="10">Inventory</text>
+ <ellipse cx="13" cy="18" rx="4" ry="4" stroke="#8C2020" fill="#8C2020"/>
+ <polygon points="37,33 84,33 79,55 32,55 37,33" stroke="#20208C" fill="#FFFFFF"/>
+ <text x="40" y="46" fill="#000000" font-family="Arial" font-size="10">Item.h</text>
+ <ellipse cx="28" cy="44" rx="4" ry="4" stroke="#8C2020" fill="#8C2020"/>
+</svg>

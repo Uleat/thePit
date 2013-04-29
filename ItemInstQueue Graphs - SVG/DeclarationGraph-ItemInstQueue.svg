@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<svg width="294" height="296" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <rect x="11" y="7" width="276" height="282" stroke="#20208C" fill="white"/>
+ <text fill="#8C2020" font-family="Arial" font-size="10">
+  <tspan x="14" y="20">Class: ItemInstQueue</tspan>>
+  <tspan x="14" y="40">defined as:</tspan>
+  <tspan x="14" y="50" xml:space='preserve'>  </tspan></text>
+ <rect x="140" y="82" width="147" height="22" rx="8" stroke="#20208C" fill="white"/>
+ <text x="150" y="95" fill="black" font-family="Arial" font-size="10">list&lt;ItemInst *&gt; m_list</text>
+ <rect x="7" y="82" width="124" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="95" fill="black" font-family="Arial" font-size="10">void ~ItemInstQueue</text>
+ <rect x="7" y="108" width="101" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="121" fill="black" font-family="Arial" font-size="10">iter_queue begin</text>
+ <rect x="7" y="134" width="91" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="147" fill="black" font-family="Arial" font-size="10">iter_queue end</text>
+ <rect x="7" y="160" width="60" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="173" fill="black" font-family="Arial" font-size="10">void push</text>
+ <rect x="7" y="186" width="92" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="199" fill="black" font-family="Arial" font-size="10">void push_front</text>
+ <rect x="7" y="212" width="86" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="225" fill="black" font-family="Arial" font-size="10">ItemInst * pop</text>
+ <rect x="7" y="238" width="125" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="251" fill="black" font-family="Arial" font-size="10">ItemInst * peek_front</text>
+ <rect x="7" y="264" width="48" height="22" stroke="#20208C" fill="white"/>
+ <text x="10" y="277" fill="black" font-family="Arial" font-size="10">int size</text>
+</svg>

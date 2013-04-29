@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+<svg width="164" height="1904" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <polygon points="4,1420 4,4 161,4 161,1420 4,1420" stroke="#FF0000" fill="#FFFFFF"/>
+ <text x="59" y="18" fill="#000000" font-family="Arial" font-size="10">ItemInst</text>
+ <polyline points="4,28 161,28" stroke="#FF0000" fill="none"/>
+ <text x="12" y="42" fill="#000000" font-family="Arial" font-size="10">+~ItemInst</text>
+ <text x="12" y="58" fill="#000000" font-family="Arial" font-size="10">+Clone</text>
+ <text x="12" y="74" fill="#000000" font-family="Arial" font-size="10">+GetAugmentItemID</text>
+ <text x="12" y="90" fill="#000000" font-family="Arial" font-size="10">+GetItem</text>
+ <text x="12" y="106" fill="#000000" font-family="Arial" font-size="10">+GetItemID</text>
+ <text x="12" y="122" fill="#000000" font-family="Arial" font-size="10">+IsAmmo</text>
+ <text x="12" y="138" fill="#000000" font-family="Arial" font-size="10">+IsEquipable</text>
+ <text x="12" y="154" fill="#000000" font-family="Arial" font-size="10">+IsEquipable</text>
+ <text x="12" y="170" fill="#000000" font-family="Arial" font-size="10">+IsEvolving</text>
+ <text x="12" y="186" fill="#000000" font-family="Arial" font-size="10">+IsScaling</text>
+ <text x="12" y="202" fill="#000000" font-family="Arial" font-size="10">+IsStackable</text>
+ <text x="12" y="218" fill="#000000" font-family="Arial" font-size="10">+IsType</text>
+ <text x="12" y="234" fill="#000000" font-family="Arial" font-size="10">+IsWeapon</text>
+ <text x="12" y="250" fill="#000000" font-family="Arial" font-size="10">+Clear</text>
+ <text x="12" y="266" fill="#000000" font-family="Arial" font-size="10">+ClearByFlags</text>
+ <text x="12" y="282" fill="#000000" font-family="Arial" font-size="10">+DeleteAugment</text>
+ <text x="12" y="298" fill="#000000" font-family="Arial" font-size="10">+DeleteCustomData</text>
+ <text x="12" y="314" fill="#000000" font-family="Arial" font-size="10">+DeleteItem</text>
+ <text x="12" y="330" fill="#000000" font-family="Arial" font-size="10">+GetContents</text>
+ <text x="12" y="346" fill="#000000" font-family="Arial" font-size="10">+GetCustomData</text>
+ <text x="12" y="362" fill="#000000" font-family="Arial" font-size="10">+IsAugmented</text>
+ <text x="12" y="378" fill="#000000" font-family="Arial" font-size="10">+IsNoneEmptyContainer</text>
+ <text x="12" y="394" fill="#000000" font-family="Arial" font-size="10">+ItemInst</text>
+ <text x="12" y="410" fill="#000000" font-family="Arial" font-size="10">+ItemInst</text>
+ <text x="12" y="426" fill="#000000" font-family="Arial" font-size="10">+ItemInst</text>
+ <text x="12" y="442" fill="#000000" font-family="Arial" font-size="10">+ItemInst</text>
+ <text x="12" y="458" fill="#000000" font-family="Arial" font-size="10">+PopItem</text>
+ <text x="12" y="474" fill="#000000" font-family="Arial" font-size="10">+PutAugment</text>
+ <text x="12" y="490" fill="#000000" font-family="Arial" font-size="10">+PutAugment</text>
+ <text x="12" y="506" fill="#000000" font-family="Arial" font-size="10">+PutItem</text>
+ <text x="12" y="522" fill="#000000" font-family="Arial" font-size="10">+PutItem</text>
+ <text x="12" y="538" fill="#000000" font-family="Arial" font-size="10">+RemoveAugment</text>
+ <text x="12" y="554" fill="#000000" font-family="Arial" font-size="10">+SetCharges</text>
+ <text x="12" y="570" fill="#000000" font-family="Arial" font-size="10">+SetColor</text>
+ <text x="12" y="586" fill="#000000" font-family="Arial" font-size="10">+SetCurrentSlot</text>
+ <text x="12" y="602" fill="#000000" font-family="Arial" font-size="10">+SetCustomData</text>
+ <text x="12" y="618" fill="#000000" font-family="Arial" font-size="10">+SetCustomData</text>
+ <text x="12" y="634" fill="#000000" font-family="Arial" font-size="10">+SetCustomData</text>
+ <text x="12" y="650" fill="#000000" font-family="Arial" font-size="10">+SetCustomData</text>
+ <text x="12" y="666" fill="#000000" font-family="Arial" font-size="10">+SetInstNoDrop</text>
+ <text x="12" y="682" fill="#000000" font-family="Arial" font-size="10">+SetItem</text>
+ <text x="12" y="698" fill="#000000" font-family="Arial" font-size="10">+SetMerchantCount</text>
+ <text x="12" y="714" fill="#000000" font-family="Arial" font-size="10">+SetMerchantSlot</text>
+ <text x="12" y="730" fill="#000000" font-family="Arial" font-size="10">+SetPrice</text>
+ <text x="12" y="746" fill="#000000" font-family="Arial" font-size="10">+SetSerialNumber</text>
+ <text x="12" y="762" fill="#000000" font-family="Arial" font-size="10">+AvailableAugmentSlot</text>
+ <text x="12" y="778" fill="#000000" font-family="Arial" font-size="10">+AvailableWearSlot</text>
+ <text x="12" y="794" fill="#000000" font-family="Arial" font-size="10">+FirstOpenSlot</text>
+ <text x="12" y="810" fill="#000000" font-family="Arial" font-size="10">+GetAugment</text>
+ <text x="12" y="826" fill="#000000" font-family="Arial" font-size="10">+GetAugmentType</text>
+ <text x="12" y="842" fill="#000000" font-family="Arial" font-size="10">+GetCharges</text>
+ <text x="12" y="858" fill="#000000" font-family="Arial" font-size="10">+GetColor</text>
+ <text x="12" y="874" fill="#000000" font-family="Arial" font-size="10">+GetCurrentSlot</text>
+ <text x="12" y="890" fill="#000000" font-family="Arial" font-size="10">+GetCustomDataString</text>
+ <text x="12" y="906" fill="#000000" font-family="Arial" font-size="10">+GetID</text>
+ <text x="12" y="922" fill="#000000" font-family="Arial" font-size="10">+GetItem</text>
+ <text x="12" y="938" fill="#000000" font-family="Arial" font-size="10">+GetItemScriptID</text>
+ <text x="12" y="954" fill="#000000" font-family="Arial" font-size="10">+GetMerchantCount</text>
+ <text x="12" y="970" fill="#000000" font-family="Arial" font-size="10">+GetMerchantSlot</text>
+ <text x="12" y="986" fill="#000000" font-family="Arial" font-size="10">+GetPrice</text>
+ <text x="12" y="1002" fill="#000000" font-family="Arial" font-size="10">+GetSerialNumber</text>
+ <text x="12" y="1018" fill="#000000" font-family="Arial" font-size="10">+GetTotalItemCount</text>
+ <text x="12" y="1034" fill="#000000" font-family="Arial" font-size="10">+IsAugmentable</text>
+ <text x="12" y="1050" fill="#000000" font-family="Arial" font-size="10">+IsExpendable</text>
+ <text x="12" y="1066" fill="#000000" font-family="Arial" font-size="10">+IsInstNoDrop</text>
+ <text x="12" y="1082" fill="#000000" font-family="Arial" font-size="10">+IsSlotAllowed</text>
+ <text x="12" y="1098" fill="#000000" font-family="Arial" font-size="10">+Serialize</text>
+ <text x="12" y="1114" fill="#000000" font-family="Arial" font-size="10">+operator _Bool</text>
+ <text x="12" y="1130" fill="#000000" font-family="Arial" font-size="10">+operator!=</text>
+ <text x="12" y="1146" fill="#000000" font-family="Arial" font-size="10">+operator==</text>
+ <text x="12" y="1162" fill="#000000" font-family="Arial" font-size="10">+operator[]</text>
+ <text x="12" y="1178" fill="#000000" font-family="Arial" font-size="10">#_PutItem</text>
+ <text x="12" y="1194" fill="#000000" font-family="Arial" font-size="10">#_begin</text>
+ <text x="12" y="1210" fill="#000000" font-family="Arial" font-size="10">#_end</text>
+ <polyline points="4,1220 161,1220" stroke="#FF0000" fill="none"/>
+ <text x="12" y="1234" fill="#000000" font-family="Arial" font-size="10">#m_SerialNumber</text>
+ <text x="12" y="1250" fill="#000000" font-family="Arial" font-size="10">#m_charges</text>
+ <text x="12" y="1266" fill="#000000" font-family="Arial" font-size="10">#m_color</text>
+ <text x="12" y="1282" fill="#000000" font-family="Arial" font-size="10">#m_contents</text>
+ <text x="12" y="1298" fill="#000000" font-family="Arial" font-size="10">#m_currentslot</text>
+ <text x="12" y="1314" fill="#000000" font-family="Arial" font-size="10">#m_custom_data</text>
+ <text x="12" y="1330" fill="#000000" font-family="Arial" font-size="10">#m_instnodrop</text>
+ <text x="12" y="1346" fill="#000000" font-family="Arial" font-size="10">#m_item</text>
+ <text x="12" y="1362" fill="#000000" font-family="Arial" font-size="10">#m_merchantcount</text>
+ <text x="12" y="1378" fill="#000000" font-family="Arial" font-size="10">#m_merchantslot</text>
+ <text x="12" y="1394" fill="#000000" font-family="Arial" font-size="10">#m_price</text>
+ <text x="12" y="1410" fill="#000000" font-family="Arial" font-size="10">#m_use_type</text>
+ <polygon points="20,1898 20,1458 144,1458 144,1898 20,1898" stroke="#0000FF" fill="#FFFFFF"/>
+ <text x="48" y="1472" fill="#000000" font-family="Arial" font-size="10">EvoItemInst</text>
+ <polyline points="20,1482 144,1482" stroke="#0000FF" fill="none"/>
+ <text x="28" y="1496" fill="#000000" font-family="Arial" font-size="10">+~EvoItemInst</text>
+ <text x="28" y="1512" fill="#000000" font-family="Arial" font-size="10">+Clone</text>
+ <text x="28" y="1528" fill="#000000" font-family="Arial" font-size="10">+GetItem</text>
+ <text x="28" y="1544" fill="#000000" font-family="Arial" font-size="10">+IsEvolving</text>
+ <text x="28" y="1560" fill="#000000" font-family="Arial" font-size="10">+IsScaling</text>
+ <text x="28" y="1576" fill="#000000" font-family="Arial" font-size="10">+AddExp</text>
+ <text x="28" y="1592" fill="#000000" font-family="Arial" font-size="10">+EvoItemInst</text>
+ <text x="28" y="1608" fill="#000000" font-family="Arial" font-size="10">+EvoItemInst</text>
+ <text x="28" y="1624" fill="#000000" font-family="Arial" font-size="10">+EvoItemInst</text>
+ <text x="28" y="1640" fill="#000000" font-family="Arial" font-size="10">+GetKillsNeeded</text>
+ <text x="28" y="1656" fill="#000000" font-family="Arial" font-size="10">+Initialize</text>
+ <text x="28" y="1672" fill="#000000" font-family="Arial" font-size="10">+IsActivated</text>
+ <text x="28" y="1688" fill="#000000" font-family="Arial" font-size="10">+ScaleItem</text>
+ <text x="28" y="1704" fill="#000000" font-family="Arial" font-size="10">+SetActivated</text>
+ <text x="28" y="1720" fill="#000000" font-family="Arial" font-size="10">+SetExp</text>
+ <text x="28" y="1736" fill="#000000" font-family="Arial" font-size="10">+EvolveOnAllKills</text>
+ <text x="28" y="1752" fill="#000000" font-family="Arial" font-size="10">+GetEvolveLvl</text>
+ <text x="28" y="1768" fill="#000000" font-family="Arial" font-size="10">+GetExp</text>
+ <text x="28" y="1784" fill="#000000" font-family="Arial" font-size="10">+GetMaxEvolveLvl</text>
+ <text x="28" y="1800" fill="#000000" font-family="Arial" font-size="10">+GetUnscaledItem</text>
+ <polyline points="20,1810 144,1810" stroke="#0000FF" fill="none"/>
+ <text x="28" y="1824" fill="#000000" font-family="Arial" font-size="10">-m_activated</text>
+ <text x="28" y="1840" fill="#000000" font-family="Arial" font-size="10">-m_evolveInfo</text>
+ <text x="28" y="1856" fill="#000000" font-family="Arial" font-size="10">-m_evolveLvl</text>
+ <text x="28" y="1872" fill="#000000" font-family="Arial" font-size="10">-m_exp</text>
+ <text x="28" y="1888" fill="#000000" font-family="Arial" font-size="10">-m_scaledItem</text>
+ <polyline points="82,1458 82,1455 82,1453 82,1450 82,1447 82,1444 82,1442 82,1439 82,1436 82,1433 82,1430" stroke="#CC0044" fill="none"/>
+ <polygon points="79,1430 82,1420 86,1430 79,1430" stroke="#CC0044" fill="#CC0044"/>
+</svg>
