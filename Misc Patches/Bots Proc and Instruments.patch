@@ -1,0 +1,79 @@
+ zone/bot.cpp | 44 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
+
+diff --git a/zone/bot.cpp b/zone/bot.cpp
+index c809818..99b1d90 100644
+--- a/zone/bot.cpp
++++ b/zone/bot.cpp
+@@ -6631,6 +6631,9 @@ bool Bot::Attack(Mob* other, int Hand, bool FromRiposte, bool IsStrikethrough, b
+ 			CheckHitsRemaining(0, false,false, SE_MeleeLifetap);
+ 	}
+ 
++	if(damage > 0 && !FromRiposte && Hand == SLOT_PRIMARY) // Guess at live proc rules
++		TryWeaponProc(weapon, other, SLOT_PRIMARY);
++
+ 	//break invis when you attack
+ 	if(invisible) {
+ 		mlog(COMBAT__ATTACKS, "Removing invisibility due to melee attack.");
+@@ -11767,6 +11770,25 @@ void Bot::CalcItemBonuses()
+ 					if(itemtmp->Haste != 0)
+ 						if(itembonuses.haste < itemtmp->Haste)
+ 							itembonuses.haste = itemtmp->Haste;
++					if(GetClass() == BARD && itemtmp->BardValue != 0) {
++						if(itemtmp->BardType == ItemTypeBrassInstr)
++							itembonuses.brassMod += itemtmp->BardValue;
++						else if(itemtmp->BardType == ItemTypeDrumInstr)
++							itembonuses.percussionMod += itemtmp->BardValue;
++						else if(itemtmp->BardType == ItemUseSinging)
++							itembonuses.singingMod += itemtmp->BardValue;
++						else if(itemtmp->BardType == ItemTypeStringInstr)
++							itembonuses.stringedMod += itemtmp->BardValue;
++						else if(itemtmp->BardType == ItemTypeWindInstr)
++							itembonuses.windMod += itemtmp->BardValue;
++						else if(itemtmp->BardType == ItemUseAllInstruments) {
++							itembonuses.brassMod += itemtmp->BardValue;
++							itembonuses.percussionMod += itemtmp->BardValue;
++							itembonuses.singingMod += itemtmp->BardValue;
++							itembonuses.stringedMod += itemtmp->BardValue;
++							itembonuses.windMod += itemtmp->BardValue;
++						}
++					}
+ 					if ((itemtmp->Worn.Effect != 0) && (itemtmp->Worn.Type == ET_WornEffect)) { // latent effects
+ 						ApplySpellsBonuses(itemtmp->Worn.Effect, itemtmp->Worn.Level, &itembonuses);
+ 					}
+@@ -11832,6 +11854,25 @@ void Bot::CalcItemBonuses()
+ 			if(itemtmp->Haste != 0)
+ 				if(itembonuses.haste < itemtmp->Haste)
+ 					itembonuses.haste = itemtmp->Haste;
++			if(GetClass() == BARD && itemtmp->BardValue != 0) {
++				if(itemtmp->BardType == ItemTypeBrassInstr)
++					itembonuses.brassMod += itemtmp->BardValue;
++				else if(itemtmp->BardType == ItemTypeDrumInstr)
++					itembonuses.percussionMod += itemtmp->BardValue;
++				else if(itemtmp->BardType == ItemUseSinging)
++					itembonuses.singingMod += itemtmp->BardValue;
++				else if(itemtmp->BardType == ItemTypeStringInstr)
++					itembonuses.stringedMod += itemtmp->BardValue;
++				else if(itemtmp->BardType == ItemTypeWindInstr)
++					itembonuses.windMod += itemtmp->BardValue;
++				else if(itemtmp->BardType == ItemUseAllInstruments) {
++					itembonuses.brassMod += itemtmp->BardValue;
++					itembonuses.percussionMod += itemtmp->BardValue;
++					itembonuses.singingMod += itemtmp->BardValue;
++					itembonuses.stringedMod += itemtmp->BardValue;
++					itembonuses.windMod += itemtmp->BardValue;
++				}
++			}
+ 			if ((itemtmp->Worn.Effect != 0) && (itemtmp->Worn.Type == ET_WornEffect)) { // latent effects
+ 				ApplySpellsBonuses(itemtmp->Worn.Effect, itemtmp->Worn.Level, &itembonuses);
+ 			}
+@@ -11884,6 +11925,9 @@ void Bot::CalcBotStats(bool showtext) {
+ 		GetBotOwner()->Message(15, "I'm updated.");
+ 		GetBotOwner()->Message(15, "Level: %i HP: %i AC: %i Mana: %i STR: %i STA: %i DEX: %i AGI: %i INT: %i WIS: %i CHA: %i", GetLevel(), max_hp, GetAC(), max_mana, GetSTR(), GetSTA(), GetDEX(), GetAGI(), GetINT(), GetWIS(), GetCHA());
+ 		GetBotOwner()->Message(15, "Resists-- Magic: %i, Poison: %i, Fire: %i, Cold: %i, Disease: %i, Corruption: %i.",GetMR(),GetPR(),GetFR(),GetCR(),GetDR(),GetCorrup());
++		// TEST CODE
++		if(GetClass() == BARD)
++			GetBotOwner()->Message(15, "Bard Skills-- Brass: %i, Percussion: %i, Singing: %i, Stringed: %i, Wind: %i", GetBrassMod(), GetPercMod(), GetSingMod(), GetStringMod(), GetWindMod());
+ 	}
+ }
+ 
