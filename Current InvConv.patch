@@ -1,0 +1,4888 @@
+ common/Item.cpp            | 3033 ++++++++++++++++++++++++++++++++++++++++++++
+ common/Item.h              |  570 +++++++++
+ common/eq_constants.h      |  918 ++++++++++++++
+ common/eq_packet_structs.h |  161 ++-
+ zone/client_packet.cpp     |   13 +
+ zone/inventory.cpp         |   61 +-
+ 6 files changed, 4724 insertions(+), 32 deletions(-)
+
+diff --git a/common/Item.cpp b/common/Item.cpp
+index c8a8be8..8a04bba 100644
+--- a/common/Item.cpp
++++ b/common/Item.cpp
+@@ -15,3 +15,3036 @@
+ 	along with this program; if not, write to the Free Software
+ 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
++
++#include "debug.h"
++#include "StringUtil.h"
++#include "Item.h"
++#include "database.h"
++#include "misc.h"
++#include "races.h"
++#include "shareddb.h"
++#include "classes.h"
++
++#include <limits.h>
++
++#include <sstream>
++#include <iostream>
++
++std::list<ItemInst*> dirty_inst;
++
++int32 NextItemInstSerialNumber = 1;
++
++static inline int32 GetNextItemInstSerialNumber()
++{
++	/*	
++	The Bazaar relies on each item a client has up for Trade having a unique identifier. This 'SerialNumber'
++	is sent in Serialized item packets and is used in Bazaar packets to identify the item a player is buying
++	or inspecting.
++	
++	E.g. A trader may have 3 Five dose cloudy potions, each with a different number of remaining charges
++	up for sale with different prices.
++	
++	NextItemInstSerialNumber is the next one to hand out.
++	
++	It is very unlikely to reach 2,147,483,647. Maybe we should call abort(), rather than wrapping back to 1.
++	*/
++	if(NextItemInstSerialNumber >= INT_MAX) { NextItemInstSerialNumber = 1; }
++	else { NextItemInstSerialNumber++; }
++	
++	return NextItemInstSerialNumber;
++}
++
++static inline bool IsValidServerSlotCheck(Slot_Struct s_struct)
++{
++	// in-work above..remove from Inventory namespace
++	return false;
++}
++
++static inline bool IsValidNPCSlotCheck(Slot_Struct s_struct)
++{
++	// in-work above..remove from Inventory namespace
++	return false;
++}
++
++
++/*
++ Class: InventoryLimits ###########################################################################
++	Class to allow efficient coding of inventory restrictions. Slots are restricted on a per-client
++	basis, allowing one segment of code to handle the entire range of clients instead of having
++	multiple version checks with specialized code for each client
++
++	This is basically an integration of my inventory overlay concept. Between this, the rework of
++	inventory functions and the implemenatation of the HoT+ client inventory system, we should be
++	able to handle newer clients more easily while minimizing code to support them -U
++ ##################################################################################################
++*/
++InventoryLimits::~InventoryLimits()
++{
++	memset(this, 0, sizeof(InventoryLimits));
++}
++
++bool InventoryLimits::SetServerInventoryLimits(InventoryLimits &limits)
++{
++	if(limits.m_limitsset) { return false; }
++	
++	// memcpy(limits.m_slottypesize, ServerInventoryLimits, sizeof(InventoryLimits.m_slottypesize));
++
++	// Use the 'LimitSizes' namespace
++	limits.m_npctradesize		= LimitSizes::Trade_NPC;
++
++	limits.m_equipmentstart		= LimitSizes::Equipment_Start;
++	limits.m_equipmentend		= LimitSizes::Equipment_End;
++	limits.m_equipmentbitmask	= LimitSizes::Equipment_BitMask;
++	limits.m_personalstart		= LimitSizes::Personal_Start;
++	limits.m_personalend		= LimitSizes::Personal_End;
++	limits.m_personalbitmask	= LimitSizes::Personal_BitMask;
++
++	limits.m_containermax		= LimitSizes::Container_Max;
++	limits.m_augmentmax			= LimitSizes::Augment_Max;
++
++	limits.m_bandoliermax		= LimitSizes::Bandolier_Max;
++	limits.m_potionbeltmax		= LimitSizes::PotionBelt_Max;
++
++	limits.m_baginbagallowed	= LimitSizes::BagInBagAllowed;
++
++	return (limits.m_limitsset = true);
++}
++
++bool InventoryLimits::SetNPCInventoryLimits(InventoryLimits &limits)
++{
++	// If the Mob-derived NPC classes (npc, bot, etc...) are ever overhauled/developed, this function
++	// can be changed to allow use of the full inventory function that a client has access to
++	if(limits.m_limitsset) { return false; }
++
++	// memcpy(limits.m_slottypesize, MobInventoryLimits, sizeof(InventoryLimits.m_slottypesize));
++	
++	// Use the 'LimitSizes' namespace
++	limits.m_npctradesize		= LimitSizes::Trade_NPC;
++
++	limits.m_equipmentstart		= LimitSizes::Equipment_Start;
++	limits.m_equipmentend		= LimitSizes::Equipment_End;
++	limits.m_equipmentbitmask	= LimitSizes::Equipment_BitMask;
++	limits.m_personalstart		= LimitSizes::Main_Invalid;
++	limits.m_personalend		= LimitSizes::Main_Invalid;
++	limits.m_personalbitmask	= LimitSizes::Unused;
++
++	limits.m_containermax		= LimitSizes::Unused;
++	limits.m_augmentmax			= LimitSizes::Unused;
++
++	limits.m_bandoliermax		= LimitSizes::Unused;
++	limits.m_potionbeltmax		= LimitSizes::Unused;
++
++	/*
++	I considered setting this to 'LimitSizes_PreRoF::BagInBagAllowed' (false) due to having older clients not
++	having access to empty bags in bags. However, I don't believe this will be an issue for them. The client
++	"should" accept the server packet and allow the player to remove the empty container. The worst that
++	should happen is that the client will pick it up with no empty 'SupportsContainer' slots and have to
++	deal with it before moving on. If this shows a problem, change it to the 'LimitSizes_PreRoF' reference -U
++	*/
++	limits.m_baginbagallowed	= LimitSizes::BagInBagAllowed;
++
++	return (limits.m_limitsset = true);
++}
++
++bool InventoryLimits::SetClientInventoryLimits(InventoryLimits &limits, EQClientVersion client_version)
++{
++	// In addition to the namespaces needing work, all of the client ranges need to be verified here -U
++	if(limits.m_limitsset) { return false; }
++	
++	SetServerInventoryLimits(limits);
++
++	// Add new clients in descending order
++	if(client_version < EQClientRoF)
++	{
++		// Use the 'LimitSizes_PreRoF' namespace
++		limits.m_slottypesize[Type_Possessions]	= LimitSizes_PreRoF::Possessions;
++		limits.m_slottypesize[Type_Corpse]		= LimitSizes_PreRoF::Corpse;
++		limits.m_slottypesize[Type_Bazaar]		= LimitSizes_PreRoF::Bazaar;
++			
++		limits.m_personalend					= LimitSizes_PreRoF::Personal_End;
++		limits.m_personalbitmask				= LimitSizes_PreRoF::Personal_BitMask;
++
++		limits.m_containermax					= LimitSizes_PreRoF::Container_Max;
++		limits.m_augmentmax						= LimitSizes_PreRoF::Augment_Max;
++
++		limits.m_baginbagallowed				= LimitSizes_PreRoF::BagInBagAllowed;
++	}
++
++	if(client_version < EQClientUnderfoot)
++	{
++		// Use the 'LimitSizes_PreUnderfoot' namespace
++
++	}
++
++	if(client_version < EQClientSoD)
++	{
++		// Use the 'LimitSizes_PreSoD' namespace
++
++	}
++
++	if(client_version < EQClientSoF)
++	{
++		// Use the 'LimitSizes_PreSoF' namespace
++		limits.m_slottypesize[Type_Possessions]	= LimitSizes_PreSoF::Possessions;
++		limits.m_slottypesize[Type_Corpse]		= LimitSizes_PreSoF::Corpse;
++		limits.m_slottypesize[Type_Bank]		= LimitSizes_PreSoF::Bank;
++
++		limits.m_equipmentbitmask				= LimitSizes_PreSoF::Equipment_BitMask;
++	}
++
++	if(client_version < EQClientTitanium)
++	{
++		// Use the 'LimitSizes_PreTitanium' namespace
++		limits.m_slottypesize[Type_Possessions]	= LimitSizes_PreTitanium::Possessions;
++		limits.m_slottypesize[Type_Corpse]		= LimitSizes_PreTitanium::Corpse;
++
++		limits.m_equipmentbitmask				= LimitSizes_PreTitanium::Equipment_BitMask;
++	}
++
++	if(client_version < EQClient62) // If we got here, we screwed the pooch somehow...
++	{
++		// TODO: log error message
++
++		// There is no namespace for EQClientUnknown, so we reset the instance
++		limits.ResetInventoryLimits();
++	}
++
++	return (limits.m_limitsset = true);
++}
++
++void InventoryLimits::ResetInventoryLimits()
++{
++	// memset(m_slottypesize, 0, sizeof(InventoryLimits.m_slottypesize));
++	
++	m_npctradesize		= 0;
++
++	m_equipmentstart	= LimitSizes::Main_Invalid;
++	m_equipmentend		= LimitSizes::Main_Invalid;
++	m_equipmentbitmask	= 0;
++	m_personalstart		= LimitSizes::Main_Invalid;
++	m_personalend		= LimitSizes::Main_Invalid;
++	m_personalbitmask	= 0;
++
++	m_containermax		= 0;
++	m_augmentmax		= 0;
++
++	m_bandoliermax		= 0;
++	m_potionbeltmax		= 0;
++
++	m_baginbagallowed	= false;
++
++	m_limitsset		= false;
++}
++
++bool InventoryLimits::IsValidServerSlot(Slot_Struct s_struct)
++{
++	return IsValidServerSlotCheck(s_struct);
++}
++
++bool InventoryLimits::IsValidNPCSlot(Slot_Struct s_struct)
++{
++	return IsValidNPCSlotCheck(s_struct);
++}
++
++bool InventoryLimits::IsValidClientSlot(Slot_Struct s_struct) const
++{
++	return false;
++}
++
++bool InventoryLimits::IsValidEquipmentSlot(int16 slot_main) const
++{
++	return (((slot_main >= m_equipmentstart) && (slot_main <= m_equipmentend)) &&
++		(m_equipmentbitmask & (1 << slot_main)));
++}
++
++bool InventoryLimits::IsValidPersonalSlot(int16 slot_main) const
++{
++	return (((slot_main >= m_personalstart) && (slot_main <= m_personalend)) &&
++		(m_personalbitmask & (1 << (slot_main - m_personalstart))));
++}
++
++bool InventoryLimits::IsValidContainerSlot(int16 slot_sub) const
++{
++	return false; // ((slot_sub >= LimitSizes::Container_Start) && (slot_sub < m_containermax));
++}
++
++bool InventoryLimits::IsValidAugmentSlot(int16 slot_aug) const
++{
++	return false; // ((slot_aug >= LimitSizes::Augment_Start) && (slot_aug < m_augmentmax));
++}
++// ################################################################################################
++
++
++/*
++ Class: LimboTracker ##############################################################################
++	Class to track client allowed Limbo slots (otherwise known as the cursor buffer)
++ ##################################################################################################
++*/
++LimboQueue::~LimboQueue()
++{
++	m_available.clear();
++	m_inqueue.clear();
++}
++	
++void LimboQueue::ResetQueue(int16 limbo_size)
++{
++	m_available.clear();
++	m_inqueue.clear();
++
++	while(limbo_size) { m_available.push_front(--limbo_size); }
++}
++// ################################################################################################
++
++
++/*
++ Class: Inventory #################################################################################
++	Client inventory
++ ##################################################################################################
++*/
++Inventory::~Inventory()
++{
++	_iter_Inventory inventory_iter = m_inventory.begin();
++	while(inventory_iter != m_inventory.end())
++	{
++		safe_delete(inventory_iter->second);
++		inventory_iter++;
++	}
++	
++	m_inventory.clear();
++}
++
++void Inventory::CleanDirty()
++{
++	auto iter = dirty_inst.begin();
++	while(iter != dirty_inst.end())
++	{
++		delete (*iter);
++		++iter;
++	}
++	dirty_inst.clear();
++}
++
++void Inventory::MarkDirty(ItemInst *inst)
++{
++	if(inst) { dirty_inst.push_back(inst); }
++}
++
++Slot_Struct Inventory::HasCheck(HasCheckBit by_type, uint32 item_id, uint8 quantity, uint8 use_type, uint32 lore_group, uint32 where_location)
++{
++	// This seems big, but is still less code than the original three... The recoding
++	// allows for more 'byTypes' checks to be added without additional parsing code
++	
++	if(by_type == ItemByItem) { _CP(Inventory_HasItem); }
++	/* else if(by_type == ...) { ... } */
++
++	InventorySlot_Struct return_struct;
++
++	if(where_location)
++	{
++		ItemInst* main_inst	= nullptr;
++		ItemInst* sub_inst	= nullptr;
++		ItemInst* aug_inst	= nullptr;
++
++		uint8 quantity_found = 0;
++		
++		// The outer loop only checks for 'parent' items, so the actual iteration size isn't the entire inventory
++		iter_Inventory inventory_iter = m_inventory.begin();
++		while(inventory_iter != m_inventory.end())
++		{
++			if(where_location & _CalcLocationFromSlotHeader(inventory_iter->first))
++			{
++				// Each switch MUST handle any HasCheckBit that is to be checked. Exclusion bypasses the selected range
++	
++				// Check priority: (same as original)
++				// - Main Item
++				// - Main Item Augment
++				// - Sub Item
++				// - Sub Item Augment
++				
++				main_inst = inventory_iter->second;
++
++				if(main_inst)
++				{
++					switch(by_type) // HasCheckBit Main Item checks
++					{
++						case ItemByItem:
++						{
++							if(main_inst->GetID() == item_id)
++							{
++								quantity_found += (main_inst->GetCharges() <= 0) ? 1 : main_inst->GetCharges();
++
++								if(quantity_found >= quantity)
++								{
++									return_struct = inventory_iter->first;
++
++									return return_struct.Slot();
++								}
++							}
++						}
++						case ItemByUse:
++						{
++							if(main_inst->IsType(ItemClassCommon) && main_inst->GetItem()->ItemType == use_type)
++							{
++								quantity_found += (main_inst->GetCharges() <= 0) ? 1 : main_inst->GetCharges();
++
++								if(quantity_found >= quantity)
++								{
++									return_struct = inventory_iter->first;
++
++									return return_struct.Slot();
++								}
++							}
++						}
++						case ItemByLoreGroup:
++						{
++							if(main_inst->GetItem()->LoreGroup == lore_group)
++							{
++								return_struct = inventory_iter->first;
++
++								return return_struct.Slot();
++							}
++						}
++						default: { break; }
++					}
++
++					if(main_inst->IsType(ItemClassCommon)) // HasCheckBit Main Item Augment checks
++					{
++						iter_Contents aug_iter = main_inst->_begin();
++						while(aug_iter != main_inst->_end())
++						{
++							aug_inst = aug_iter->second;
++					
++							if(aug_inst)
++							{
++								switch(by_type)
++								{
++									case ItemByItem:
++									{
++										if(aug_inst->GetID() == item_id && quantity <= 1) // Only one augment per slot.
++										{
++											return_struct		= inventory_iter->first;
++											return_struct.aug	= aug_iter->first;
++
++											return return_struct.Slot();
++										}
++									}
++									case ItemByUse:
++									{
++										break; // Not used in original Inventory::HasItemByUse()
++									}
++									case ItemByLoreGroup:
++									{
++										if(aug_inst->GetItem()->LoreGroup == lore_group) // Only one augment per slot.
++										{
++											return_struct		= inventory_iter->first;
++											return_struct.aug	= aug_iter->first;
++
++											return return_struct.Slot();
++										}
++									}
++									default: { break; }
++								}
++							}
++
++							aug_iter++;
++						}
++					}
++					else if(main_inst->IsType(ItemClassContainer))
++					{
++						iter_Contents sub_iter = main_inst->_begin();
++						while(sub_iter != main_inst->_end())
++						{
++							sub_inst = sub_iter->second;
++
++							if(sub_inst)
++							{
++								switch(by_type) // HasCheckBit Sub Item checks
++								{
++									case ItemByItem:
++									{
++										if(sub_inst->GetID() == item_id)
++										{
++											quantity_found += (sub_inst->GetCharges() <= 0) ? 1 : sub_inst->GetCharges();
++
++											if(quantity_found >= quantity)
++											{
++												return_struct		= inventory_iter->first;
++												return_struct.sub	= sub_iter->first;
++
++												return return_struct.Slot();
++											}
++										}
++									}
++									case ItemByUse:
++									{
++										if(sub_inst->IsType(ItemClassCommon) && sub_inst->GetItem()->ItemType == use_type)
++										{
++											quantity_found += (sub_inst->GetCharges() <= 0) ? 1 : sub_inst->GetCharges();
++
++											if(quantity_found >= quantity)
++											{
++												return_struct		= inventory_iter->first;
++												return_struct.sub	= sub_iter->first;
++
++												return return_struct.Slot();
++											}
++										}
++									}
++									case ItemByLoreGroup:
++									{
++										if(sub_inst->IsType(ItemClassCommon)&& sub_inst->GetItem()->LoreGroup == lore_group)
++										{
++											return_struct		= inventory_iter->first;
++											return_struct.sub	= sub_iter->first;
++
++											return return_struct.Slot();
++										}
++									}
++									default: { break; }
++								}
++							}
++				
++							if(sub_inst->IsType(ItemClassCommon))
++							{
++								iter_Contents aug_iter = sub_inst->_begin();
++								while(aug_iter != sub_inst->_end())
++								{
++									aug_inst = aug_iter->second;
++					
++									if(aug_inst)
++									{
++										switch(by_type) // HasCheckBit Sub Item Augment checks
++										{
++											case ItemByItem:
++											{
++												if(aug_inst->GetID() == item_id && quantity <= 1) // Only one augment per slot.
++												{
++													return_struct		= inventory_iter->first;
++													return_struct.sub	= sub_iter->first;
++													return_struct.aug	= aug_iter->first;
++
++													return return_struct.Slot();
++												}
++											}
++											case ItemByUse:
++											{
++												break; // Not used in original Inventory::HasItemByUse()
++											}
++											case ItemByLoreGroup:
++											{
++												if(aug_inst->GetItem()->LoreGroup == lore_group) // Only one augment per slot.
++												{
++													return_struct		= inventory_iter->first;
++													return_struct.sub	= sub_iter->first;
++													return_struct.aug	= aug_iter->first;
++
++													return return_struct.Slot();
++												}
++											}
++											default: { break; }
++										}
++									}
++
++									aug_iter++;
++								}
++							}
++
++							sub_iter++;
++						}
++					}
++				}
++			}
++
++			inventory_iter++;
++		}
++	}
++	
++	return return_struct.Slot();
++}
++
++Slot_Struct Inventory::HasItem(uint32 item_id, uint8 quantity, uint32 where_location)
++{
++	return HasCheck(ItemByItem, item_id, quantity, 0, 0, where_location);
++}
++
++Slot_Struct Inventory::HasItemByUse(uint8 use_type, uint8 quantity, uint32 where_location)
++{
++	return HasCheck(ItemByUse, 0, quantity, use_type, 0, where_location);
++}
++
++Slot_Struct Inventory::HasItemByLoreGroup(uint32 lore_group, uint32 where_location)
++{
++	return HasCheck(ItemByLoreGroup, 0, 0, 0, lore_group, where_location);
++}
++
++bool Inventory::HasSpaceForItem(const Item_Struct *item_to_try, int16 quantity)
++{
++	iter_Inventory	inventory_iter;
++	iter_Contents	contents_iter;
++	ItemInst*		main_inst	= nullptr;
++	ItemInst*		sub_inst	= nullptr;
++
++	int16	chargeslotsleft = 0;
++
++	AutoSlot_Struct	as_struct;
++	as_struct.type = Type_Possessions;
++
++	if(item_to_try->Stackable)
++	{
++		for(int16 main_slot = m_limits.GetPersonalStart(); main_slot <= m_limits.GetPersonalEnd(); main_slot++)
++		{
++			if(!m_limits.IsValidPersonalSlot(main_slot)) { continue; }
++			
++			as_struct.main = main_slot;
++
++			if((inventory_iter = m_inventory.find(as_struct.SlotHeader())) == m_inventory.end()) { continue; }
++
++			main_inst = inventory_iter->second;
++
++			if((main_inst->GetItem()->ID == item_to_try->ID) && (main_inst->GetCharges() < main_inst->GetItem()->StackSize))
++			{
++				chargeslotsleft = main_inst->GetItem()->StackSize - main_inst->GetCharges();
++
++				if(quantity <= chargeslotsleft) { return true; }
++
++				quantity -= chargeslotsleft;
++			}
++
++			if(main_inst->IsType(ItemClassContainer))
++			{
++				for(uint8 sub_slot = LimitSizes::Sub_Start; (sub_slot < main_inst->GetItem()->BagSlots) &&
++					m_limits.IsValidContainerSlot(sub_slot); sub_slot++)
++				{
++					if((sub_inst = main_inst->_GetContent(sub_slot)) == nullptr) { continue; }
++
++					if((sub_inst->GetItem()->ID == item_to_try->ID) && (sub_inst->GetCharges() < sub_inst->GetItem()->StackSize))
++					{
++						chargeslotsleft = sub_inst->GetItem()->StackSize - sub_inst->GetCharges();
++
++						if(quantity <= chargeslotsleft) { return true; }
++
++						quantity -= chargeslotsleft;
++					}
++				}
++			}
++		}
++	}
++
++	for(int16 main_slot = m_limits.GetPersonalStart(); main_slot <= m_limits.GetPersonalEnd(); main_slot++)
++	{
++		if(!m_limits.IsValidPersonalSlot(main_slot)) { continue; }
++		
++		as_struct.main = main_slot;
++
++		if((inventory_iter = m_inventory.find(as_struct.SlotHeader())) == m_inventory.end()) { main_inst = nullptr; }
++		else { main_inst = inventory_iter->second; }
++
++		if(!main_inst)
++		{
++			if(!item_to_try->Stackable)
++			{
++				if(quantity == 1) { return true; }
++				else { quantity--; }
++			}
++			else
++			{
++				if(quantity <= item_to_try->StackSize) { return true; }
++				else { quantity -= item_to_try->StackSize; }
++			}
++		}
++		else if(main_inst->IsType(ItemClassContainer) && CanItemFitInContainer(item_to_try, main_inst->GetItem()))
++		{
++			for(uint8 sub_slot = LimitSizes::Sub_Start; (sub_slot < main_inst->GetItem()->BagSlots) &&
++				m_limits.IsValidContainerSlot(sub_slot); sub_slot++)
++			{
++				// fix this mess...
++				if((sub_inst = main_inst->_GetContent(sub_slot)) == nullptr) { sub_inst = nullptr; }
++				else { sub_inst = sub_inst; }
++
++				if(!sub_inst)
++				{
++					if(!item_to_try->Stackable)
++					{
++						if(quantity == 1) { return true; }
++						else { quantity--; }
++					}
++					else
++					{
++						if(quantity <= item_to_try->StackSize) { return true; }
++						else { quantity -= item_to_try->StackSize; }
++					}
++				}
++			}
++		}
++	}
++	
++	return false;
++}
++
++Slot_Struct Inventory::FindFreeSlot(bool for_bag, bool try_cursor, uint8 min_size, bool is_arrow)
++{
++	InventorySlot_Struct return_struct;
++
++	// if you alter this method, ensure that you Invalidate() and reassign return_struct properties appropriately
++	return_struct.type = Type_Possessions;
++
++	for(int16 main_slot = m_limits.GetPersonalStart(); main_slot <= m_limits.GetPersonalEnd(); main_slot++)
++	{
++		if(m_limits.IsValidPersonalSlot(main_slot)) // checking for valid client bitmask (RoF+ added slots)
++		{
++			return_struct.main = main_slot;
++			
++			if(!_GetContent(return_struct.SlotHeader())) { return return_struct.Slot(); }
++		}
++	}
++
++	// This, and calling method(s), are probably where we need to handle RoF empty bag-in-bag actions
++	// Consider changing (bool for_bag) to (ItemInst* inst)..if possible..and we can do it all here...
++	// ...or just pass empty bags as !for_bag..we may be able to work with that, but still need to know type...
++	if(!for_bag)
++	{
++		ItemInst* container_inst = nullptr;
++
++		for(int16 main_slot = m_limits.GetPersonalStart(); main_slot <= m_limits.GetPersonalEnd(); main_slot++)
++		{
++			if(m_limits.IsValidPersonalSlot(main_slot))
++			{
++				return_struct.main	= main_slot;
++				container_inst		= _GetContent(return_struct.SlotHeader());
++
++				if(_ContainerPass(container_inst) && container_inst->GetItem()->BagSize >= min_size)
++				{
++					if(container_inst->GetItem()->BagType == bagTypeQuiver && container_inst->GetItem()->ItemType != ItemTypeArrow) { continue; }
++
++					for(uint8 sub_slot = LimitSizes::Sub_Start; (sub_slot < container_inst->GetItem()->BagSlots) &&
++						m_limits.IsValidContainerSlot(sub_slot); sub_slot++)
++					{
++						if(!container_inst->_GetContent(sub_slot))
++						{
++							return_struct.sub = sub_slot;
++
++							return return_struct.Slot();
++						}
++					}
++				}
++			}
++		}
++	}
++
++	// calling method should 'PushCursor' when it receives this value so that PushCursor() can manage item placement
++	if(try_cursor) { return_struct.main	= Slot_Cursor; }
++	else { return_struct.Invalidate(); }
++
++	return return_struct.Slot();
++}
++
++Slot_Struct Inventory::GetSlotByItemInst(ItemInst *test_inst)
++{
++	InventorySlot_Struct return_struct;
++	
++	if(test_inst)
++	{
++		iter_Inventory inventory_iter = m_inventory.begin();
++		while(inventory_iter != m_inventory.end())
++		{
++			if(test_inst == inventory_iter->second)
++			{
++				return_struct = inventory_iter->first;
++
++				return return_struct.Slot();
++			}
++
++			if(_ContainerPass(inventory_iter->second))
++			{
++				iter_Contents contents_iter = inventory_iter->second->_begin();
++				while(contents_iter != inventory_iter->second->_end())
++				{
++					if(test_inst == contents_iter->second)
++					{
++						return_struct		= inventory_iter->first; // assign header first because of assignment overwrite
++						return_struct.sub	= contents_iter->first;
++
++						return return_struct.Slot();
++					}
++
++					contents_iter++;
++				}
++			}
++
++			inventory_iter++;
++		}
++	}
++	
++	return return_struct.Slot();
++}
++
++// Add non-(G)et(P)ut(R)emove(D)elete Item/Augment code below here
++bool Inventory::SwapItem(Slot_Struct s_struct_a, Slot_Struct s_struct_b)
++{
++	// This needs rework to incorporate InventoryLimits validations..
++	// ..will probably move 'IsSlotAllowed' up to Inventory to avoid issues
++	
++	/*
++	// Temp holding areas for a and b
++	ItemInst* inst_a = GetItem(slot_a);
++	ItemInst* inst_b = GetItem(slot_b);
++
++	if(inst_a) { if(!inst_a->IsSlotAllowed(slot_b)) { return false; } }
++	if(inst_b) { if(!inst_b->IsSlotAllowed(slot_a)) { return false; } }
++
++	_PutItem(slot_a, inst_b); // Copy b->a
++	_PutItem(slot_b, inst_a); // Copy a->b
++	*/
++
++	return true;
++}
++
++// Cursor methods
++Slot_Struct Inventory::PushCursor(ItemInst* inst)
++{
++	/*
++	m_cursor.push(inst.Clone());
++	return SLOT_CURSOR;
++	*/
++	InventorySlot_Struct return_struct;
++	
++	return return_struct.Slot();
++}
++
++Slot_Struct Inventory::PushCursor(const ItemInst& inst)
++{
++	/*
++	m_cursor.push(inst.Clone());
++	return SLOT_CURSOR;
++	*/
++	InventorySlot_Struct return_struct;
++	
++	return return_struct.Slot();
++}
++
++Slot_Struct Inventory::PushCursor(SharedDatabase *db, uint32 augment_id)
++{
++	/*
++	m_cursor.push(inst.Clone());
++	return SLOT_CURSOR;
++	*/
++	InventorySlot_Struct return_struct;
++	
++	return return_struct.Slot();
++}
++
++Slot_Struct Inventory::MoveLimboToCursor(Slot_Struct limbo_struct, Slot_Struct cursor_struct) // from->to
++{
++	// return cursor or invalid address
++
++	InventorySlot_Struct return_struct;
++	
++	return return_struct.Slot();
++}
++// End non-GPRD code
++
++void Inventory::dumpEntireInventory()
++{
++	dumpSpecificInventory(Type_Possessions);
++	dumpSpecificInventory(Type_Bank);
++	dumpSpecificInventory(Type_SharedBank);
++	dumpSpecificInventory(Type_Limbo);
++	dumpSpecificInventory(Type_Tribute);
++
++	std::cout << std::endl;
++}
++
++void Inventory::dumpSpecificInventory(InventorySlotTypes slot_type)
++{
++	std::cout << InventorySlotNames[slot_type] << " items:" << std::endl;
++	_dumpInventoryType(slot_type);
++}
++
++bool Inventory::IsValidItemSlot(Slot_Struct s_struct) const
++{
++	return false;
++}
++
++bool Inventory::IsValidAugmentSlot(Slot_Struct s_struct) const
++{
++	return false;
++}
++
++bool Inventory::IsSlotAllowed(Slot_Struct s_struct, ItemInst* item) const
++{
++	if(item)
++	{
++		if(SupportsContainers(s_struct)) { return true; }
++		else if(IsItemEquipable(s_struct, item)) { return true; }
++		else if(s_struct.aug == LimitSizes::Aug_Invalid)
++		{
++			if(s_struct.type == Type_Possessions)
++			{
++				if(s_struct.main >= LimitSizes::Personal_Start && s_struct.main < ServerInventoryLimits[Type_Possessions])
++				{
++					if(s_struct.sub >= LimitSizes::Sub_Invalid && s_struct.sub < LimitSizes::Container_Max) { return true; }
++				}
++			}
++			else if(s_struct.type > Type_Possessions && s_struct.type < Type_Count)
++			{	
++				if(s_struct.main >= LimitSizes::Main_Start && s_struct.main < ServerInventoryLimits[s_struct.type])
++				{
++					if(s_struct.sub >= LimitSizes::Sub_Invalid && s_struct.sub < LimitSizes::Container_Max) { return true; }
++				}
++			}
++		}
++	}
++
++	return false;
++}
++
++bool Inventory::SupportsContainers(Slot_Struct s_struct) const
++{
++	// Since this is static and doesn't contain client references, RoF empty bag into bag slot checks will
++	// need to be performed inside of the appropriate handlers or a specialized method
++	if((s_struct.sub != LimitSizes::Sub_Invalid) || (s_struct.aug != LimitSizes::Aug_Invalid)) { return false; }
++	
++	switch(s_struct.type)
++	{
++		case Type_Possessions:
++		{
++			if(s_struct.main == Slot_Cursor) { return true; }
++			
++			if((s_struct.main >= LimitSizes::Personal_Start) && (s_struct.main <= LimitSizes::Personal_End)) { return true; }
++
++			break;
++		}
++		case Type_Bank:
++		case Type_SharedBank:
++		case Type_Trade:
++		case Type_Limbo:
++		{
++			if((s_struct.main >= LimitSizes::Main_Start) && (s_struct.main < ServerInventoryLimits[s_struct.type])) { return true; }
++		}
++		default: { break; }
++	}
++
++	return false;
++}
++
++Slot_Struct Inventory::CalcSlotFromMaterial(uint8 material_slot, bool has_bracer01, bool has_bracer02)
++{
++	// Pass has_bracer01 and has_bracer02 as client having these slots occupied/empty..untested
++	// (This is an attempt to avoid 'empty' bracer graphics when bracer02 is occupied and bracer01 is not)
++	AutoSlot_Struct return_struct;
++
++	return_struct.type = Type_Possessions;
++	switch(material_slot)
++	{
++		case Material_Head: 
++		{
++			return_struct.main = Slot_Head;
++			break;
++		}
++		case Material_Chest:
++		{
++			return_struct.main = Slot_Chest;
++			break;
++		}
++		case Material_Arms:
++		{
++			return_struct.main = Slot_Arms;
++			break;
++		}
++		case Material_Bracer:
++		{
++			if(has_bracer02 && !has_bracer01) { return_struct.main = Slot_Bracer02; }
++			else { return_struct.main = Slot_Bracer01; }
++
++			break;
++		}
++		case Material_Hands:
++		{
++			return_struct.main = Slot_Hands;
++			break;
++		}
++		case Material_Legs:
++		{
++			return_struct.main = Slot_Legs;
++			break;
++		}
++		case Material_Feet:
++		{
++			return_struct.main = Slot_Feet;
++			break;
++		}
++		case Material_Primary:
++		{
++			return_struct.main = Slot_Primary;
++			break;
++		}
++		case Material_Secondary:
++		{
++			return_struct.main = Slot_Secondary;
++			break;
++		}
++		default:
++		{
++			return_struct.type = LimitSizes::Type_Invalid;
++			break;
++		}
++	}
++
++	return return_struct.Slot();
++}
++
++uint8 Inventory::CalcMaterialFromSlot(Slot_Struct s_struct)
++{
++	if(s_struct.type != Type_Possessions ||
++		s_struct.sub != LimitSizes::Sub_Invalid ||
++		s_struct.aug != LimitSizes::Aug_Invalid)
++	{
++		return Material_Invalid;
++	}
++	
++	switch(s_struct.main)
++	{
++		case Slot_Head:			{ return Material_Head; }
++		case Slot_Chest:		{ return Material_Chest; }
++		case Slot_Arms:			{ return Material_Arms; }
++		case Slot_Bracer01:
++		case Slot_Bracer02:		{ return Material_Bracer; }
++		case Slot_Hands:		{ return Material_Hands; }
++		case Slot_Legs:			{ return Material_Legs; }
++		case Slot_Feet:			{ return Material_Feet; }
++		case Slot_Primary:		{ return Material_Primary; }
++		case Slot_Secondary:	{ return Material_Secondary; }
++		default: { return Material_Invalid; }
++	}
++}
++
++bool Inventory::IsItemEquipable(Slot_Struct s_struct, ItemInst* item) const
++{
++	// Needs to be converted to use InventoryLimits
++	if(item)
++	{
++		if(s_struct.type == Type_Possessions)
++		{
++			if(s_struct.sub == LimitSizes::Sub_Invalid && s_struct.aug == LimitSizes::Aug_Invalid)
++			{
++				if(s_struct.main >= LimitSizes::Equipment_Start && s_struct.main <= LimitSizes::Equipment_End)
++				{
++					if(item->m_item->Slots & (1 << s_struct.main)) { return true; }
++				}
++			}
++		}
++	}
++
++	return false;
++}
++
++bool Inventory::AvailableWearSlot(uint32 aug_wear_slots, ItemInst* item) const
++{
++	if(_CommonPass(item))
++	{
++		uint32 wear_index = LimitSizes::Equipment_End;
++		do { if((1 << wear_index--) & item->m_item->Slots & aug_wear_slots) { return true; } }
++		while(wear_index);
++	}
++
++	return false;
++}
++
++bool Inventory::CheckNoDrop(Slot_Struct s_struct)
++{
++	ItemInst* main_inst = GetItem(s_struct);
++	
++	if(main_inst)
++	{
++		if(!main_inst->GetItem()->NoDrop) { return true; }
++
++		// We should probably eliminate the Container check and just check anything in m_contents to catch nodrop augments
++		if(main_inst->GetItem()->ItemClass == ItemClassContainer /* || inst->GetItem()->ItemClass == ItemClassCommon */)
++		{
++			for(iter_Contents contents_iter = main_inst->_begin(); contents_iter != main_inst->_end(); contents_iter++)
++			{
++				if(!contents_iter->second->GetItem()->NoDrop) { return true; }
++			}
++		}
++	}
++	
++	return false;
++}
++
++bool Inventory::CanItemFitInContainer(const Item_Struct *item_to_try, const Item_Struct *container) {
++
++	if(!item_to_try || !container) { return false; }
++
++	if(item_to_try->Size > container->BagSize) { return false; }
++
++	if((container->BagType == bagTypeQuiver) && (item_to_try->ItemType != ItemTypeArrow)) { return false; }
++
++	if((container->BagType == bagTypeBandolier) && (item_to_try->ItemType != ItemTypeThrowingv2)) { return false; }
++
++	return true;
++}
++
++// Item methods
++ItemInst* Inventory::GetItem(Slot_Struct s_struct) const
++{
++	if(IsValidItemSlot(s_struct))
++	{
++		_CP(Inventory_GetItem);
++
++		InventorySlot_Struct get_struct(s_struct);
++
++		if(get_struct.IsMainItem()) { return _GetContent(get_struct.SlotHeader()); }
++		else if(get_struct.IsSubItem())
++		{
++			ItemInst* container_inst = _GetContent(get_struct.SlotHeader());
++			
++			// IsSubInRange() (et al.) should be handled in IsValidClientItemSlot()
++			if(_ContainerPass(container_inst) && get_struct.IsSubInRange()) { return container_inst->_GetContent((uint8)get_struct.sub); }
++
++			// TODO: Log no parent container/OOR error
++		}
++	}
++	
++	return nullptr;
++}
++
++ItemInst* Inventory::GetItem(Slot_Struct s_struct)
++{
++	if(IsValidItemSlot(s_struct))
++	{
++		_CP(Inventory_GetItem);
++
++		InventorySlot_Struct get_struct(s_struct);
++
++		if(get_struct.IsMainItem()) { return _GetContent(get_struct.SlotHeader()); }
++		else if(get_struct.IsSubItem())
++		{
++			ItemInst* container_inst = _GetContent(get_struct.SlotHeader());
++			
++			if(_ContainerPass(container_inst) && get_struct.IsSubInRange()) { return container_inst->_GetContent((uint8)get_struct.sub); }
++
++			// TODO: Log no parent container/OOR error
++		}
++	}
++	
++	return nullptr;
++}
++
++Slot_Struct Inventory::PutItem(Slot_Struct s_struct, ItemInst* inst)
++{
++	InventorySlot_Struct put_struct(s_struct);
++	
++	// If a valid 'Put' action is called, the current occupant is deleted regardless of replacement's existence
++	// (This is true for all public 'Put's..you did remember to 'Remove' the item before calling this, right?)
++
++	if(IsValidItemSlot(s_struct))
++	{
++		if(put_struct.IsMainItem())
++		{
++			_DeleteContent(put_struct.SlotHeader());
++			_PutContent(put_struct.SlotHeader(), inst);
++
++			return s_struct;
++		}
++		else if(put_struct.IsSubItem())
++		{
++			ItemInst* container_inst = _GetContent(put_struct.SlotHeader());
++
++			if(_ContainerPass(container_inst) && put_struct.IsSubInRange())
++			{
++				container_inst->_DeleteContent((uint8)put_struct.sub);
++				container_inst->_PutContent((uint8)put_struct.sub, inst);
++
++				return s_struct;
++			}
++
++			// TODO: Log no parent container/OOR error
++		}
++	}
++	
++	put_struct.Invalidate();
++
++	return put_struct.Slot();
++}
++
++Slot_Struct Inventory::PutItem(Slot_Struct s_struct, const ItemInst& inst)
++{
++	InventorySlot_Struct put_struct(s_struct);
++	
++	if(IsValidItemSlot(s_struct))
++	{
++		if(put_struct.IsMainItem())
++		{
++			_DeleteContent(put_struct.SlotHeader());
++			_PutContent(put_struct.SlotHeader(), inst.Clone());
++
++			return s_struct;
++		}
++		else if(put_struct.IsSubItem())
++		{
++			ItemInst* container_inst = _GetContent(put_struct.SlotHeader());
++
++			if(_ContainerPass(container_inst) && put_struct.IsSubInRange())
++			{
++				container_inst->_DeleteContent((uint8)put_struct.sub);
++				container_inst->_PutContent((uint8)put_struct.sub, inst.Clone());
++
++				return s_struct;
++			}
++
++			// TODO: Log no parent container/OOR error
++		}
++	}
++	
++	put_struct.Invalidate();
++
++	return put_struct.Slot();
++}
++
++Slot_Struct Inventory::PutItem(SharedDatabase *db, Slot_Struct s_struct, uint32 item_id)
++{
++	InventorySlot_Struct put_struct(s_struct);
++	ItemInst* db_inst = db->CreateItem(item_id);
++
++	if(IsValidItemSlot(s_struct))
++	{
++		if(put_struct.IsMainItem())
++		{
++			_DeleteContent(put_struct.SlotHeader());
++			_PutContent(put_struct.SlotHeader(), db_inst);
++
++			return s_struct;
++		}
++		else if(put_struct.IsSubItem())
++		{
++			ItemInst* container_inst = _GetContent(put_struct.SlotHeader());
++
++			if(_ContainerPass(container_inst) && put_struct.IsSubInRange())
++			{
++				container_inst->_DeleteContent((uint8)put_struct.sub);
++				container_inst->_PutContent((uint8)put_struct.sub, db_inst);
++
++				return s_struct;
++			}
++
++			// TODO: Log no parent container/OOR error
++		}
++	}
++	
++	put_struct.Invalidate();
++
++	return put_struct.Slot();
++}
++
++ItemInst* Inventory::RemoveItem(Slot_Struct s_struct) // RemoveItem()
++{
++	if(IsValidItemSlot(s_struct))
++	{
++		InventorySlot_Struct remove_struct(s_struct);
++
++		if(remove_struct.IsMainItem()) { return _RemoveContent(remove_struct.SlotHeader()); }
++		else if(remove_struct.IsSubItem())
++		{
++			ItemInst* container_inst = _GetContent(remove_struct.SlotHeader());
++
++			if(_ContainerPass(container_inst) && remove_struct.IsSubInRange()) { return container_inst->_RemoveContent((uint8)remove_struct.sub); }
++
++			// TODO: Log no parent container/OOR error
++		}
++	}
++
++	return nullptr;
++}
++
++bool Inventory::DeleteItem(Slot_Struct s_struct, uint8 quantity)
++{
++	if(IsValidAugmentSlot(s_struct))
++	{
++		InventorySlot_Struct delete_struct(s_struct);
++
++		if(delete_struct.IsMainItem())
++		{
++			ItemInst* main_inst = _RemoveContent(delete_struct.SlotHeader());
++
++			if(main_inst && (quantity > 0))
++			{
++				main_inst->SetCharges(main_inst->GetCharges() - quantity);
++
++				if(main_inst->GetCharges() <= 0)
++				{
++					if(main_inst->IsStackable() || (!main_inst->IsStackable() && ((main_inst->GetItem()->MaxCharges == 0) && main_inst->IsExpendable())))
++					{
++						Inventory::MarkDirty(main_inst);
++
++						return true;
++					}
++				}
++
++				_PutContent(delete_struct.SlotHeader(), main_inst);
++
++				return false;
++			}
++
++			Inventory::MarkDirty(main_inst);
++
++			return true;
++		}
++		else if(delete_struct.IsSubItem())
++		{
++			ItemInst* container_inst = _GetContent(delete_struct.SlotHeader());
++
++			if(_ContainerPass(container_inst) && delete_struct.IsSubInRange())
++			{
++				ItemInst* sub_inst = container_inst->_RemoveContent((uint8)delete_struct.sub);
++
++				if(sub_inst && (quantity > 0))
++				{
++					sub_inst->SetCharges(sub_inst->GetCharges() - quantity);
++
++					if(sub_inst->GetCharges() <= 0)
++					{
++						if(sub_inst->IsStackable() || (!sub_inst->IsStackable() && ((sub_inst->GetItem()->MaxCharges == 0) && sub_inst->IsExpendable())))
++						{
++							Inventory::MarkDirty(sub_inst);
++
++							return true;
++						}
++					}
++
++					container_inst->_PutContent((uint8)delete_struct.sub, sub_inst);
++
++					return false;
++				}
++
++				Inventory::MarkDirty(sub_inst);
++
++				return true;
++			}
++		}
++	}
++
++	return false;
++}
++
++// Augment methods
++ItemInst* Inventory::GetAugment(Slot_Struct s_struct) const
++{
++	if(IsValidAugmentSlot(s_struct))
++	{
++		// _CP(Inventory_GetItem);
++
++		InventorySlot_Struct get_struct(s_struct);
++
++		if(get_struct.IsMainAugment())
++		{
++			ItemInst* main_inst = _GetContent(get_struct.SlotHeader());
++
++			if(_CommonPass(main_inst) && get_struct.IsAugInRange()) { return main_inst->_GetContent((uint8)get_struct.aug); }
++		}
++		else if(get_struct.IsSubAugment())
++		{
++			ItemInst* container_inst = _GetContent(get_struct.SlotHeader());
++			
++			if(_ContainerPass(container_inst) && get_struct.IsSubInRange())
++			{
++				ItemInst* sub_inst = container_inst->_GetContent((uint8)get_struct.sub);
++
++				if(_CommonPass(sub_inst) && get_struct.IsAugInRange())
++				{
++					return sub_inst->_GetContent((uint8)get_struct.aug);
++				}
++			}
++
++			// TODO: Log no parent container/OOR error
++		}
++	}
++	
++	return nullptr;
++}
++
++ItemInst* Inventory::GetAugment(Slot_Struct s_struct)
++{
++	if(IsValidAugmentSlot(s_struct))
++	{
++		// _CP(Inventory_GetItem);
++
++		InventorySlot_Struct get_struct(s_struct);
++
++		if(get_struct.IsMainAugment())
++		{
++			ItemInst* main_inst = _GetContent(get_struct.SlotHeader());
++
++			if(_CommonPass(main_inst) && get_struct.IsAugInRange()) { return main_inst->_GetContent((uint8)get_struct.aug); }
++		}
++		else if(get_struct.IsSubAugment())
++		{
++			ItemInst* container_inst = _GetContent(get_struct.SlotHeader());
++			
++			if(_ContainerPass(container_inst) && get_struct.IsSubInRange())
++			{
++				ItemInst* sub_inst = container_inst->_GetContent((uint8)get_struct.sub);
++
++				if(_CommonPass(sub_inst) && get_struct.IsAugInRange())
++				{
++					return sub_inst->_GetContent((uint8)get_struct.aug);
++				}
++			}
++
++			// TODO: Log no parent container/OOR error
++		}
++	}
++	
++	return nullptr;
++}
++
++Slot_Struct Inventory::PutAugment(Slot_Struct s_struct, ItemInst* inst)
++{
++	InventorySlot_Struct put_struct(s_struct);
++	
++	if(IsValidAugmentSlot(s_struct))
++	{
++		if(put_struct.IsMainAugment())
++		{
++			ItemInst* main_inst = _GetContent(put_struct.SlotHeader());
++			
++			if(_CommonPass(main_inst) && put_struct.IsAugInRange())
++			{
++				main_inst->_DeleteContent((uint8)put_struct.aug);
++				main_inst->_PutContent((uint8)put_struct.aug, inst);
++
++				return s_struct;
++			}
++		}
++		else if(put_struct.IsSubAugment())
++		{
++			ItemInst* container_inst = _GetContent(put_struct.SlotHeader());
++
++			if(_ContainerPass(container_inst) && put_struct.IsSubInRange())
++			{
++				ItemInst* sub_inst = container_inst->_GetContent((uint8)put_struct.sub);
++
++				if(_CommonPass(sub_inst) && put_struct.IsAugInRange())
++				{
++					sub_inst->_DeleteContent((uint8)put_struct.aug);
++					sub_inst->_PutContent((uint8)put_struct.aug, inst);
++
++					return s_struct;
++				}
++			}
++
++			// TODO: Log no parent container/OOR error
++		}
++	}
++	
++	put_struct.Invalidate();
++
++	return put_struct.Slot();
++}
++
++Slot_Struct Inventory::PutAugment(Slot_Struct s_struct, const ItemInst& inst)
++{
++	InventorySlot_Struct put_struct(s_struct);
++	
++	if(IsValidAugmentSlot(s_struct))
++	{
++		if(put_struct.IsMainAugment())
++		{
++			ItemInst* main_inst = _GetContent(put_struct.SlotHeader());
++			
++			if(_CommonPass(main_inst) && put_struct.IsAugInRange())
++			{
++				main_inst->_DeleteContent((uint8)put_struct.aug);
++				main_inst->_PutContent((uint8)put_struct.aug, inst.Clone());
++
++				return s_struct;
++			}
++		}
++		else if(put_struct.IsSubAugment())
++		{
++			ItemInst* container_inst = _GetContent(put_struct.SlotHeader());
++
++			if(_ContainerPass(container_inst) && put_struct.IsSubInRange())
++			{
++				ItemInst* sub_inst = container_inst->_GetContent((uint8)put_struct.sub);
++
++				if(_CommonPass(sub_inst) && put_struct.IsAugInRange())
++				{
++					sub_inst->_DeleteContent((uint8)put_struct.aug);
++					sub_inst->_PutContent((uint8)put_struct.aug, inst.Clone());
++
++					return s_struct;
++				}
++			}
++
++			// TODO: Log no parent container/OOR error
++		}
++	}
++	
++	put_struct.Invalidate();
++
++	return put_struct.Slot();
++}
++
++Slot_Struct Inventory::PutAugment(SharedDatabase *db, Slot_Struct s_struct, uint32 item_id)
++{
++	InventorySlot_Struct put_struct(s_struct);
++	ItemInst* db_inst = db->CreateItem(item_id);
++
++	if(IsValidAugmentSlot(s_struct))
++	{
++		if(put_struct.IsMainAugment())
++		{
++			ItemInst* main_inst = _GetContent(put_struct.SlotHeader());
++			
++			if(_CommonPass(main_inst) && put_struct.IsAugInRange())
++			{
++				main_inst->_DeleteContent((uint8)put_struct.aug);
++				main_inst->_PutContent((uint8)put_struct.aug, db_inst);
++
++				return s_struct;
++			}
++		}
++		else if(put_struct.IsSubAugment())
++		{
++			ItemInst* container_inst = _GetContent(put_struct.SlotHeader());
++
++			if(_ContainerPass(container_inst) && put_struct.IsSubInRange())
++			{
++				ItemInst* sub_inst = container_inst->_GetContent((uint8)put_struct.sub);
++
++				if(_CommonPass(sub_inst) && put_struct.IsAugInRange())
++				{
++					sub_inst->_DeleteContent((uint8)put_struct.aug);
++					sub_inst->_PutContent((uint8)put_struct.aug, db_inst);
++
++					return s_struct;
++				}
++			}
++
++			// TODO: Log no parent container/OOR error
++		}
++	}
++	
++	put_struct.Invalidate();
++
++	return put_struct.Slot();
++}
++
++ItemInst* Inventory::RemoveAugment(Slot_Struct s_struct)
++{
++	if(IsValidAugmentSlot(s_struct))
++	{
++		InventorySlot_Struct remove_struct(s_struct);
++
++		if(remove_struct.IsMainAugment())
++		{
++			ItemInst* main_inst = _GetContent(remove_struct.SlotHeader());
++
++			if(_CommonPass(main_inst) && remove_struct.IsAugInRange()) { return main_inst->_RemoveContent((uint8)remove_struct.aug); }
++		}
++		else if(remove_struct.IsSubAugment())
++		{
++			ItemInst* container_inst = _GetContent(remove_struct.SlotHeader());
++
++			if(_ContainerPass(container_inst) && remove_struct.IsSubInRange())
++			{
++				ItemInst* sub_inst = container_inst->_GetContent((uint8)remove_struct.sub);
++
++				if(_CommonPass(sub_inst) && remove_struct.IsAugInRange()) { return sub_inst->_RemoveContent((uint8)remove_struct.aug); }
++			}
++
++			// TODO: Log no parent container/OOR error
++		}
++	}
++
++	return nullptr;
++}
++
++bool Inventory::DeleteAugment(Slot_Struct s_struct)
++{
++	if(IsValidAugmentSlot(s_struct))
++	{
++		InventorySlot_Struct delete_struct(s_struct);
++
++		if(delete_struct.IsMainAugment())
++		{
++			ItemInst* main_inst = _GetContent(delete_struct.SlotHeader());
++
++			if(_CommonPass(main_inst) && delete_struct.IsAugInRange())
++			{
++				main_inst->_DeleteContent((uint8)delete_struct.aug);
++
++				return true;
++			}
++		}
++		else if(delete_struct.IsSubAugment())
++		{
++			ItemInst* container_inst = _GetContent(delete_struct.SlotHeader());
++
++			if(_ContainerPass(container_inst) && delete_struct.IsSubInRange())
++			{
++				ItemInst* sub_inst = container_inst->_GetContent((uint8)delete_struct.sub);
++
++				if(_CommonPass(sub_inst) && delete_struct.IsAugInRange())
++				{
++					sub_inst->_DeleteContent((uint8)delete_struct.aug);
++
++					return true;
++				}
++			}
++		}
++	}
++	
++	return false;
++}
++
++// Protected methods
++ItemInst* Inventory::_GetContent(SlotHeader_Struct sh_struct) const
++{
++	iter_Inventory get_iter = m_inventory.find(sh_struct);
++
++	if(get_iter != m_inventory.end()) { return get_iter->second; }
++
++	return nullptr;
++}
++
++ItemInst* Inventory::_GetContent(SlotHeader_Struct sh_struct)
++{
++	_iter_Inventory get_iter = m_inventory.find(sh_struct);
++
++	if(get_iter != m_inventory.end()) { return get_iter->second; }
++
++	return nullptr;
++}
++
++void Inventory::_PutContent(SlotHeader_Struct sh_struct, ItemInst* inventory_inst)
++{
++	if(inventory_inst) { m_inventory[sh_struct] = inventory_inst; }
++}
++
++ItemInst* Inventory::_RemoveContent(SlotHeader_Struct sh_struct)
++{
++	_iter_Inventory remove_iter = m_inventory.find(sh_struct);
++
++	if(remove_iter != m_inventory.end())
++	{
++		ItemInst* remove_inst = remove_iter->second;
++		m_inventory.erase(sh_struct);
++
++		return remove_inst;
++	}
++
++	return nullptr;
++}
++
++void Inventory::_DeleteContent(SlotHeader_Struct sh_struct)
++{
++	ItemInst* delete_inst = _RemoveContent(sh_struct);
++	safe_delete(delete_inst);
++}
++
++bool Inventory::_ContainerPass(ItemInst* test_inst)
++{
++	return (test_inst && (test_inst->GetItem()->ItemClass == ItemClassContainer));
++}
++
++bool Inventory::_CommonPass(ItemInst* test_inst)
++{
++	return (test_inst && (test_inst->GetItem()->ItemClass == ItemClassCommon));
++}
++
++void Inventory::_ReorderLimboMap()
++{
++	// sort/reorder method for managed cursor
++}
++
++void Inventory::_dumpInventoryType(InventorySlotTypes slot_type)
++{
++	AutoSlot_Struct as_struct;
++	ItemInst* main_inst = nullptr;
++
++	as_struct.type = slot_type;
++	as_struct.main = LimitSizes::Main_Start;
++	while(as_struct.main < m_limits[slot_type])
++	{
++		main_inst = _GetContent(as_struct.SlotHeader());
++
++		if(main_inst)
++		{
++			std::string mainslot;
++			StringFormat(mainslot, "  Main Slot %d: %s (%d)", as_struct.main, main_inst->GetItem()->Name,
++				(main_inst->GetCharges() <= 0) ? 1 : main_inst->GetCharges());
++			std::cout << mainslot << std::endl;		
++
++			_dumpItemAugments(main_inst);
++			_dumpContainerContents(main_inst);
++		}
++
++		as_struct.main++;
++	}
++}
++
++void Inventory::_dumpContainerContents(ItemInst *item_inst)
++{
++	if(_ContainerPass(item_inst))
++	{
++		iter_Contents sub_iter = item_inst->_begin();
++		while(sub_iter != item_inst->_end())
++		{
++			if(sub_iter->second)
++			{
++				std::string subslot;
++				StringFormat(subslot,"    Sub Slot %d: %s (%d)", sub_iter->first, sub_iter->second->GetItem()->Name,
++					(sub_iter->second->GetCharges() <= 0) ? 1 : sub_iter->second->GetCharges());
++				std::cout << subslot << std::endl;
++
++				_dumpItemAugments(sub_iter->second);
++			}
++
++			sub_iter++;
++		}
++	}
++}
++
++void Inventory::_dumpItemAugments(ItemInst* item_inst)
++{
++	if(_CommonPass(item_inst))
++	{
++		iter_Contents aug_iter = item_inst->_begin();
++		while(aug_iter != item_inst->_end())
++		{
++			if(aug_iter->second)
++			{
++				std::string augslot;
++				StringFormat(augslot,"      Aug Slot %d: %s (%d)", aug_iter->first, aug_iter->second->GetItem()->Name,
++					(aug_iter->second->GetCharges() <= 0) ? 1 : aug_iter->second->GetCharges());
++				std::cout << augslot << std::endl;
++			}
++
++			aug_iter++;
++		}
++	}
++}
++
++InventorySlotTypes Inventory::_CalcSlotTypeFromLocation(uint32 location)
++{
++	// 'location' should be passed as a bit-shifted value since the lowest value will always be returned.
++
++	if(location & InvWherePossessions)			{ return Type_Possessions; }
++	else if(location & InvWhereBank)			{ return Type_Bank; }
++	else if(location & InvWhereSharedBank)		{ return Type_SharedBank; }
++	else if(location & InvWhereTrade)			{ return Type_Trade; }
++	else if(location & InvWhereWorld)			{ return Type_World; }
++	else if(location & InvWhereLimbo)			{ return Type_Limbo; }
++	else if(location & InvWhereTribute)			{ return Type_Tribute; }
++	else if(location & InvWhereTrophyTribute)	{ return Type_TrophyTribute; }
++	else if(location & InvWhereDeleted)			{ return Type_Deleted; }
++	else if(location & InvWhereRealEstate)		{ return Type_RealEstate; }
++	else if(location & InvWhereAltStorage)		{ return Type_AltStorage; }
++	else if(location & InvWhereArchived)		{ return Type_Archived; }
++	else if(location & InvWhereMail)			{ return Type_Mail; }
++	else if(location & InvWhereKrono)			{ return Type_Krono; }
++	else if(location & InvWhereOther)			{ return Type_Other; }
++
++	return Type_Count;
++}
++
++uint32 Inventory::_CalcLocationFromSlotHeader(SlotHeader_Struct sh_struct)
++{
++	switch(sh_struct.type)
++	{
++		case Type_Possessions:
++		{
++			if(sh_struct.main >= LimitSizes::Equipment_Start && sh_struct.main <= LimitSizes::Equipment_End) { return InvWhereEquipment; }
++			else if(sh_struct.main >= LimitSizes::Personal_Start && sh_struct.main <= LimitSizes::Personal_End) { return InvWherePersonal; }
++			else if(sh_struct.main == Slot_Cursor) { return InvWhereCursor; }
++
++			break;
++		}
++		case Type_Bank:				{ return InvWhereBank; }
++		case Type_SharedBank:		{ return InvWhereSharedBank; }
++		case Type_Trade:			{ return InvWhereTrade; }
++		case Type_World:			{ return InvWhereWorld; }
++		case Type_Limbo:			{ return InvWhereLimbo; }
++		case Type_Tribute:			{ return InvWhereTribute; }
++		case Type_TrophyTribute:	{ return InvWhereTrophyTribute; }
++		case Type_Deleted:			{ return InvWhereDeleted; }
++		case Type_RealEstate:		{ return InvWhereRealEstate; }
++		case Type_AltStorage:		{ return InvWhereAltStorage; }
++		case Type_Archived:			{ return InvWhereArchived; }
++		case Type_Mail:				{ return InvWhereMail; }
++		case Type_Krono:			{ return InvWhereKrono; }
++		case Type_Other:			{ return InvWhereOther; }
++		default: { break; }
++	}
++
++	return 0;
++}
++// ################################################################################################
++
++
++/*
++ Class: ItemInst ##################################################################################
++	Class for an instance of an item. An item instance encapsulates item data and data specific to
++	an item instance (includes dye, augments, charges, etc.) - including class EvoItemInst items
++
++	This class has been highly restricted to force access through the Inventory class. By doing
++	this, and through the use of a new class InventoryLimits, the server will be able to interact
++	with all supported clients using their native inventories. Client patch files will still be
++	needed for translation, but we should have more coding freedom in the server code -U
++ ##################################################################################################
++*/
++ItemInst::ItemInst(const Item_Struct* item, int16 charges)
++{
++	m_use_type		= ItemUseNormal;
++	m_item			= item;
++	m_scaledItem	= nullptr;
++
++	m_charges		= charges;
++	m_instnodrop	= false;
++
++	if(_CommonPass()) { m_color = m_item->Color; }
++	else { m_color = 0; }
++
++	// m_currentslot	= -1;
++
++	m_evolveInfo	= nullptr;
++	m_evolveLvl		= 0;
++	m_exp			= 0;
++	m_activated		= false;
++	m_scaling		= false;
++
++	m_merchantslot	= 0;
++	m_merchantcount	= 1;
++	m_price			= 0;
++	m_serialnumber	= GetNextItemInstSerialNumber();
++}
++
++ItemInst::ItemInst(SharedDatabase *db, uint32 item_id, int16 charges)
++{
++	m_use_type		= ItemUseNormal;
++	m_item			= db->GetItem(item_id);
++	m_scaledItem	= nullptr;
++
++	m_charges		= charges;
++	m_instnodrop	= false;
++
++	if(_CommonPass()) { m_color = m_item->Color; }
++	else { m_color = 0; }
++
++	// m_currentslot	= -1;
++
++	m_evolveInfo	= nullptr;
++	m_evolveLvl		= 0;
++	m_exp			= 0;
++	m_activated		= false;
++	m_scaling		= false;
++
++	m_merchantslot	= 0;
++	m_merchantcount	= 1;
++	m_price			= 0;
++	m_serialnumber	= GetNextItemInstSerialNumber();
++}
++
++/*
++ItemInst::ItemInst(ItemUseType use_type)
++{
++	// Hopefully, deprecated...
++		
++	m_use_type		= use_type;
++	m_item			= nullptr;
++	m_scaledItem	= nullptr;
++	
++	m_charges		= 0;
++	m_instnodrop	= false;
++	m_color			= 0;
++	// m_currentslot	= -1;
++
++	m_evolveInfo	= nullptr;
++	m_evolveLvl		= 0;
++	m_exp			= 0;
++	m_activated		= false;
++	m_scaling		= false;
++
++	m_merchantslot	= 0;
++	// m_merchantcount	= -1
++	m_price			= 0;
++	// m_serialnumber	= -1;
++}
++*/
++
++ItemInst::ItemInst(const ItemInst& copy)
++{
++	m_use_type		= copy.m_use_type;
++	m_item			= copy.m_item;
++
++	if(copy.m_scaledItem) { m_scaledItem = new Item_Struct(*copy.m_scaledItem); }
++	else { m_scaledItem = nullptr; }
++
++	m_charges		= copy.m_charges;
++	m_instnodrop	= copy.m_instnodrop;
++	m_color			= copy.m_color;
++	// m_currentslot	= copy.m_currentslot;
++	
++	if(copy.m_evolveInfo) { m_evolveInfo = new EvolveInfo(*copy.m_evolveInfo); }
++	else { m_evolveInfo = nullptr; }
++
++	m_evolveLvl		= copy.m_evolveLvl;
++	m_exp			= copy.m_exp;
++	m_activated		= copy.m_activated;
++	m_scaling		= copy.m_scaling;
++
++	m_merchantslot	= copy.m_merchantslot;
++	m_merchantcount	= copy.m_merchantcount;
++	m_price			= copy.m_price;
++	m_serialnumber	= copy.m_serialnumber;
++
++	m_customdata	= copy.m_customdata;
++	m_timers		= copy.m_timers;
++	
++	/*
++	iter_itemmap itemmap_iter = copy.m_contents.begin();
++	while(itemmap_iter != copy.m_contents.end())
++	{
++		ItemInst* content_inst = itemmap_iter->second->Clone();
++
++		if(content_inst) { m_contents[itemmap_iter->first] = content_inst; }
++	}
++	*/
++}
++
++ItemInst::ItemInst(WorldContainer_Object* wc_object, const Item_Struct* container)
++{
++	if(wc_object && container && container->ItemClass == ItemClassContainer)
++	{
++		m_item = container;
++		m_contents = wc_object->m_contents;
++		wc_object->ClearMap();
++	}
++	else { m_item = nullptr; }
++}
++
++ItemInst::~ItemInst()
++{
++	DeleteMapItems();
++	safe_delete(m_scaledItem);
++	safe_delete(m_evolveInfo);
++}
++
++int8 ItemInst::GetMaxEvolveLvl() const
++{
++	return (m_evolveInfo ? m_evolveInfo->MaxLvl : 0);
++}
++
++void ItemInst::SetTimer(std::string name, uint32 time)
++{
++	Timer t(time);
++	t.Start(time, false);
++	m_timers[name] = t;
++}
++
++void ItemInst::StopTimer(std::string name)
++{
++	auto iter = m_timers.find(name);
++
++	if(iter != m_timers.end()) { m_timers.erase(iter); }
++}
++
++void ItemInst::Initialize(SharedDatabase *db)
++{
++	if(!m_item) { return; }
++
++	// initialize scaling items
++	if(m_item->CharmFileID != 0)
++	{
++		m_scaling = true;
++		ScaleItem();
++	}
++	// initialize evolving items
++	else if((db) && m_item->LoreGroup >= 1000 && m_item->LoreGroup != -1)
++	{
++		// not complete yet
++	}
++}
++
++void ItemInst::ScaleItem()
++{
++	if(m_scaledItem) { memcpy(m_scaledItem, m_item, sizeof(Item_Struct)); }
++	else { m_scaledItem = new Item_Struct(*m_item); }
++
++	float Mult = (float)(GetExp()) / 10000; // scaling is determined by exp, with 10,000 being full stats
++
++	m_scaledItem->AStr	= (int8)((float)m_item->AStr * Mult);
++	m_scaledItem->ASta	= (int8)((float)m_item->ASta * Mult);
++	m_scaledItem->AAgi	= (int8)((float)m_item->AAgi * Mult);
++	m_scaledItem->ADex	= (int8)((float)m_item->ADex * Mult);
++	m_scaledItem->AInt	= (int8)((float)m_item->AInt * Mult);
++	m_scaledItem->AWis	= (int8)((float)m_item->AWis * Mult);
++	m_scaledItem->ACha	= (int8)((float)m_item->ACha * Mult);
++
++	m_scaledItem->MR	= (int8)((float)m_item->MR * Mult);
++	m_scaledItem->PR	= (int8)((float)m_item->PR * Mult);
++	m_scaledItem->DR	= (int8)((float)m_item->DR * Mult);
++	m_scaledItem->CR	= (int8)((float)m_item->CR * Mult);
++	m_scaledItem->FR	= (int8)((float)m_item->FR * Mult);
++
++	m_scaledItem->HP	= (int32)((float)m_item->HP * Mult);
++	m_scaledItem->Mana	= (int32)((float)m_item->Mana * Mult);
++	m_scaledItem->AC	= (int32)((float)m_item->AC * Mult);
++
++	m_scaledItem->SkillModValue	= (int32)((float)m_item->SkillModValue * Mult);
++	m_scaledItem->BaneDmgAmt	= (int8)((float)m_item->BaneDmgAmt * Mult);
++	m_scaledItem->BardValue		= (int32)((float)m_item->BardValue * Mult);
++	m_scaledItem->ElemDmgAmt	= (uint8)((float)m_item->ElemDmgAmt * Mult);
++	m_scaledItem->Damage		= (uint32)((float)m_item->Damage * Mult);
++
++	m_scaledItem->CombatEffects	= (int8)((float)m_item->CombatEffects * Mult);
++	m_scaledItem->Shielding		= (int8)((float)m_item->Shielding * Mult);
++	m_scaledItem->StunResist	= (int8)((float)m_item->StunResist * Mult);
++	m_scaledItem->StrikeThrough	= (int8)((float)m_item->StrikeThrough * Mult);
++	m_scaledItem->ExtraDmgAmt	= (uint32)((float)m_item->ExtraDmgAmt * Mult);
++	m_scaledItem->SpellShield	= (int8)((float)m_item->SpellShield * Mult);
++	m_scaledItem->Avoidance		= (int8)((float)m_item->Avoidance * Mult);
++	m_scaledItem->Accuracy		= (int8)((float)m_item->Accuracy * Mult);
++
++	m_scaledItem->FactionAmt1	= (int32)((float)m_item->FactionAmt1 * Mult);
++	m_scaledItem->FactionAmt2	= (int32)((float)m_item->FactionAmt2 * Mult);
++	m_scaledItem->FactionAmt3	= (int32)((float)m_item->FactionAmt3 * Mult);
++	m_scaledItem->FactionAmt4	= (int32)((float)m_item->FactionAmt4 * Mult);
++
++	m_scaledItem->Endur				= (uint32)((float)m_item->Endur * Mult);
++	m_scaledItem->DotShielding		= (uint32)((float)m_item->DotShielding * Mult);
++	m_scaledItem->Attack			= (uint32)((float)m_item->Attack * Mult);
++	m_scaledItem->Regen				= (uint32)((float)m_item->Regen * Mult);
++	m_scaledItem->ManaRegen			= (uint32)((float)m_item->ManaRegen * Mult);
++	m_scaledItem->EnduranceRegen	= (uint32)((float)m_item->EnduranceRegen * Mult);
++	m_scaledItem->Haste				= (uint32)((float)m_item->Haste * Mult);
++	m_scaledItem->DamageShield		= (uint32)((float)m_item->DamageShield * Mult);
++
++	m_scaledItem->Purity			= (uint32)((float)m_item->Purity * Mult);
++	m_scaledItem->BackstabDmg		= (uint32)((float)m_item->BackstabDmg * Mult);
++	m_scaledItem->DSMitigation		= (uint32)((float)m_item->DSMitigation * Mult);
++	m_scaledItem->HeroicStr			= (int32)((float)m_item->HeroicStr * Mult);
++	m_scaledItem->HeroicInt			= (int32)((float)m_item->HeroicInt * Mult);
++	m_scaledItem->HeroicWis			= (int32)((float)m_item->HeroicWis * Mult);
++	m_scaledItem->HeroicAgi			= (int32)((float)m_item->HeroicAgi * Mult);
++	m_scaledItem->HeroicDex			= (int32)((float)m_item->HeroicDex * Mult);
++	m_scaledItem->HeroicSta			= (int32)((float)m_item->HeroicSta * Mult);
++	m_scaledItem->HeroicCha			= (int32)((float)m_item->HeroicCha * Mult);
++	m_scaledItem->HeroicMR			= (int32)((float)m_item->HeroicMR * Mult);
++	m_scaledItem->HeroicFR			= (int32)((float)m_item->HeroicFR * Mult);
++	m_scaledItem->HeroicCR			= (int32)((float)m_item->HeroicCR * Mult);
++	m_scaledItem->HeroicDR			= (int32)((float)m_item->HeroicDR * Mult);
++	m_scaledItem->HeroicPR			= (int32)((float)m_item->HeroicPR * Mult);
++	m_scaledItem->HeroicSVCorrup	= (int32)((float)m_item->HeroicSVCorrup * Mult);
++	m_scaledItem->HealAmt			= (int32)((float)m_item->HealAmt * Mult);
++	m_scaledItem->SpellDmg			= (int32)((float)m_item->SpellDmg * Mult);
++	m_scaledItem->Clairvoyance		= (uint32)((float)m_item->Clairvoyance * Mult);
++
++	m_scaledItem->CharmFileID = 0; // this stops the client from trying to scale the item itself.
++}
++
++bool ItemInst::EvolveOnAllKills() const
++{
++	return (m_evolveInfo && m_evolveInfo->AllKills);
++}
++
++uint32 ItemInst::GetKillsNeeded(uint8 current_level)
++{
++	uint32 kills = -1;	// default to -1 (max uint32 value) because this value is usually divided by, so we don't want to ever return zero.
++	
++	if(m_evolveInfo && (current_level != m_evolveInfo->MaxLvl)) { kills = m_evolveInfo->LvlKills[current_level - 1]; }
++
++	if(kills == 0) { kills = -1; }
++
++	return kills;
++}
++
++bool ItemInst::IsType(ItemClass item_class) const
++{
++	if(m_item) { return (m_item->ItemClass == item_class); }
++
++	return false;
++}
++
++bool ItemInst::IsEquipable(uint16 race_id, uint16 class_id) const
++{
++	if(!m_item || (m_item->Slots == 0)) { return false; }
++
++	return m_item->IsEquipable(race_id, class_id);
++}
++
++bool ItemInst::IsWeapon() const
++{
++	if(m_item)
++	{
++		if((m_item->ItemType == ItemTypeArrow) && (m_item->Damage != 0)) { return true; }
++		else { return ((m_item->Damage != 0) && (m_item->Delay != 0)); }
++	}
++
++	return false;
++}
++
++bool ItemInst::IsAmmo() const
++{
++	if(!m_item) { return false; }
++	
++	return ((m_item->ItemType == ItemTypeArrow) || (m_item->ItemType == ItemTypeThrowing) || (m_item->ItemType == ItemTypeThrowingv2));
++}
++
++bool ItemInst::IsExpendable() const
++{
++	if(!m_item) { return false; }
++
++	return ((m_item->Click.Type == ET_Expendable ) || (m_item->ItemType == ItemTypePotion));
++}
++
++bool ItemInst::IsAugmentable() const
++{
++	if(_CommonPass())
++	{
++		uint8 aug_index = LimitSizes::Augment_Max;
++		while(aug_index)
++		{
++			if(m_item->AugSlotType[--aug_index]) { return true; }
++		}
++	}
++
++	return false;
++}
++
++bool ItemInst::IsNoneEmptyContainer()
++{
++	if(_ContainerPass()) { return !m_contents.empty(); }
++
++	return false;
++}
++
++bool ItemInst::IsAugmented()
++{
++	if(_CommonPass()) { return !m_contents.empty(); }
++
++	return false;
++}
++
++uint16 ItemInst::GetTotalItemCount() const
++{
++	uint16 item_count = 1 + m_contents.size();
++
++	if(_ContainerPass())
++	{
++		iter_Contents sub_iter = m_contents.begin();
++		while(sub_iter != m_contents.end())
++		{
++			if(sub_iter->second->_CommonPass()) { item_count += sub_iter->second->m_contents.size(); }
++
++			sub_iter++;
++		}
++	}
++
++	return item_count;
++}
++
++void ItemInst::DeleteMapItems()
++{
++	_iter_Contents contents_iter = m_contents.begin();
++	while(contents_iter != m_contents.end())
++	{
++		safe_delete(contents_iter->second);
++
++		contents_iter++;
++	}
++	
++	m_contents.clear();
++}
++
++void ItemInst::DeleteMapItemsByFlags(byFlagSetting is_nodrop, byFlagSetting is_norent)
++{
++	for(_iter_Contents content_iter = m_contents.begin(); content_iter != m_contents.end(); content_iter++)
++	{
++		switch(is_nodrop)
++		{
++			case byFlagSet:
++			{
++				if(content_iter->second->GetItem()->NoDrop == 0)
++				{
++					safe_delete(content_iter->second);
++					m_contents.erase(content_iter->first);
++
++					continue;
++				}
++			}
++			case byFlagNotSet:
++			{
++				if(content_iter->second->GetItem()->NoDrop != 0)
++				{
++					safe_delete(content_iter->second);
++					m_contents.erase(content_iter->first);
++
++					continue;
++				}
++			}
++			default: { break; }
++		}
++
++		switch(is_norent)
++		{
++			case byFlagSet:
++			{
++				if(content_iter->second->GetItem()->NoRent == 0)
++				{
++					safe_delete(content_iter->second);
++					m_contents.erase(content_iter->first);
++
++					continue;
++				}
++			}
++			case byFlagNotSet:
++			{
++				if(content_iter->second->GetItem()->NoRent != 0)
++				{
++					safe_delete(content_iter->second);
++					m_contents.erase(content_iter->first);
++
++					continue;
++				}
++			}
++			default: { break; }
++		}
++	}
++}
++
++void ItemInst::ClearMap()
++{
++	m_contents.clear();
++}
++
++std::string ItemInst::GetCustomDataString() const
++{
++	std::string ret_val;
++	std::map<std::string, std::string>::const_iterator data_iter = m_customdata.begin();
++	while(data_iter != m_customdata.end())
++	{
++		if(ret_val.length() > 0) { ret_val += "^"; }
++
++		ret_val += data_iter->first;
++		ret_val += "^";
++		ret_val += data_iter->second;
++		data_iter++;
++
++		if(ret_val.length() > 0) { ret_val += "^"; }
++	}
++
++	return ret_val;
++}
++
++std::string ItemInst::GetCustomData(std::string identifier)
++{
++	std::map<std::string, std::string>::const_iterator data_iter = m_customdata.find(identifier);
++
++	if(data_iter != m_customdata.end()) { return data_iter->second; }
++
++	return "";
++}
++
++void ItemInst::SetCustomData(std::string identifier, std::string value)
++{
++	DeleteCustomData(identifier);
++	m_customdata[identifier] = value;
++}
++
++void ItemInst::SetCustomData(std::string identifier, int value)
++{
++	DeleteCustomData(identifier);
++	std::stringstream ss;
++	ss << value;
++	m_customdata[identifier] = ss.str();
++}
++
++void ItemInst::SetCustomData(std::string identifier, float value)
++{
++	DeleteCustomData(identifier);
++	std::stringstream ss;
++	ss << value;
++	m_customdata[identifier] = ss.str();
++}
++
++void ItemInst::SetCustomData(std::string identifier, bool value)
++{
++	DeleteCustomData(identifier);
++	std::stringstream ss;
++	ss << value;
++	m_customdata[identifier] = ss.str();
++}
++
++void ItemInst::DeleteCustomData(std::string identifier)
++{
++	std::map<std::string, std::string>::iterator data_iter = m_customdata.find(identifier);
++
++	if(data_iter != m_customdata.end()) { m_customdata.erase(data_iter); }
++}
++
++std::string ItemInst::Serialize(Slot_Struct s_struct) const
++{
++	InternalSerializedItem_Struct isi_struct;
++	isi_struct.slot_id = 0 /* placeholder for 's_struct' */;
++	isi_struct.inst = (const void *)this;
++	std::string s;
++	s.assign((char *)&isi_struct, sizeof(InternalSerializedItem_Struct));
++
++	return s;
++}
++
++int16 ItemInst::AvailableItemSlot() const // FirstOpenSlot()
++{
++	if(_ContainerPass())
++	{
++		uint8 sub_slot = LimitSizes::Sub_Start;
++		while(sub_slot < m_item->BagSlots)
++		{
++			if(m_contents.find(sub_slot) == m_contents.end()) { return sub_slot; }
++
++			sub_slot++;
++		}
++	}
++
++	return LimitSizes::Sub_Invalid;
++}
++
++uint32 ItemInst::GetItemID(uint8 sub_slot) const
++{
++	ItemInst* get_inst = GetItem(sub_slot);
++
++	return (get_inst ? get_inst->GetItem()->ID : 0);
++}
++
++ItemInst* ItemInst::GetItem(uint8 sub_slot) const
++{
++	if(_ContainerPass())
++	{
++		ItemInst* get_inst = _GetContent(sub_slot);
++
++		if(get_inst) { return get_inst; }
++	}
++	
++	return nullptr;
++}
++
++// THIS NEEDS TO BE TESTED!!! (Augment sync will probably be off until this is verified/corrected)
++int16 ItemInst::AvailableAugmentSlot(uint32 aug_type) const
++{
++	// I made some changes and need to make sure that I understand them..and that upstream calls are updated as well -U
++	if(!_CommonPass()) { return LimitSizes::Aug_Invalid; }
++
++	uint8 aug_slot = LimitSizes::Aug_Start;
++	while(aug_slot < LimitSizes::Augment_Max)
++	{
++		if(!_GetContent(aug_slot))
++		{
++			if(aug_type == -1 ||
++				(m_item->AugSlotType[aug_slot] &&
++				((1 << (m_item->AugSlotType[aug_slot] - 1)) & aug_type)))
++			{
++				break;
++			}
++		}
++
++		aug_slot++;
++	}
++
++	return ((aug_slot < LimitSizes::Augment_Max) ? aug_slot : LimitSizes::Aug_Invalid);
++}
++
++uint32 ItemInst::GetAugmentID(uint8 aug_slot) const
++{
++	ItemInst* get_inst = GetAugment(aug_slot);
++
++	return (get_inst ? get_inst->GetItem()->ID : 0);
++}
++
++ItemInst* ItemInst::GetAugment(uint8 aug_slot) const
++{
++	if(_CommonPass())
++	{
++		ItemInst* get_inst = _GetContent(aug_slot);
++
++		if(get_inst && get_inst->GetItem()->AugType > 0) { return get_inst; }
++	}
++	
++	return nullptr;
++}
++
++bool ItemInst::_ContainerPass() const
++{
++	return (m_item && (m_item->ItemClass == ItemClassContainer));
++}
++
++bool ItemInst::_CommonPass() const
++{
++	return (m_item && (m_item->ItemClass == ItemClassCommon));
++}
++
++ItemInst* ItemInst::_GetContent(uint8 content_slot) const
++{
++	iter_Contents get_iter = m_contents.find(content_slot);
++
++	if(get_iter != m_contents.end()) { return get_iter->second; }
++
++	return nullptr;
++}
++
++ItemInst* ItemInst::_GetContent(uint8 content_slot)
++{
++	_iter_Contents get_iter = m_contents.find(content_slot);
++
++	if(get_iter != m_contents.end()) { return get_iter->second; }
++
++	return nullptr;
++}
++
++void ItemInst::_PutContent(uint8 content_slot, ItemInst* content_inst)
++{
++	if(content_inst) { m_contents[content_slot] = content_inst; }
++}
++
++ItemInst* ItemInst::_RemoveContent(uint8 content_slot)
++{
++	_iter_Contents remove_iter = m_contents.find(content_slot);
++
++	if(remove_iter != m_contents.end())
++	{
++		ItemInst* remove_inst = remove_iter->second;
++		m_contents.erase(content_slot);
++
++		return remove_inst;
++	}
++
++	return nullptr;
++}
++
++void ItemInst::_DeleteContent(uint8 content_slot)
++{
++	ItemInst* delete_inst = _RemoveContent(content_slot);
++	safe_delete(delete_inst);
++}
++// ################################################################################################
++
++
++/*
++ Class: WorldContainer_Object #####################################################################
++	Zone entity object removed from class ItemInst. Basically, a container with minimal private
++	map accessors.
++ ##################################################################################################
++*/
++WorldContainer_Object::~WorldContainer_Object()
++{
++	DeleteMapItems();
++}
++
++void WorldContainer_Object::DeleteMapItems()
++{
++	_iter_Contents contents_iter = m_contents.begin();
++	while(contents_iter != m_contents.end())
++	{
++		safe_delete(contents_iter->second);
++
++		contents_iter++;
++	}
++	
++	m_contents.clear();
++}
++
++void WorldContainer_Object::ClearMap()
++{
++	m_contents.clear();
++}
++
++ItemInst* WorldContainer_Object::GetItem(int16 sub_slot)
++{
++	if(!_OutOfRange(sub_slot)) { return _GetContent((uint8)sub_slot); }
++
++	return nullptr;
++}
++
++int16 WorldContainer_Object::PutItem(int16 sub_slot, ItemInst* item_inst)
++{
++	if(!_OutOfRange(sub_slot))
++	{
++		_DeleteContent((uint8)sub_slot);
++
++		if(item_inst)
++		{
++			_PutContent((uint8)sub_slot, item_inst);
++
++			return sub_slot;
++		}
++	}
++
++	return LimitSizes::Sub_Invalid;
++}
++
++int16 WorldContainer_Object::PutItem(int16 sub_slot, const ItemInst& item_inst)
++{
++	if(!_OutOfRange(sub_slot))
++	{
++		_DeleteContent((uint8)sub_slot);
++
++		if(item_inst)
++		{
++			_PutContent((uint8)sub_slot, item_inst.Clone());
++
++			return sub_slot;
++		}
++	}
++
++	return LimitSizes::Sub_Invalid;
++}
++
++int16 WorldContainer_Object::PutItem(SharedDatabase *db, int16 sub_slot, uint32 item_id)
++{
++	if(!_OutOfRange(sub_slot))
++	{
++		_DeleteContent((uint8)sub_slot);
++		
++		if(db && item_id)
++		{
++			ItemInst* put_inst = db->CreateItem(item_id);
++
++			if(put_inst)
++			{
++				_PutContent((uint8)sub_slot, put_inst);
++
++				return sub_slot;
++			}
++		}
++	}
++
++	return LimitSizes::Sub_Invalid;
++}
++
++ItemInst* WorldContainer_Object::RemoveItem(int16 sub_slot)
++{
++	if(!_OutOfRange(sub_slot)) { return _RemoveContent((uint8)sub_slot); }
++
++	return nullptr;
++}
++
++bool WorldContainer_Object::DeleteItem(int16 sub_slot)
++{
++	if(!_OutOfRange(sub_slot))
++	{
++		_DeleteContent((uint8)sub_slot);
++
++		return false;
++	}
++
++	return false;
++}
++
++ItemInst* WorldContainer_Object::_GetContent(uint8 content_slot) const
++{
++	iter_Contents get_iter = m_contents.find(content_slot);
++
++	if(get_iter != m_contents.end()) { return get_iter->second; }
++
++	return nullptr;
++}
++
++ItemInst* WorldContainer_Object::_GetContent(uint8 content_slot)
++{
++	_iter_Contents get_iter = m_contents.find(content_slot);
++
++	if(get_iter != m_contents.end()) { return get_iter->second; }
++
++	return nullptr;
++}
++
++void WorldContainer_Object::_PutContent(uint8 content_slot, ItemInst* content_inst)
++{
++	if(content_inst) { m_contents[content_slot] = content_inst; }
++}
++
++ItemInst* WorldContainer_Object::_RemoveContent(uint8 content_slot)
++{
++	_iter_Contents remove_iter = m_contents.find(content_slot);
++
++	if(remove_iter != m_contents.end())
++	{
++		ItemInst* remove_inst = remove_iter->second;
++		m_contents.erase(content_slot);
++
++		return remove_inst;
++	}
++
++	return nullptr;
++}
++
++void WorldContainer_Object::_DeleteContent(uint8 content_slot)
++{
++	ItemInst* delete_inst = _RemoveContent(content_slot);
++	safe_delete(delete_inst);
++}
++// ################################################################################################
++
++
++/*
++ Class: EvolveInfo ################################################################################
++	<description>
++ ##################################################################################################
++*/
++EvolveInfo::EvolveInfo()
++{
++	// nothing here yet
++}
++
++EvolveInfo::EvolveInfo(uint32 first, uint8 max, bool allkills, uint32 L2, uint32 L3, uint32 L4, uint32 L5, uint32 L6, uint32 L7, uint32 L8, uint32 L9, uint32 L10)
++{
++	FirstItem	= first;
++	MaxLvl		= max;
++	AllKills	= allkills;
++	LvlKills[0]	= L2;
++	LvlKills[1]	= L3;
++	LvlKills[2]	= L4;
++	LvlKills[3]	= L5;
++	LvlKills[4]	= L6;
++	LvlKills[5]	= L7;
++	LvlKills[6]	= L8;
++	LvlKills[7]	= L9;
++	LvlKills[8]	= L10;
++}
++
++EvolveInfo::~EvolveInfo()
++{
++
++}
++// ################################################################################################
++
++
++/*
++ Structure: InventorySlot_Struct ##################################################################
++	<description>
++ ##################################################################################################
++*/
++bool InventorySlot_Struct::IsValidServerSlot()
++{
++	return IsValidServerSlotCheck(Slot());
++}
++
++bool InventorySlot_Struct::IsValidNPCSlot()
++{
++	return IsValidNPCSlotCheck(Slot());
++}
++// ################################################################################################
++
++
++/*
++ Structure: Item_Struct ###########################################################################
++	<description>
++ ##################################################################################################
++*/
++bool Item_Struct::IsEquipable(uint16 race_id, uint16 class_id) const
++{
++	bool IsRace		= false;
++	bool IsClass	= false;
++
++	uint32 Classes_	= Classes;
++	uint32 Races_	= Races;
++
++	uint32 Race_ = GetArrayRace(race_id);
++
++	for(int CurrentClass = 1; CurrentClass <= PLAYER_CLASS_COUNT; ++CurrentClass)
++	{
++		if(Classes_ % 2 == 1)
++		{
++			if(CurrentClass == class_id)
++			{
++					IsClass = true;
++
++					break;
++			}
++		}
++
++		Classes_ >>= 1;
++	}
++
++	Race_ = (Race_ == 18 ? 16 : Race_);
++
++	for(unsigned int CurrentRace = 1; CurrentRace <= PLAYER_RACE_COUNT; ++CurrentRace)
++	{
++		if(Races_ % 2 == 1)
++		{
++			if(CurrentRace == Race_)
++			{
++				IsRace = true;
++
++				break;
++			}
++		}
++
++		Races_ >>= 1;
++	}
++
++	return (IsRace && IsClass);
++}
++// ################################################################################################
++
++
++/*
++ Namespace: Legacy ################################################################################
++	Existing perl (and lua) code is based on the old server inventory mapping. These translators
++	will allow a transistion between existing code and scripts, and the new mapping system
++
++	The slot translators only translate valid legacy slots. In the case of the offset corpse slots,
++	the handling code (corpse and patches) will need to properly assign the values
++
++	I've disabled the Bank slot range in the 'CalcSlot' functions because we have client maps that
++	account for ItemInsts stored there and there should be no !m_item containers representing the
++	bank. Plus, the return value is not correct, so it is wasted code
++
++	I also hard-coded the indexing values since they won't be changing and the current defines and
++	enums are depricated
++	-U
++ ##################################################################################################
++*/
++int16 Legacy::StructToSlot(Slot_Struct s_struct)
++{
++	int16 return_slot = -1;
++	int16 main = s_struct.main;
++	int16 sub = s_struct.sub;
++
++	if(s_struct.aug == LimitSizes::Aug_Invalid)
++	{
++		switch(s_struct.type)
++		{
++			case Type_Possessions:
++			{
++				if(main <= 20 && main >= 0)
++				{
++					if(sub == LimitSizes::Sub_Invalid) { return_slot = main; }
++
++					break;
++				}
++				
++				if(main == 21)
++				{
++					if(sub == LimitSizes::Sub_Invalid) { return_slot = 9999; }
++
++					break;
++				}
++
++				if(main == 22)
++				{
++					if(sub == LimitSizes::Sub_Invalid) { return_slot = 21; }
++
++					break;
++				}
++
++				if(main <= 30 && main >= 23)
++				{
++					if(sub == LimitSizes::Sub_Invalid) { return_slot = main - 1; }
++					else if(sub <= 9 && sub >= 0) { return_slot = 251 + ((main - 23) * 10) + sub; }
++
++					break;
++				}
++
++				if(main == 33)
++				{
++					if(sub == LimitSizes::Sub_Invalid) { return_slot = 30; }
++					else if(sub <= 9 && sub >= 0) { return_slot = 331 + sub; }
++
++					break;
++				}
++
++				break;
++			}
++			case Type_Bank:
++			{
++				if(main <= 23 && main >= 0)
++				{
++					if(sub == LimitSizes::Sub_Invalid) { return_slot = 2000 + main; }
++					else if(sub <= 9 && sub >= 0) { return_slot = 2031 + (main * 10) + sub; }
++
++					break;
++				}
++
++				break;
++			}
++			case Type_SharedBank:
++			{
++				if(main <= 1 && main >= 0)
++				{
++					if(sub == LimitSizes::Sub_Invalid) { return_slot = 2500 + main; }
++					else if(sub <= 9 && sub >= 0) { return_slot = 2531 + (main * 10) + sub; }
++
++					break;
++				}
++
++				break;
++			}
++			case Type_Trade:
++			{
++				if(main <= 7 && main >= 0)
++				{
++					if(sub == LimitSizes::Sub_Invalid) { return_slot = 3000 + main; }
++					else if(sub <= 9 && sub >= 0) { return_slot = 3031 + (main * 10) + sub; }
++
++					break;
++				}
++
++				break;
++			}
++			case Type_World:
++			{
++				if(main <= 9 && main >= 0)
++				{
++					if(sub == LimitSizes::Sub_Invalid) { return_slot = 4000 + main; }
++
++					break;
++				}
++
++				break;
++			}
++			case Type_Limbo:
++			{
++				if(main <= 36 && main >= 0)
++				{
++					if(sub == LimitSizes::Sub_Invalid) { return_slot = 30; }
++
++					break;
++				}
++
++				break;
++			}
++			case Type_Tribute:
++			{
++				if(main <= 4 && main >= 0)
++				{
++					if(sub == LimitSizes::Sub_Invalid) { return_slot = 400 + main; }
++
++					break;
++				}
++
++				break;
++			}
++			default: { break; }
++		}
++	}
++
++	return return_slot;
++}
++
++Slot_Struct Legacy::SlotToStruct(int16 slot)
++{
++	AutoSlot_Struct return_struct;
++
++	if(slot <= 20 && slot >= 0)
++	{
++		return_struct.type = Type_Possessions;
++		return_struct.main = slot;
++	}
++	else if(slot == 21)
++	{
++		return_struct.type = Type_Possessions;
++		return_struct.main = 22;
++	}
++	else if(slot <= 29 && slot >= 22)
++	{
++		return_struct.type = Type_Possessions;
++		return_struct.main = slot + 1;
++	}
++	else if(slot == 30)
++	{
++		return_struct.type = Type_Possessions;
++		return_struct.main = 33;
++	}
++	else if(slot <= 330 && slot >= 251)
++	{
++		return_struct.type = Type_Possessions;
++		return_struct.main = (slot - 251) / 10;
++		return_struct.sub = (slot - 251) % 10;
++	}
++	else if(slot <= 340 && slot >= 331)
++	{
++		return_struct.type = Type_Possessions;
++		return_struct.main = (slot - 331) / 10;
++		return_struct.sub = (slot - 331) % 10;
++	}
++	else if(slot <= 404 && slot >= 400)
++	{
++		return_struct.type = Type_Tribute;
++		return_struct.main = slot - 400;
++	}
++	else if(slot <= 2023 && slot >= 2000)
++	{
++		return_struct.type = Type_Bank;
++		return_struct.main = slot - 2000;
++	}
++	else if(slot <= 2270 && slot >= 2031)
++	{
++		return_struct.type = Type_Bank;
++		return_struct.main = (slot - 2031) / 10;
++		return_struct.sub = (slot - 2031) % 10;
++	}
++	else if(slot <= 2501 && slot >= 2500)
++	{
++		return_struct.type = Type_SharedBank;
++		return_struct.main = slot - 2500;
++	}
++	else if(slot <= 2550 && slot >= 2531)
++	{
++		return_struct.type = Type_SharedBank;
++		return_struct.main = (slot - 2531) / 10;
++		return_struct.sub = (slot - 2531) % 10;
++	}
++	else if(slot <= 3007 && slot >= 3000)
++	{
++		return_struct.type = Type_Trade;
++		return_struct.main = slot - 3000;
++	}
++	else if(slot <= 3110 && slot >= 3031)
++	{
++		return_struct.type = Type_Trade;
++		return_struct.main = (slot - 3031) / 10;
++		return_struct.sub = (slot - 3031) % 10;
++	}
++	else if(slot <= 4009 && slot >= 4000)
++	{
++		return_struct.type = Type_World;
++		return_struct.main = slot - 4000;
++	}
++	else if(slot == 9999)
++	{
++		return_struct.type = Type_Possessions;
++		return_struct.main = 21;
++	}
++
++	return return_struct.Slot();
++}
++
++int16 Legacy::CalcSlotId(int16 slot) // Return parent slot of bag slot
++{
++	int16 return_slot = -1;
++
++	if(slot <= 330 && slot >= 251) // Personal bag slots
++	{
++		return_slot = 22 + (slot - 251) / 10;
++	}
++	else if(slot <= 340 && slot >= 331) // Cursor bag slots
++	{
++		return_slot = 30;
++	}
++	/*
++	else if(slot <= 2023 && slot >= 2000) // Bank slots - the enemy of my enemy is my friend?
++	{
++		return_slot = 2000 + (slot - 2000) / 10;
++	}
++	*/
++	else if(slot <= 2270 && slot >= 2031) // Bank bag slots
++	{
++		return_slot = 2000 + (slot - 2031) / 10;
++	}
++	else if(slot <= 2550 && slot >= 2531) // Shared Bank bag slots
++	{
++		return_slot = 2500 + (slot - 2531) / 10;
++	}
++	else if(slot <= 3179 && slot >= 3100) // Trade bag slots
++	{
++		return_slot = 3000 + (slot - 3100) / 10;
++	}
++
++	return return_slot;
++}
++
++int16 Legacy::CalcSlotId(int16 bag_slot, uint8 bag_index) // Return bag slot from parent slot and index
++{
++	int16 return_slot = -1;
++
++	// We already specify slot ranges for this check..anything out of range is returned as invalid
++	// if(!SupportsContainers(/* check gcc compliance */SlotToStruct(bag_slot))) { return return_slot; }
++
++	if(bag_slot == 30 || bag_slot == 8000) // Cursor slot
++	{
++		return_slot = 331 + bag_index;
++	}
++	else if(bag_slot <= 29 && bag_slot >= 22) // Personal slots
++	{
++		return_slot = 251 + (bag_slot - 22) * 10 + bag_index;
++	}
++	else if(bag_slot <= 2023 && bag_slot >= 2000) // Bank slots
++	{
++		return_slot = 2031 + (bag_slot - 2000) * 10 + bag_index;
++	}
++	else if(bag_slot <= 2501 && bag_slot >= 2500) // Shared Bank slots
++	{
++		return_slot = 2531 + (bag_slot - 2500) * 10 + bag_index;
++	}
++	else if(bag_slot <= 3007 && bag_slot >= 3000) // Trade slots
++	{
++		return_slot = 3031 + (bag_slot - 3000) * 10 + bag_index;
++	}
++
++	return return_slot;
++}
++
++uint8 Legacy::CalcBagIdx(int16 slot) // Return index from bag slot
++{
++	// return_index = 0 is still a valid index... I may change the behavior of the calling methods
++	// and return LimitSizes::Container_Invalid (255) if it can be done with minimal effort -U
++	
++	uint8 return_index = 0;
++
++	if(slot <= 330 && slot >= 251) // Personal bag slots
++	{
++		return_index = (slot - 251) % 10;
++	}
++	else if(slot <= 340 && slot >= 331) // Cursor bag slots
++	{
++		return_index = (slot - 331) % 10;
++	}
++	/*
++	else if(slot <= 2023 && slot >= 2000) // Bank slots - Again with the bank slots..they're not bags...
++	{
++		return_index = (slot - 2000) % 10;
++	}
++	*/
++	else if(slot <= 2270 && slot >= 2031) // Bank bag slots
++	{
++		return_index = (slot - 2031) % 10;
++	}
++	else if(slot <= 2550 && slot >= 2531) // Shared Bank bag slots
++	{
++		return_index = (slot - 2531) % 10;
++	}
++	else if(slot <= 3179 && slot >= 3100) // Trade bag slots
++	{
++		return_index = (slot - 3100) % 10;
++	}
++	else if(slot <= 4009 && slot >= 4000) // World slots (this is probably related to !m_item ItemInsts)
++	{
++		return_index = (slot - 4000) /* % 10 - wasted calculation */;
++	}
++
++	return return_index;
++}
++
++uint32 Legacy::WhereToWhereLocation(uint8 inv_where)
++{
++	if(inv_where == invWhereAll) { return InvWhereLegacy; }
++
++	uint32 location = InvWhereNull;
++
++	if(inv_where & invWhereWorn) { location |= (InvWhereEquipment & InvWhereTribute); }
++
++	if(inv_where & invWherePersonal) { location |= InvWherePersonal; }
++
++	if(inv_where & invWhereBank) { location |= InvWhereBank; }
++
++	if(inv_where & invWhereSharedBank) { location |= InvWhereSharedBank; }
++
++	if(inv_where & invWhereTrading) { location |= InvWhereTrade; }
++
++	if(inv_where & invWhereCursor) { location |= (InvWhereCursor & InvWhereLimbo); }
++
++	return location;
++}
++// ################################################################################################
+diff --git a/common/Item.h b/common/Item.h
+index c8a8be8..2211aef 100644
+--- a/common/Item.h
++++ b/common/Item.h
+@@ -15,3 +15,573 @@
+ 	along with this program; if not, write to the Free Software
+ 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
++
++// @merth notes:
++// These classes could be optimized with database reads/writes by storing
++// a status flag indicating how object needs to interact with database
++
++#ifndef __ITEM_H
++#define __ITEM_H
++
++class WorldContainer_Object;	// Minor container class for zone object use
++class ItemInst;					// Item belonging to a client (contains info on item, dye, augments, charges, etc)
++class InventoryLimits;			// Client-based limits class
++class LimboQueue;				// Class to keep track of available limbo slots
++class Inventory;				// Character inventory
++class ItemParse;				// Parses item packets
++class EvolveInfo;				// Stores information about an evolving item family
++
++#include <string>
++#include <vector>
++#include <map>
++#include <list>
++#include "../common/eq_packet_structs.h"
++#include "../common/eq_constants.h"
++#include "../common/item_struct.h"
++#include "../common/clientversions.h"
++#include "../common/timer.h"
++
++// Helper typedefs
++class maptraits_Inventory
++{
++public:
++	bool	operator()(const SlotHeader_Struct& left, const SlotHeader_Struct& right) const
++	{
++		return ((left.type < right.type) && (left.main < right.main));
++	}
++};
++
++typedef std::map<SlotHeader_Struct, ItemInst*, maptraits_Inventory>	map_Inventory;
++typedef map_Inventory::const_iterator								iter_Inventory;
++typedef map_Inventory::iterator										_iter_Inventory;
++
++typedef std::map<uint8, ItemInst*>		map_Contents;
++typedef map_Contents::const_iterator	iter_Contents;
++typedef map_Contents::iterator			_iter_Contents;
++
++namespace ItemField
++{
++	enum
++	{
++		source = 0,
++#define F(x) x,
++#include "item_fieldlist.h"
++#undef F
++		updated
++	};
++};
++
++// Specifies usage type for item inside ItemInst
++enum ItemUseType
++{
++	ItemUseNormal,
++	ItemUseWorldContainer
++};
++
++typedef enum
++{
++	byFlagIgnore,	// do not consider this flag
++	byFlagSet,		// apply action if the flag is set
++	byFlagNotSet	// apply action if the flag is NOT set
++} byFlagSetting;
++
++enum HasCheckBit : uint8
++{
++	ItemByItem		= 0,
++	ItemByUse		= 1,
++	ItemByLoreGroup	= 2
++};
++
++enum InvWhereLocation : uint32
++{
++	InvWhereNull			= 0x00000000,
++	InvWhereEquipment		= 0x00000001, // worn equipment
++	InvWherePersonal		= 0x00000002, // carried equipment
++	InvWhereCursor			= 0x00000004, // visible cursor only
++	InvWherePossessions		= 0x00000007,
++	InvWhereBank			= 0x00000008,
++	InvWhereSharedBank		= 0x00000010,
++	InvWhereTrade			= 0x00000020,
++	InvWhereWorld			= 0x00000040,
++	InvWhereLimbo			= 0x00000080,
++	InvWhereTribute			= 0x00000100,
++	InvWhereTrophyTribute	= 0x00000200,
++	InvWhereLegacy			= 0x000003D5,
++	InvWhereDeleted			= 0x00000400, // delete buyback?
++	InvWhereRealEstate		= 0x00000800,
++	InvWhereAltStorage		= 0x00001000, // tokenized bag storage?
++	InvWhereArchived		= 0x00002000, // tokenized bag storage?
++	InvWhereMail			= 0x00004000,
++	InvWhereKrono			= 0x00008000,
++	InvWhereOther			= 0x00010000,
++	InvWhereEnd				= 0x00020000, // Insert new values above this (and << this value appropriately)
++	InvWhereAll				= 0xFFFFFFFF
++};
++
++class InventoryLimits
++{
++public:
++	InventoryLimits() { ResetInventoryLimits(); }
++
++	~InventoryLimits();
++
++	static bool	SetServerInventoryLimits(InventoryLimits &limits);
++	static bool	SetNPCInventoryLimits(InventoryLimits &limits);
++	static bool	SetClientInventoryLimits(InventoryLimits &limits, EQClientVersion client_version = EQClientUnknown);
++	
++	void	ResetInventoryLimits();
++
++	int16	GetSlotTypeSize(int16 slot_type) const	{ return (slot_type >= LimitSizes::Type_Start && slot_type < Type_Count) ? m_slottypesize[slot_type] : 0; }
++	int16	GetNPCTradeSize() const					{ return m_npctradesize; }
++
++	int16	GetEquipmentStart() const	{ return m_equipmentstart; }
++	int16	GetEquipmentEnd() const		{ return m_equipmentend; }
++	uint32	GetEquipmentBitMask() const	{ return m_equipmentbitmask; }
++	int16	GetPersonalStart() const	{ return m_personalstart; }
++	int16	GetPersonalEnd() const		{ return m_personalend; }
++	uint32	GetPersonalBitMask() const	{ return m_personalbitmask; }
++
++	int16	GetContainerMax() const		{ return m_containermax; }
++	int16	GetAugmentMax() const		{ return m_augmentmax; }
++
++	uint8	GetBandolierMax() const		{ return m_bandoliermax; }
++	uint8	GetPotionBeltMax() const	{ return m_potionbeltmax; }
++
++	static bool	IsValidServerSlot(Slot_Struct s_struct);
++	static bool	IsValidNPCSlot(Slot_Struct s_struct);
++
++	bool	IsValidClientSlot(Slot_Struct s_struct) const;
++	bool	IsValidEquipmentSlot(int16 slot_main) const;
++	bool	IsValidPersonalSlot(int16 slot_main) const;
++	bool	IsValidContainerSlot(int16 slot_sub) const;
++	bool	IsValidAugmentSlot(int16 slot_aug) const;
++	
++	bool	IsBagInBagAllowed() const	{ return m_baginbagallowed; }
++
++	bool	IsLimitsSet() const	{ return m_limitsset; }
++
++	bool	operator[](Slot_Struct s_struct) const	{ return IsValidClientSlot(s_struct); }
++	int16	operator[](int16 slot_type) const		{ return GetSlotTypeSize(slot_type); }
++
++private:
++	int16	m_slottypesize[Type_Count];
++
++	int16	m_npctradesize;
++
++	int16	m_equipmentstart;
++	int16	m_equipmentend;
++	uint32	m_equipmentbitmask;
++	int16	m_personalstart;
++	int16	m_personalend;
++	uint32	m_personalbitmask;
++
++	int16	m_containermax;
++	int16	m_augmentmax;
++
++	uint8	m_bandoliermax;
++	uint8	m_potionbeltmax;
++
++	bool	m_baginbagallowed;
++
++	bool	m_limitsset;
++};
++
++class LimboQueue
++{
++	friend class	Inventory;
++
++public:
++	~LimboQueue();
++
++protected:
++	void	ResetQueue(int16 limbo_size);
++
++	bool	IsFull()	{ return m_available.empty(); }
++	bool	IsEmpty()	{ return m_inqueue.empty(); }
++
++private:
++	std::list<int16>	m_available;
++	std::list<int16>	m_inqueue;
++};
++
++class SharedDatabase;
++
++class Inventory
++{
++public:
++	// Class deconstructor
++	~Inventory();
++
++	// Inventory methods
++	static void	CleanDirty();
++	static void	MarkDirty(ItemInst *inst);
++
++	// If more HasItem-type checks are added, HasCheck() will need to have the new parameters added to
++	// the argument list. A single feeder should still be added like HasItem(), HasItemByUse(), etc...
++	// (Don't forget to add the new type as a numeric HasCheckBit enumeration)
++	Slot_Struct	HasCheck(HasCheckBit by_type, uint32 item_id = 0, uint8 quantity = 0, uint8 use_type = 0, uint32 lore_group = 0, uint32 where_location = InvWhereNull);
++	
++	// (Feeder functions still have thier original arguments and default values for compatibility)
++	Slot_Struct	HasItem(uint32 item_id, uint8 quantity = 0, uint32 where_location = InvWhereAll);
++	Slot_Struct	HasItemByUse(uint8 use_type, uint8 quantity = 0, uint32 where_location = InvWhereAll);
++	Slot_Struct	HasItemByLoreGroup(uint32 lore_group, uint32 where_location = InvWhereAll);
++
++	bool	HasSpaceForItem(const Item_Struct *item_to_try, int16 quantity);
++
++	Slot_Struct	FindFreeSlot(bool for_bag, bool try_cursor, uint8 min_size = 0, bool is_arrow = false);
++
++	Slot_Struct	GetSlotByItemInst(ItemInst *test_inst);
++
++	// Add non-(G)et(P)ut(R)emove(D)elete Item/Augment code below here
++	bool	SwapItem(Slot_Struct s_struct_a, Slot_Struct s_struct_b);
++
++	Slot_Struct	PushCursor(ItemInst* inst);
++	Slot_Struct	PushCursor(const ItemInst& inst);
++	Slot_Struct	PushCursor(SharedDatabase *db, uint32 item_id);
++
++	Slot_Struct	MoveLimboToCursor(Slot_Struct limbo_struct, Slot_Struct cursor_struct); // from -> to
++
++	// Consider adding augments to dump
++	void	dumpEntireInventory();
++	void	dumpSpecificInventory(InventorySlotTypes slot_type);
++
++	// Slot methods
++	bool	IsValidItemSlot(Slot_Struct s_struct) const;
++	bool	IsValidAugmentSlot(Slot_Struct s_struct) const;
++
++	bool	IsSlotAllowed(Slot_Struct s_struct, ItemInst* item) const;
++	bool	SupportsContainers(Slot_Struct s_struct) const;
++
++	static Slot_Struct	CalcSlotFromMaterial(uint8 material_slot, bool has_bracer01 = false, bool has_bracer02 = false);
++	static uint8	CalcMaterialFromSlot(Slot_Struct s_struct);
++
++	// Item methods
++	bool	IsItemEquipable(Slot_Struct s_struct, ItemInst* item) const;
++	bool	AvailableWearSlot(uint32 aug_wear_slots, ItemInst* item) const;
++
++	bool	CheckNoDrop(Slot_Struct s_struct);
++	
++	static bool	CanItemFitInContainer(const Item_Struct *item_to_try, const Item_Struct *container);
++
++	// ItemInst property accessors (inventory.cpp)
++	std::string	GetCustomItemData(Slot_Struct s_struct, std::string identifier);
++	void	SetCustomItemData(uint32 character_id, Slot_Struct s_struct, std::string identifier, std::string value);
++	void	SetCustomItemData(uint32 character_id, Slot_Struct s_struct, std::string identifier, int value);
++	void	SetCustomItemData(uint32 character_id, Slot_Struct s_struct, std::string identifier, float value);
++	void	SetCustomItemData(uint32 character_id, Slot_Struct s_struct, std::string identifier, bool value);
++
++	// InventoryLimits accessors
++	bool	IsLimitsSet()	{ return m_limits.IsLimitsSet(); }
++
++	InventoryLimits&	GetLimits()	{ return m_limits; }
++	
++	// LimboQueue accessors
++	void	ResetLimboQueue(int16 limbo_size)	{ m_limboqueue.ResetQueue(limbo_size); }
++
++	// Container (bag) methods
++	ItemInst*	GetItem(Slot_Struct s_struct) const;
++	ItemInst*	GetItem(Slot_Struct s_struct);
++	Slot_Struct	PutItem(Slot_Struct s_struct, ItemInst* item_inst);
++	Slot_Struct	PutItem(Slot_Struct s_struct, const ItemInst& item_inst);
++	Slot_Struct	PutItem(SharedDatabase *db, Slot_Struct s_struct, uint32 item_id);
++	ItemInst*	RemoveItem(Slot_Struct s_struct); // PopItem()
++	bool		DeleteItem(Slot_Struct s_struct, uint8 quantity = 0);
++
++	// Augment methods
++	ItemInst*	GetAugment(Slot_Struct s_struct) const;
++	ItemInst*	GetAugment(Slot_Struct s_struct);
++	Slot_Struct	PutAugment(Slot_Struct s_struct, ItemInst* aug_inst);
++	Slot_Struct	PutAugment(Slot_Struct s_struct, const ItemInst& aug_inst);
++	Slot_Struct	PutAugment(SharedDatabase *db, Slot_Struct s_struct, uint32 aug_id);
++	ItemInst*	RemoveAugment(Slot_Struct s_struct);
++	bool		DeleteAugment(Slot_Struct s_struct);
++
++	// Inventory operators
++	const ItemInst*	operator[](Slot_Struct s_struct) const	{ return GetItem(s_struct); } // Inventory op
++
++protected:
++	ItemInst*	_GetContent(SlotHeader_Struct sh_struct) const;
++	ItemInst*	_GetContent(SlotHeader_Struct sh_struct);
++	void		_PutContent(SlotHeader_Struct sh_struct, ItemInst* inventory_inst);
++	ItemInst*	_RemoveContent(SlotHeader_Struct sh_struct);
++	void		_DeleteContent(SlotHeader_Struct sh_struct);
++
++private:
++	static bool	_ContainerPass(ItemInst* test_inst);
++	static bool	_CommonPass(ItemInst* test_inst);
++
++	void	_ReorderLimboMap(); // coded, but not used until verified needed in RoF client
++
++	void	_dumpInventoryType(InventorySlotTypes slot_type);
++	void	_dumpContainerContents(ItemInst* item_inst);
++	void	_dumpItemAugments(ItemInst* item_inst);
++	
++	static InventorySlotTypes	_CalcSlotTypeFromLocation(uint32 location);
++	static uint32	_CalcLocationFromSlotHeader(SlotHeader_Struct sh_struct);
++
++	// Player inventory
++	InventoryLimits	m_limits;		// client-based inventory limits
++	LimboQueue		m_limboqueue;	// tracking for cursor (limbo) buffer
++	map_Inventory	m_inventory;	// client inventory map of maps
++};
++
++class ItemInst
++{
++	friend class	Inventory;
++
++public:
++	// Class constructors
++	ItemInst(const Item_Struct* item = nullptr, int16 charges = 0);
++	ItemInst(SharedDatabase *db, uint32 item_id, int16 charges = 0);
++	// ItemInst(ItemUseType use_type);
++	ItemInst(const ItemInst& copy);
++	ItemInst(WorldContainer_Object* wc_object, const Item_Struct* container = nullptr);
++
++	// Class deconstructor
++	~ItemInst();
++
++	// ItemInst property accessors
++	const Item_Struct*	GetUnscaledItem() const	{ return (m_item ? m_item : nullptr); }
++	const Item_Struct*	GetItem() const			{ return (m_scaledItem ? m_scaledItem : GetUnscaledItem()); }
++
++	int16	GetCharges() const			{ return m_charges; }
++	void	SetCharges(int16 charges)	{ m_charges = charges; }
++
++	// I think there are at least two more No<Action>-types out there... -U
++	bool	IsInstNoDrop() const			{ return m_instnodrop; }
++	void	SetInstNoDrop(bool instnodrop)	{ m_instnodrop = instnodrop; }
++
++	uint32	GetColor() const		{ return m_color; }
++	void	SetColor(uint32 color)	{ m_color = color; }
++
++	int8	GetEvolveLvl() const	{ return m_evolveLvl; }
++	int8	GetMaxEvolveLvl() const;
++
++	uint32	GetExp() const		{ return m_exp; }
++	void	SetExp(uint32 exp)	{ m_exp = exp; }
++	void	AddExp(uint32 exp)	{ m_exp += exp; }
++
++	void	SetActivated(bool activated)	{ m_activated = activated; }
++	void	SetScaling(bool scaling)		{ m_scaling = scaling; }
++
++	void	SetTimer(std::string name, uint32 time);
++	void	StopTimer(std::string name);
++
++	uint32	GetMerchantSlot() const					{ return m_merchantslot; }
++	void	SetMerchantSlot(uint32 merchant_slot)	{ m_merchantslot = merchant_slot; }
++
++	int32	GetMerchantCount() const				{ return m_merchantcount; }
++	void	SetMerchantCount(int32 merchant_count)	{ m_merchantcount = merchant_count; }
++
++	uint32	GetPrice() const		{ return m_price; }
++	void	SetPrice(uint32 price)	{ m_price = price; }
++
++	// I disabled all 'currentslot' properties/methods since I can't find any references other than declarations -U
++	// int16	GetCurrentSlot() const				{ return m_currentslot; }
++	// void		SetCurrentSlot(int16 current_slot)	{ m_currentslot = current_slot; }
++
++	int32	GetSerialNumber() const					{ return m_serialnumber; }
++	void	SetSerialNumber(int32 serial_number)	{ m_serialnumber = serial_number; }
++
++	// Item_Struct property accessors
++	const uint32	GetID() const			{ return (m_item ? m_item->ID : 0); }
++	const uint32	GetItemScriptID() const	{ return (m_item ? m_item->ScriptFileID : 0); }
++	const uint32	GetAugmentType() const	{ return (m_item ? m_item->AugType : 0); }
++
++	// ItemInst methods
++	ItemInst*	Clone() const	{ return new ItemInst(*this); } // Pseudo-polymorphic copy constructor
++
++	void	Initialize(SharedDatabase *db = nullptr);
++	void	ScaleItem();
++
++	bool	EvolveOnAllKills() const;
++	uint32	GetKillsNeeded(uint8 current_level);
++
++	bool	IsType(ItemClass item_class) const;
++	
++	bool	IsStackable() const	{ return (m_item ? m_item->Stackable : false); }
++	bool	IsEvolving() const	{ return (m_evolveLvl >= 1); }
++	bool	IsActivated() const	{ return m_activated; }
++	bool	IsScaling() const	{ return m_scaling; }
++
++	bool	IsEquipable(uint16 race_id, uint16 class_id) const;
++	bool	IsWeapon() const;
++	bool	IsAmmo() const;
++	
++	bool	IsExpendable() const;
++	bool	IsAugmentable() const;
++
++	bool	IsNoneEmptyContainer();
++	bool	IsAugmented();
++	uint16	GetTotalItemCount() const;
++
++	void	ClearTimers() { m_timers.clear(); }
++
++	void	DeleteMapItems();
++	void	DeleteMapItemsByFlags(byFlagSetting is_nodrop, byFlagSetting is_norent);
++	void	ClearMap();
++
++	std::string	GetCustomDataString() const;
++	std::string	GetCustomData(std::string identifier);
++	void	SetCustomData(std::string identifier, std::string value);
++	void	SetCustomData(std::string identifier, int value);
++	void	SetCustomData(std::string identifier, float value);
++	void	SetCustomData(std::string identifier, bool value);
++	void	DeleteCustomData(std::string identifier);
++
++	std::map<std::string, Timer>&	GetTimers() { return m_timers; }
++
++	// std::map<uint8, ItemInst*>*	GetItemContents() { return &m_contents; }
++
++	iter_Contents	begin() const	{ return m_contents.begin(); }
++	iter_Contents	end() const		{ return m_contents.end(); }
++
++	std::string	Serialize(Slot_Struct s_struct) const;
++
++	// Container (bag) methods
++	int16	AvailableItemSlot() const; // FirstOpenSlot()
++
++	uint32	GetItemID(uint8 sub_slot) const;
++	ItemInst*	GetItem(uint8 sub_slot) const;
++	
++	// Augment methods
++	int16	AvailableAugmentSlot(uint32 aug_type) const;	
++
++	uint32	GetAugmentID(uint8 aug_slot) const;
++	ItemInst*	GetAugment(uint8 aug_slot) const;
++
++	// ItemInst operators
++	operator bool() const	{ return (m_item != nullptr); }
++
++	bool	operator == (const ItemInst& right) const	{ return (m_item ? (right ? (m_item == right.m_item) : false) : false); }
++	bool	operator != (const ItemInst& right) const	{ return (m_item ? (right ? (m_item != right.m_item) : false) : false); }
++
++	const ItemInst*	operator[](uint8 sub_slot) const	{ return GetItem(sub_slot); } // Container op
++
++protected:
++	// Handles both container and augments
++	ItemInst*	_GetContent(uint8 content_slot) const;
++	ItemInst*	_GetContent(uint8 content_slot);
++	void		_PutContent(uint8 content_slot, ItemInst* content_inst);
++	ItemInst*	_RemoveContent(uint8 content_slot);
++	void		_DeleteContent(uint8 content_slot);
++
++	_iter_Contents	_begin()	{ return m_contents.begin(); }
++	_iter_Contents	_end()		{ return m_contents.end(); }
++
++private:
++	bool	_ContainerPass() const;
++	bool	_CommonPass() const;
++
++	ItemUseType			m_use_type;
++	const Item_Struct*	m_item;
++	Item_Struct*		m_scaledItem;
++	
++	int16	m_charges;
++	bool	m_instnodrop;
++	uint32	m_color;
++	// int16	m_currentslot; // Legacy? (no external grepwin ref -> now _Slot_Struct anyways)
++
++	EvolveInfo*	m_evolveInfo;
++	int8		m_evolveLvl;
++	uint32		m_exp;
++	bool		m_activated;
++	bool		m_scaling;
++
++	uint32	m_merchantslot;
++	int32	m_merchantcount;
++	uint32	m_price;
++	int32	m_serialnumber;
++
++	std::map<std::string, std::string>	m_customdata;
++	std::map<std::string, Timer>		m_timers;
++	map_Contents						m_contents;
++};
++
++class WorldContainer_Object
++{
++	friend class	Inventory; // This may not be needed...
++	friend class	ItemInst;
++
++public:
++	~WorldContainer_Object();
++
++	iter_Contents	begin() const	{ return m_contents.begin(); }
++	iter_Contents	end() const		{ return m_contents.end(); }
++
++	void	DeleteMapItems();
++	void	ClearMap();
++
++	ItemInst*	GetItem(int16 sub_slot) const;
++	ItemInst*	GetItem(int16 sub_slot);
++	int16		PutItem(int16 sub_slot, ItemInst* item_inst);
++	int16		PutItem(int16 sub_slot, const ItemInst& item_inst);
++	int16		PutItem(SharedDatabase *db, int16 sub_slot, uint32 item_id);
++	ItemInst*	RemoveItem(int16 sub_slot);
++	bool		DeleteItem(int16 sub_slot);
++
++protected:
++	_iter_Contents	_begin()	{ return m_contents.begin(); }
++	_iter_Contents	_end()		{ return m_contents.end(); }
++
++	map_Contents*	_GetMap()	{ return &m_contents; }
++
++	ItemInst*	_GetContent(uint8 content_slot) const;
++	ItemInst*	_GetContent(uint8 content_slot);
++	void		_PutContent(uint8 content_slot, ItemInst* content_inst);
++	ItemInst*	_RemoveContent(uint8 content_slot);
++	void		_DeleteContent(uint8 content_slot);
++
++private:
++	bool	_OutOfRange(int16 content_slot)	{ return ((content_slot & LimitSizes::OutOfRange) != 0); }
++
++	map_Contents	m_contents;
++};
++
++class EvolveInfo
++{
++public:
++	friend class	ItemInst;
++	//temporary
++	uint16	LvlKills[9];
++	uint32	FirstItem;
++	uint8	MaxLvl;
++	bool	AllKills;
++
++	EvolveInfo();
++	EvolveInfo(uint32 first, uint8 max, bool allkills, uint32 L2, uint32 L3, uint32 L4, uint32 L5, uint32 L6, uint32 L7, uint32 L8, uint32 L9, uint32 L10);
++	~EvolveInfo();
++};
++
++
++namespace Legacy
++{
++/*
++	A 'static class' seemed feasible for this, but is not c++ compliant..so, 'namespace' it is...
++	(we might consider moving to its own header/code files if it gets too big)
++*/
++	static int16	StructToSlot(Slot_Struct s_struct);
++	static Slot_Struct	SlotToStruct(int16 slot);
++
++	static int16	CalcSlotId(int16 slot);
++	static int16	CalcSlotId(int16 bag_slot, uint8 bag_index);
++	static uint8	CalcBagIdx(int16 slot);
++
++	static uint32	WhereToWhereLocation(uint8 inv_where);
++
++	// Left in situ until deemed no longer needed (currently used for legacy scripting) -U
++	// FatherNitwit: location bits for searching specific places with HasItem() and HasItemByUse()
++	enum invWhere : uint8
++	{
++		invWhereNull		= 0x00,
++		invWhereWorn		= 0x01,
++		invWherePersonal	= 0x02,	//in the character's inventory
++		invWhereBank		= 0x04,
++		invWhereSharedBank	= 0x08,
++		invWhereTrading		= 0x10,
++		invWhereCursor		= 0x20,
++		invWhereAll			= 0xFF
++	};
++};
++
++#endif // #define __ITEM_H
+diff --git a/common/eq_constants.h b/common/eq_constants.h
+index c8a8be8..71a66de 100644
+--- a/common/eq_constants.h
++++ b/common/eq_constants.h
+@@ -15,3 +15,921 @@
+ 	along with this program; if not, write to the Free Software
+ 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
++
++#ifndef EQ_CONSTANTS_H
++#define EQ_CONSTANTS_H
++
++#include "skills.h"
++
++/*
++** Item attributes
++**
++*/
++enum ItemAttrib
++{
++	ItemAttribLore			= (1 << 0),
++	ItemAttribArtifact		= (1 << 1),
++	ItemAttribSummoned		= (1 << 2),
++	ItemAttribMagic			= (1 << 3),
++	ItemAttribAugment		= (1 << 4),
++	ItemAttribPendingLore	= (1 << 5),
++	ItemAttribNone			= 0,
++	ItemAttribUnknown		= 0xFFFFFFFF
++};
++
++/*
++** Item types
++**
++*/
++enum ItemClass
++{
++	ItemClassCommon		= 0,
++	ItemClassContainer	= 1,
++	ItemClassBook		= 2
++};
++
++/*
++** Item uses
++**
++*/
++enum ItemTypes
++{
++	ItemType1HS				= 0,
++	ItemType2HS				= 1,
++	ItemTypePierce			= 2,
++	ItemType1HB				= 3,
++	ItemType2HB				= 4,
++	ItemTypeBow				= 5,
++	// 6
++	ItemTypeThrowing		= 7,
++	ItemTypeShield			= 8,
++	// 9
++	ItemTypeArmor			= 10,
++	ItemTypeUnknon			= 11,	// A lot of random crap has this item use.
++	ItemTypeLockPick		= 12,
++	ItemTypeFood			= 14,
++	ItemTypeDrink			= 15,
++	ItemTypeLightSource		= 16,
++	ItemTypeStackable		= 17,	// Not all stackable items are this use...
++	ItemTypeBandage			= 18,
++	ItemTypeThrowingv2		= 19,
++	ItemTypeSpell			= 20,	// spells and tomes
++	ItemTypePotion			= 21,
++	ItemTypeWindInstr		= 23,
++	ItemTypeStringInstr		= 24,
++	ItemTypeBrassInstr		= 25,
++	ItemTypeDrumInstr		= 26,
++	ItemTypeArrow			= 27,
++	ItemTypeJewlery			= 29,
++	ItemTypeSkull			= 30,
++	ItemTypeTome			= 31,
++	ItemTypeNote			= 32,
++	ItemTypeKey				= 33,
++	ItemTypeCoin			= 34,
++	ItemType2HPierce		= 35,
++	ItemTypeFishingPole		= 36,
++	ItemTypeFishingBait		= 37,
++	ItemTypeAlcohol			= 38,
++	ItemTypeCompass			= 40,
++	ItemTypePoison			= 42,	// might be wrong, but includes poisons
++	ItemTypeHand2Hand		= 45,
++	ItemUseSinging			= 50,
++	ItemUseAllInstruments	= 51,
++	ItemTypeCharm			= 52,
++	ItemTypeAugment			= 54,
++	ItemTypeAugmentSolvent	= 55,
++	ItemTypeAugmentDistill	= 56
++};
++
++/*
++	Bag types
++*/
++enum
++{
++	bagTypeSmallBag		= 0,
++	bagTypeLargeBag		= 1,
++	bagTypeQuiver		= 2,
++	bagTypeBeltPouch	= 3,
++	bagTypeBandolier	= 8
++	// ... there are 50 types
++};
++
++
++/*
++** Item Effect Types
++**
++*/
++enum
++{
++	ET_CombatProc	= 0,
++	ET_ClickEffect	= 1,
++	ET_WornEffect	= 2,
++	ET_Expendable	= 3,
++	ET_EquipClick	= 4,
++	ET_ClickEffect2	= 5,	// name unknown
++	ET_Focus		= 6,
++	ET_Scroll		= 7
++};
++
++// SpawnAppearance types:
++#define AT_Die			0	// this causes the client to keel over and zone to bind point
++#define AT_WhoLevel		1	// the level that shows up on /who
++#define AT_Invis		3	// 0 = visible, 1 = invisible
++#define AT_PVP			4	// 0 = blue, 1 = pvp (red)
++#define AT_Light		5	// light type emitted by player (lightstone, shiny shield)
++#define AT_Anim			14	// 100 = standing, 110 = sitting, 111 = ducking, 115 = feigned, 105 = looting
++#define AT_Sneak		15	// 0 = normal, 1 = sneaking
++#define AT_SpawnID		16	// server to client, sets player spawn id
++#define AT_HP			17	// Client->Server, my HP has changed (like regen tic)
++#define AT_Linkdead		18	// 0 = normal, 1 = linkdead
++#define AT_Levitate		19	// 0 = off, 1 = flymode, 2 = levitate
++#define AT_GM			20	// 0 = normal, 1 = GM - all odd numbers seem to make it GM
++#define AT_Anon			21	// 0 = normal, 1 = anon, 2 = roleplay
++#define AT_GuildID		22
++#define AT_GuildRank	23	// 0 = member, 1 = officer, 2 = leader
++#define AT_AFK			24	// 0 = normal, 1 = afk
++#define AT_Pet			25	// Param is EntityID of owner, or 0 for when charm breaks
++#define AT_Split		28	// 0 = normal, 1 = autosplit on
++#define AT_Size			29	// spawn's size
++#define AT_NPCName		31	// change PC's name's color to NPC color 0 = normal, 1 = npc name
++#define AT_ShowHelm		43	// 0 = do not show helmet graphic, 1 = show graphic
++#define AT_DamageState	44	// The damage state of a destructible object (0 through 4)
++// #define AT_Trader		300	// Bazzar Trader Mode
++
++// solar: animations for AT_Anim
++#define ANIM_FREEZE	102
++#define	ANIM_STAND		0x64
++#define	ANIM_SIT		0x6e
++#define	ANIM_CROUCH		0x6f
++#define	ANIM_DEATH		0x73
++#define ANIM_LOOT		0x69
++
++typedef enum
++{
++	eaStanding = 0,
++	eaSitting,		// 1
++	eaCrouching,	// 2
++	eaDead,			// 3
++	eaLooting,		// 4
++	_eaMaxAppearance
++} EmuAppearance;
++
++/*
++** Diety List
++*/
++#define DEITY_UNKNOWN			0
++#define DEITY_AGNOSTIC			396
++#define DEITY_BRELL				202
++#define DEITY_CAZIC				203
++#define DEITY_EROL				204
++#define DEITY_BRISTLE			205
++#define DEITY_INNY				206
++#define DEITY_KARANA			207
++#define DEITY_MITH				208
++#define DEITY_PREXUS			209
++#define DEITY_QUELLIOUS			210
++#define DEITY_RALLOS			211
++#define DEITY_SOLUSEK			213
++#define DEITY_TRIBUNAL			214
++#define DEITY_TUNARE			215
++
++// Guessed:
++#define DEITY_BERT				201
++#define DEITY_RODCET			212
++#define DEITY_VEESHAN			216
++
++// msg_type's for custom usercolors
++#define MT_Say					256
++#define MT_Tell					257
++#define MT_Group				258
++#define MT_Guild				259
++#define MT_OOC					260
++#define MT_Auction				261
++#define MT_Shout				262
++#define MT_Emote				263
++#define MT_Spells				264
++#define MT_YouHitOther			265
++#define MT_OtherHitsYou			266
++#define MT_YouMissOther			267
++#define MT_OtherMissesYou		268
++#define MT_Broadcasts			269
++#define MT_Skills				270
++#define MT_Disciplines			271
++#define	MT_Unused1				272
++#define MT_DefaultText			273
++#define MT_Unused2				274
++#define MT_MerchantOffer		275
++#define MT_MerchantBuySell		276
++#define	MT_YourDeath			277
++#define MT_OtherDeath			278
++#define MT_OtherHits			279
++#define MT_OtherMisses			280
++#define	MT_Who					281
++#define MT_YellForHelp			282
++#define MT_NonMelee				283
++#define MT_WornOff				284
++#define MT_MoneySplit			285
++#define MT_LootMessages			286
++#define MT_DiceRoll				287
++#define MT_OtherSpells			288
++#define MT_SpellFailure			289
++#define MT_Chat					290
++#define MT_Channel1				291
++#define MT_Channel2				292
++#define MT_Channel3				293
++#define MT_Channel4				294
++#define MT_Channel5				295
++#define MT_Channel6				296
++#define MT_Channel7				297
++#define MT_Channel8				298
++#define MT_Channel9				299
++#define MT_Channel10			300
++#define MT_CritMelee			301
++#define MT_SpellCrits			302
++#define MT_TooFarAway			303
++#define MT_NPCRampage			304
++#define MT_NPCFlurry			305
++#define MT_NPCEnrage			306
++#define MT_SayEcho				307
++#define MT_TellEcho				308
++#define MT_GroupEcho			309
++#define MT_GuildEcho			310
++#define MT_OOCEcho				311
++#define MT_AuctionEcho			312
++#define MT_ShoutECho			313
++#define MT_EmoteEcho			314
++#define MT_Chat1Echo			315
++#define MT_Chat2Echo			316
++#define MT_Chat3Echo			317
++#define MT_Chat4Echo			318
++#define MT_Chat5Echo			319
++#define MT_Chat6Echo			320
++#define MT_Chat7Echo			321
++#define MT_Chat8Echo			322
++#define MT_Chat9Echo			323
++#define MT_Chat10Echo			324
++#define MT_DoTDamage			325
++#define MT_ItemLink				326
++#define MT_RaidSay				327
++#define MT_MyPet				328
++#define MT_DS					329
++#define MT_Leadership			330
++#define MT_PetFlurry			331
++#define MT_PetCrit				332
++#define MT_FocusEffect			333
++#define MT_Experience			334
++#define MT_System				335
++#define MT_PetSpell				336
++#define MT_PetResponse			337
++#define MT_ItemSpeech			338
++#define MT_StrikeThrough		339
++#define MT_Stun					340
++
++// from showeq
++enum ChatColor
++{
++	CC_Default					= 0,
++	CC_DarkGrey					= 1,
++	CC_DarkGreen				= 2,
++	CC_DarkBlue					= 3,
++	CC_Purple					= 5,
++	CC_LightGrey				= 6,
++	CC_User_Say					= 256,
++	CC_User_Tell				= 257,
++	CC_User_Group				= 258,
++	CC_User_Guild				= 259,
++	CC_User_OOC					= 260,
++	CC_User_Auction				= 261,
++	CC_User_Shout				= 262,
++	CC_User_Emote				= 263,
++	CC_User_Spells				= 264,
++	CC_User_YouHitOther			= 265,
++	CC_User_OtherHitYou			= 266,
++	CC_User_YouMissOther		= 267,
++	CC_User_OtherMissYou		= 268,
++	CC_User_Duels				= 269,
++	CC_User_Skills				= 270,
++	CC_User_Disciplines			= 271,
++	CC_User_Default				= 273,
++	CC_User_MerchantOffer		= 275,
++	CC_User_MerchantExchange	= 276,
++	CC_User_YourDeath			= 277,
++	CC_User_OtherDeath			= 278,
++	CC_User_OtherHitOther		= 279,
++	CC_User_OtherMissOther		= 280,
++	CC_User_Who					= 281,
++	CC_User_Yell				= 282,
++	CC_User_NonMelee			= 283,
++	CC_User_SpellWornOff		= 284,
++	CC_User_MoneySplit			= 285,
++	CC_User_Loot				= 286,
++	CC_User_Random				= 287,
++	CC_User_OtherSpells			= 288,
++	CC_User_SpellFailure		= 289,
++	CC_User_ChatChannel			= 290,
++	CC_User_Chat1				= 291,
++	CC_User_Chat2				= 292,
++	CC_User_Chat3				= 293,
++	CC_User_Chat4				= 294,
++	CC_User_Chat5				= 295,
++	CC_User_Chat6				= 296,
++	CC_User_Chat7				= 297,
++	CC_User_Chat8				= 298,
++	CC_User_Chat9				= 299,
++	CC_User_Chat10				= 300,
++	CC_User_MeleeCrit			= 301,
++	CC_User_SpellCrit			= 302,
++	CC_User_TooFarAway			= 303,
++	CC_User_NPCRampage			= 304,
++	CC_User_NPCFurry			= 305,
++	CC_User_NPCEnrage			= 306,
++	CC_User_EchoSay				= 307,
++	CC_User_EchoTell			= 308,
++	CC_User_EchoGroup			= 309,
++	CC_User_EchoGuild			= 310,
++	CC_User_EchoOOC				= 311,
++	CC_User_EchoAuction			= 312,
++	CC_User_EchoShout			= 313,
++	CC_User_EchoEmote			= 314,
++	CC_User_EchoChat1			= 315,
++	CC_User_EchoChat2			= 316,
++	CC_User_EchoChat3			= 317,
++	CC_User_EchoChat4			= 318,
++	CC_User_EchoChat5			= 319,
++	CC_User_EchoChat6			= 320,
++	CC_User_EchoChat7			= 321,
++	CC_User_EchoChat8			= 322,
++	CC_User_EchoChat9			= 323,
++	CC_User_EchoChat10			= 324,
++	CC_User_UnusedAtThisTime	= 325,
++	CC_User_ItemTags			= 326,
++	CC_User_RaidSay				= 327,
++	CC_User_MyPet				= 328,
++	CC_User_DamageShield		= 329,
++};
++
++//ZoneChange_Struct->success values
++#define ZONE_ERROR_NOMSG		0
++#define ZONE_ERROR_NOTREADY		-1
++#define ZONE_ERROR_VALIDPC		-2
++#define ZONE_ERROR_STORYZONE	-3
++#define ZONE_ERROR_NOEXPANSION	-6
++#define ZONE_ERROR_NOEXPERIENCE	-7
++
++
++typedef enum
++{
++	FilterNone			= 0,
++	FilterGuildChat		= 1,	// 0 = hide, 1 = show
++	FilterSocials		= 2,	// 0 = hide, 1 = show
++	FilterGroupChat		= 3,	// 0 = hide, 1 = show
++	FilterShouts		= 4,	// 0 = hide, 1 = show
++	FilterAuctions		= 5,	// 0 = hide, 1 = show
++	FilterOOC			= 6,	// 0 = hide, 1 = show
++	FilterBadWords		= 7,	// 0 = hide, 1 = show
++	FilterPCSpells		= 8,	// 0 = show, 1 = hide, 2 = group only
++	FilterNPCSpells		= 9,	// 0 = show, 1 = hide
++	FilterBardSongs		= 10,	// 0 = show, 1 = mine only, 2 = group only, 3 = hide
++	FilterSpellCrits	= 11,	// 0 = show, 1 = mine only, 2 = hide
++	FilterMeleeCrits	= 12,	// 0 = show, 1 = hide
++	FilterSpellDamage	= 13,	// 0 = show, 1 = mine only, 2 = hide
++	FilterMyMisses		= 14,	// 0 = hide, 1 = show
++	FilterOthersMiss	= 15,	// 0 = hide, 1 = show
++	FilterOthersHit		= 16,	// 0 = hide, 1 = show
++	FilterMissedMe		= 17,	// 0 = hide, 1 = show
++	FilterDamageShields	= 18,	// 0 = show, 1 = hide
++	FilterDOT			= 19,	// 0 = show, 1 = hide
++	FilterPetHits		= 20,	// 0 = show, 1 = hide
++	FilterPetMisses		= 21,	// 0 = show, 1 = hide
++	FilterFocusEffects	= 22,	// 0 = show, 1 = hide
++	FilterPetSpells		= 23,	// 0 = show, 1 = hide
++	FilterHealOverTime	= 24,	// 0 = show, 1 = hide
++	FilterUnknown25		= 25,
++	FilterUnknown26		= 26,
++	FilterUnknown27		= 27,
++	FilterUnknown28		= 28,
++	_FilterCount
++} eqFilterType;
++
++typedef enum
++{
++	FilterHide,
++	FilterShow,
++	FilterShowGroupOnly,
++	FilterShowSelfOnly
++} eqFilterMode;
++
++#define	STAT_STR			0
++#define	STAT_STA			1
++#define	STAT_AGI			2
++#define	STAT_DEX			3
++#define	STAT_INT			4
++#define	STAT_WIS			5
++#define	STAT_CHA			6
++#define	STAT_MAGIC			7
++#define	STAT_COLD			8
++#define	STAT_FIRE			9
++#define	STAT_POISON			10
++#define	STAT_DISEASE		11
++#define	STAT_MANA			12
++#define	STAT_HP				13
++#define	STAT_AC				14
++#define STAT_ENDURANCE		15
++#define STAT_ATTACK			16
++#define STAT_HP_REGEN		17
++#define STAT_MANA_REGEN		18
++#define STAT_HASTE			19
++#define STAT_DAMAGE_SHIELD	20
++
++/**
++* Recast timer types. Used as an off set to charProfileStruct timers.
++*/
++enum RecastTypes
++{
++	RecastTimer0 = 0,
++	RecastTimer1,
++	WeaponHealClickTimer,		// 2
++	MuramiteBaneNukeClickTimer,	// 3
++	RecastTimer4,
++	DispellClickTimer,			// 5 (also click heal orbs?)
++	EpicTimer,					// 6
++	OoWBPClickTimer,			// 7
++	VishQuestClassItemTimer,	// 8
++	HealPotionTimer,			// 9
++	RecastTimer10,
++	RecastTimer11,
++	RecastTimer12,
++	RecastTimer13,
++	RecastTimer14,
++	RecastTimer15,
++	RecastTimer16,
++	RecastTimer17,
++	RecastTimer18,
++	ModRodTimer					// 19
++};
++
++enum GroupUpdateAction
++{
++	GUA_Joined			= 0,
++	GUA_Left			= 1,
++	GUA_LastLeft		= 6,
++	GUA_FullGroupInfo	= 7,
++	GUA_MakeLeader		= 8,
++	GUA_Started			= 9
++};
++
++//0x1c is something...
++static const uint8 FallingDamageType	= 0xFC;
++static const uint8 SpellDamageType		= 0xe7;
++static const uint8 DamageTypeUnknown	= 0xFF;
++
++//indexed by 'SkillType'
++static const uint8 SkillDamageTypes[HIGHEST_SKILL + 1] =
++{
++	/* _1H_BLUNT */				0,
++	/* _1H_SLASHING */			1,
++	/* _2H_BLUNT */				0,
++	/* _2H_SLASHING */			1,
++	/* ABJURE */				SpellDamageType,
++	/* ALTERATION */			SpellDamageType,
++	/* APPLY_POISON */			DamageTypeUnknown,
++	/* ARCHERY */				7,
++	/* BACKSTAB */				8,
++	/* BIND_WOUND */			DamageTypeUnknown,
++	/* BASH */					10,
++	/* BLOCKSKILL */			DamageTypeUnknown,
++	/* BRASS_INSTRUMENTS */		SpellDamageType,
++	/* CHANNELING */			DamageTypeUnknown,
++	/* CONJURATION */			SpellDamageType,
++	/* DEFENSE */				DamageTypeUnknown,
++	/* DISARM */				DamageTypeUnknown,
++	/* DISARM_TRAPS */			DamageTypeUnknown,
++	/* DIVINATION */			SpellDamageType,
++	/* DODGE */					DamageTypeUnknown,
++	/* DOUBLE_ATTACK */			DamageTypeUnknown,
++	/* DRAGON_PUNCH */			21,
++	/* DUAL_WIELD */			DamageTypeUnknown,
++	/* EAGLE_STRIKE */			23,
++	/* EVOCATION */				SpellDamageType,
++	/* FEIGN_DEATH */			4,
++	/* FLYING_KICK */			30,
++	/* FORAGE */				DamageTypeUnknown,
++	/* HAND_TO_HAND */			4,
++	/* HIDE */					DamageTypeUnknown,
++	/* KICK */					30,
++	/* MEDITATE */				DamageTypeUnknown,
++	/* MEND */					DamageTypeUnknown,
++	/* OFFENSE */				DamageTypeUnknown,
++	/* PARRY */					DamageTypeUnknown,
++	/* PICK_LOCK */				DamageTypeUnknown,
++	/* PIERCING */				36,
++	/* RIPOSTE */				DamageTypeUnknown,
++	/* ROUND_KICK */			30,
++	/* SAFE_FALL */				DamageTypeUnknown,
++	/* SENSE_HEADING */			DamageTypeUnknown,
++	/* SINGING */				SpellDamageType,
++	/* SNEAK */					DamageTypeUnknown,
++	/* SPECIALIZE_ABJURE */		DamageTypeUnknown,
++	/* SPECIALIZE_ALTERATION */	DamageTypeUnknown,
++	/* SPECIALIZE_CONJURATION */	DamageTypeUnknown,
++	/* SPECIALIZE_DIVINATION */	DamageTypeUnknown,
++	/* SPECIALIZE_EVOCATION */	DamageTypeUnknown,
++	/* PICK_POCKETS */			DamageTypeUnknown,
++	/* STRINGED_INSTRUMENTS */	SpellDamageType,
++	/* SWIMMING */				DamageTypeUnknown,
++	/* THROWING */				51,
++	/* TIGER_CLAW */			23,
++	/* TRACKING */				DamageTypeUnknown,
++	/* WIND_INSTRUMENTS */		SpellDamageType,
++	/* FISHING */				DamageTypeUnknown,
++	/* MAKE_POISON */			DamageTypeUnknown,
++	/* TINKERING */				DamageTypeUnknown,
++	/* RESEARCH */				DamageTypeUnknown,
++	/* ALCHEMY */				DamageTypeUnknown,
++	/* BAKING */				DamageTypeUnknown,
++	/* TAILORING */				DamageTypeUnknown,
++	/* SENSE_TRAPS */			DamageTypeUnknown,
++	/* BLACKSMITHING */			DamageTypeUnknown,
++	/* FLETCHING */				DamageTypeUnknown,
++	/* BREWING */				DamageTypeUnknown,
++	/* ALCOHOL_TOLERANCE */		DamageTypeUnknown,
++	/* BEGGING */				DamageTypeUnknown,
++	/* JEWELRY_MAKING */		DamageTypeUnknown,
++	/* POTTERY */				DamageTypeUnknown,
++	/* PERCUSSION_INSTRUMENTS */	SpellDamageType,
++	/* INTIMIDATION */			DamageTypeUnknown,
++	/* BERSERKING */			DamageTypeUnknown,
++	/* TAUNT */					DamageTypeUnknown,
++	/* FRENZY */				74
++};
++
++enum MaterialSlots : uint8
++{
++	Material_Head		= 0,
++	Material_Chest		= 1,
++	Material_Arms		= 2,
++	Material_Bracer		= 3,
++	Material_Hands		= 4,
++	Material_Legs		= 5,
++	Material_Feet		= 6,
++	Material_Primary	= 7,
++	Material_Secondary	= 8,
++	Material_Count		= 9,
++	Material_Invalid	= 255
++};
++
++/*
++** Inventory Slot Equipment Enum
++** Mostly used for third-party tools to reference inventory slots
++**
++** [pre-HoT]
++** NOTE: Numbering for personal inventory goes top to bottom, then left to right
++**	It's the opposite for inside bags: left to right, then top to bottom
++**	Example:
++**	inventory:	containers:
++**	1  6			1  2
++**	2  7			3  4
++**	3  8			5  6
++**	4  9			7  8
++**	5  10			9  10
++**
++** [HoT and higher]
++** NOTE: Numbering for personal inventory goes left to right, then to to bottom
++**  for both inventory and bags.
++**  Example:
++**	inventory:	containers:
++**	1  2			1  2
++**	3  4			3  4
++**	5  6			5  6
++**	7  8			7  8
++**	9  10			9  10
++**  11 12			11 12	[NOTE: Additional slots are only available in RoF and higher]
++**
++*/
++
++//	----------------------------------------------------------------------------------------
++//	THE FOLLOWING ENUMERATIONS SHOULD NOT BE CHANGED UNLESS THE DATABASE IS UPDATED TO MATCH
++//	----------------------------------------------------------------------------------------
++enum InventorySlotTypes : int16
++{
++	Type_Possessions		= 0,
++	Type_Bank				= 1,
++	Type_SharedBank			= 2,
++	Type_Trade				= 3,
++	Type_World				= 4,
++	Type_Limbo				= 5,
++	Type_Tribute			= 6,
++	Type_TrophyTribute		= 7,
++	Type_GuildTribute		= 8,
++	Type_Merchant			= 9,
++	Type_Deleted			= 10,
++	Type_Corpse				= 11,
++	Type_Bazaar				= 12,
++	Type_Inspect			= 13,
++	Type_RealEstate			= 14,
++	Type_ViewMODPC			= 15,
++	Type_ViewMODBank		= 16,
++	Type_ViewMODSharedBank	= 17,
++	Type_ViewMODLimbo		= 18,
++	Type_AltStorage			= 19,
++	Type_Archived			= 20,
++	Type_Mail				= 21,
++	Type_GuildTrophyTribute	= 22,
++	Type_Krono				= 23,
++	Type_Other				= 24,
++	Type_Count				= 25
++};
++
++enum InventoryPossessions : int16
++{	
++	Slot_Charm			= 0,
++	Slot_Ear01			= 1,
++	Slot_Head			= 2,
++	Slot_Face			= 3,
++	Slot_Ear02			= 4,
++	Slot_Neck			= 5,
++	Slot_Shoulder		= 6,
++	Slot_Arms			= 7,
++	Slot_Back			= 8,
++	Slot_Bracer01		= 9,
++	Slot_Bracer02		= 10,
++	Slot_Range			= 11,
++	Slot_Hands			= 12,
++	Slot_Primary		= 13,
++	Slot_Secondary		= 14,
++	Slot_Ring01			= 15,
++	Slot_Ring02			= 16,
++	Slot_Chest			= 17,
++	Slot_Legs			= 18,
++	Slot_Feet			= 19,
++	Slot_Waist			= 20,
++	Slot_PowerSource	= 21,
++	Slot_Ammo			= 22,
++	Slot_Personal01		= 23,
++	Slot_Personal02		= 24,
++	Slot_Personal03		= 25,
++	Slot_Personal04		= 26,
++	Slot_Personal05		= 27,
++	Slot_Personal06		= 28,
++	Slot_Personal07		= 29,
++	Slot_Personal08		= 30,
++	Slot_Personal09		= 31,
++	Slot_Personal10		= 32,
++	Slot_Cursor			= 33,
++	Slot_Count			= 34
++};
++
++/*
++	The following namespaces replaced the multitude of #defines in order to organize and help coders find the values
++
++	When modifying these values, ensure that 'LimitSizes' reflects the current server setup (highest client.)
++	(The server actually reflects the RoF v2 inventory model, and this will be updated once v2 is supported)
++	
++	Add new namespaces in descending order after 'LimitSizes' (I named these reflecting the current EQVersion schema)
++
++	If a value changes in a client, place a new value in the preceeding client namespace to ensure that older clients
++	reflect	their proper value
++
++	Don't forget to update the 'InventoryLimits' class with the new value.
++*/
++namespace LimitSizes
++{
++	const int16	Possessions			= 34;
++	const int16	Bank				= 24;
++	const int16	SharedBank			= 2;
++	const int16	Trade				= 8;
++	const int16	Trade_NPC			= 4;
++	const int16	World				= 10;
++	const int16	Limbo				= 36;
++	const int16	Tribute				= 0;	// unknown atm
++	const int16	TrophyTribute		= 0;	// unknown atm
++	const int16	GuildTribute		= 0;	// unknown atm
++	const int16	Merchant			= 0;	// unknown atm
++	const int16	Deleted				= 0;	// unknown atm
++	const int16	Corpse				= 36;
++	const int16	Bazaar				= 200;
++	const int16	Inspect				= 0;	// unknown atm
++	const int16	RealEstate			= 0;	// unknown atm
++	const int16	ViewMODPC			= 0;	// unknown atm
++	const int16	ViewMODBank			= 0;	// unknown atm
++	const int16	ViewMODSharedBank	= 0;	// unknown atm
++	const int16	ViewMODLimbo		= 0;	// unknown atm
++	const int16	AltStorage			= 0;	// unknown atm
++	const int16	Archived			= 0;	// unknown atm
++	const int16	Mail				= 0;	// unknown atm
++	const int16	GuildTrophyTribute	= 0;	// unknown atm
++	const int16	Krono				= 1;
++	const int16	Other				= 0;	// unknown atm
++	const int16	Unused				= 0;
++
++	const int16		Equipment_Size		= 23;
++	const int16		Equipment_Start		= 0;
++	const int16		Equipment_End		= 22;
++	const uint32	Equipment_BitMask	= 0x007FFFFF;	// (charm thru ammo)
++
++	const int16		Personal_Size		= 10;
++	const int16		Personal_Start		= 23;
++	const int16		Personal_End		= 34;
++	const uint32	Personal_BitMask	= 0x00000FFF;	// (personal 1 thru 10)
++
++	const int16	Type_Start	= 0;
++	const int16	Main_Start	= 0;
++	const int16	Sub_Start	= 0;
++	const int16	Aug_Start	= 0;
++
++	const int16	Type_Invalid	= -1;
++	const int16	Main_Invalid	= -1;
++	const int16	Sub_Invalid		= -1;
++	const int16	Aug_Invalid		= -1;
++
++	const int16	Container_Max	= 255;	// 0 - 254 (need int16 in db for 255..too many problems for that)
++	const int16	Augment_Max		= 6;
++
++	const uint8	Bandolier_Max	= 20;
++	const uint8	PotionBelt_Max	= 0;
++
++	const uint8	Bandolier_Start		= 0;
++	const uint8	PotionBelt_Start	= 0;
++
++	const uint8	Bandolier_Invalid	= 255;
++	const uint8	PotionBelt_Invalid	= 255;
++
++	const int16	OutOfRange = -256; // bitwise comparitor 0xFF00
++
++	const bool	BagInBagAllowed		= true;
++};
++
++namespace LimitSizes_PreRoF
++{
++	const int16	Possessions	= 32;
++	const int16	Corpse		= 34;
++	const int16	Bazaar		= 80;
++	const int16	Krono		= 0;
++
++	const int16		Personal_Size		= 8;
++	const int16		Personal_End		= 32;
++	const uint32	Personal_BitMask	= 0x000003FF;	// (personal 1 thru 8)
++
++	const int16	Container_Max	= 10;
++	const int16	Augment_Max		= 5;
++
++	const bool	BagInBagAllowed	= false;
++};
++
++namespace LimitSizes_PreUnderfoot
++{
++
++};
++
++namespace LimitSizes_PreSoD
++{
++
++};
++
++namespace LimitSizes_PreSoF
++{
++	const int16	Possessions	= 31;
++	const int16	Bank		= 16;
++	const int16	Corpse		= 33;
++
++	const int16		Equipment_Size		= 22;
++	const uint32	Equipment_BitMask	= 0x005FFFFF;	// (charm thru ammo, less power source)
++};
++
++namespace LimitSizes_PreTitanium
++{
++	const int16	Possessions	= 30;
++	const int16	Corpse		= 32;
++
++	const uint32	Equipment_BitMask = 0x005FFFFE;	// (charm thru ammo, less power source and charm) (is charm slot in 6.2?)
++};
++
++// Reflects the current server limits, which is currently set for Steam RoF v2
++static const int16 ServerInventoryLimits[Type_Count] =
++{
++	LimitSizes::Possessions,		/* Type 0 */	LimitSizes::Bank,				/* Type 1 */
++	LimitSizes::SharedBank,			/* Type 2 */	LimitSizes::Trade,				/* Type 3 */
++	LimitSizes::World,				/* Type 4 */	LimitSizes::Limbo,				/* Type 5 */
++	LimitSizes::Tribute,			/* Type 6 */	LimitSizes::TrophyTribute,		/* Type 7 */
++	LimitSizes::GuildTribute,		/* Type 8 */	LimitSizes::Merchant,			/* Type 9 */
++	LimitSizes::Deleted,			/* Type 10 */	LimitSizes::Corpse,				/* Type 11 */
++	LimitSizes::Bazaar,				/* Type 12 */	LimitSizes::Inspect,			/* Type 13 */
++	LimitSizes::RealEstate,			/* Type 14 */	LimitSizes::ViewMODPC,			/* Type 15 */
++	LimitSizes::ViewMODBank,		/* Type 16 */	LimitSizes::ViewMODSharedBank,	/* Type 17 */
++	LimitSizes::ViewMODLimbo,		/* Type 18 */	LimitSizes::AltStorage,			/* Type 19 */
++	LimitSizes::Archived,			/* Type 20 */	LimitSizes::Mail,				/* Type 21 */
++	LimitSizes::GuildTrophyTribute,	/* Type 22 */	LimitSizes::Krono,				/* Type 23 */
++	LimitSizes::Other				/* Type 24 */
++};
++
++// Non-Client slot type sizes (Set slot types unused by NPC to LimitSizes::Unused)
++static const int16 NPCInventoryLimits[Type_Count] =
++{
++	LimitSizes::Possessions,		/* Type 0 */	LimitSizes::Unused,			/* Type 1 */
++	LimitSizes::Unused,				/* Type 2 */	LimitSizes::Trade,			/* Type 3 */
++	LimitSizes::Unused,				/* Type 4 */	LimitSizes::Unused,			/* Type 5 */
++	LimitSizes::Tribute,			/* Type 6 */	LimitSizes::TrophyTribute,	/* Type 7 */
++	LimitSizes::GuildTribute,		/* Type 8 */	LimitSizes::Merchant,		/* Type 9 */
++	LimitSizes::Deleted,			/* Type 10 */	LimitSizes::Corpse,			/* Type 11 */
++	LimitSizes::Bazaar,				/* Type 12 */	LimitSizes::Inspect,		/* Type 13 */
++	LimitSizes::Unused,				/* Type 14 */	LimitSizes::Unused,			/* Type 15 */
++	LimitSizes::Unused,				/* Type 16 */	LimitSizes::Unused,			/* Type 17 */
++	LimitSizes::Unused,				/* Type 18 */	LimitSizes::Unused,			/* Type 19 */
++	LimitSizes::Unused,				/* Type 20 */	LimitSizes::Unused,			/* Type 21 */
++	LimitSizes::GuildTrophyTribute,	/* Type 22 */	LimitSizes::Unused,			/* Type 23 */
++	LimitSizes::Unused				/* Type 24 */
++};
++
++static const std::string InventorySlotNames[Type_Count + 1] =
++{
++	"Possessions",				/* Type 0 */	"Bank",						/* Type 1 */
++	"Shared Bank",				/* Type 2 */	"Trade",					/* Type 3 */
++	"World",					/* Type 4 */	"Limbo",					/* Type 5 */
++	"Tribute",					/* Type 6 */	"Trophy Tribute",			/* Type 7 */
++	"Guild Tribute",			/* Type 8 */	"Merchant",					/* Type 9 */
++	"Deleted",					/* Type 10 */	"Corpse",					/* Type 11 */
++	"Bazaar",					/* Type 12 */	"Inspect",					/* Type 13 */
++	"Real Estate",				/* Type 14 */	"View MOC PC",				/* Type 15 */
++	"View MOD Bank",			/* Type 16 */	"View MOD Shared Bank",		/* Type 17 */
++	"View MOD Limbo",			/* Type 18 */	"Alt Storage",				/* Type 19 */
++	"Archived",					/* Type 20 */	"Mail",						/* Type 21 */
++	"Guild Trophy Tribute",		/* Type 22 */	"Krono",					/* Type 23 */
++	"Other",					/* Type 24 */	"Someone Screwed the Pooch!"	/* INVALID */
++};
++
++namespace Legacy // U: Legacy enumeration..can be deleted if not needed (this instance of namespace 'Legacy')
++{
++	enum InventorySlot
++	{
++		////////////////////////
++		// Equip slots
++		////////////////////////
++
++		SLOT_CHARM		= 0,
++		SLOT_EAR01		= 1,
++		SLOT_HEAD		= 2,
++		SLOT_FACE		= 3,
++		SLOT_EAR02		= 4,
++		SLOT_NECK		= 5,
++		SLOT_SHOULDER	= 6,
++		SLOT_ARMS		= 7,
++		SLOT_BACK		= 8,
++		SLOT_BRACER01	= 9,
++		SLOT_BRACER02	= 10,
++		SLOT_RANGE		= 11,
++		SLOT_HANDS		= 12,
++		SLOT_PRIMARY	= 13,
++		SLOT_SECONDARY	= 14,
++		SLOT_RING01		= 15,
++		SLOT_RING02		= 16,
++		SLOT_CHEST		= 17,
++		SLOT_LEGS		= 18,
++		SLOT_FEET		= 19,
++		SLOT_WAIST		= 20,
++		SLOT_AMMO		= 21,
++
++		////////////////////////
++		// All other slots
++		////////////////////////
++		SLOT_PERSONAL_BEGIN = 22,
++		SLOT_PERSONAL_END = 29,
++
++		SLOT_CURSOR		= 30,
++
++		SLOT_CURSOR_END	= (int16)0xFFFE,	// Last item on cursor queue
++		// Cursor bag slots are 331->340 (10 slots)
++
++		// Personal Inventory Slots
++		// Slots 1 through 8 are slots 22->29
++		// Inventory bag slots are 251->330 (10 slots per bag)
++
++		// Tribute slots are 400-404? (upper bound unknown)
++		// storing these in worn item's map
++
++		// Bank slots
++		// Bank slots 1 through 16 are slots 2000->2015
++		// Bank bag slots are 2031->2190
++
++		// Shared bank slots
++		// Shared bank slots 1 through 2 are slots 2500->2501
++		// Shared bank bag slots are 2531->2550
++
++		// Trade session slots
++		// Trade slots 1 through 8 are slots 3000->3007
++		// Trade bag slots are technically 0->79 when passed to client,
++		// but in our code, we treat them as slots 3100->3179
++
++		// Slot used in OP_TradeSkillCombine for world tradeskill containers
++		SLOT_TRADESKILL = 1000,
++		SLOT_AUGMENT = 1001,
++		// SLOT_POWER_SOURCE = 9999,
++		// Value recognized by client for destroying an item
++		SLOT_INVALID = (int16)0xFFFF
++	};
++
++// Used for worn NPC inventory tracking. NPCs don't use
++// augments, so only the basic slots need to be kept track of.
++// const int16	MAX_WORN_INVENTORY = 22; // use of this should be changed to LimitSizes::Equipment_Size
++};
++
++#endif
+diff --git a/common/eq_packet_structs.h b/common/eq_packet_structs.h
+index f5bc21a..4e56395 100644
+--- a/common/eq_packet_structs.h
++++ b/common/eq_packet_structs.h
+@@ -270,7 +270,7 @@ struct Spawn_Struct {
+ 				/*0225*/ uint32 equip_primary;		// Equipment: Primary Visual
+ 				/*0229*/ uint32 equip_secondary;	// Equipment: Secondary Visual
+ 			} equip;
+-			/*0197*/ uint32 equipment[MAX_MATERIALS]; // Array elements correspond to struct equipment above
++			/*0197*/ uint32 equipment[Material_Count]; // Array elements correspond to struct equipment above
+ 		 };
+ /*0233*/ float	runspeed;		// Speed when running
+ /*0036*/ uint8	afk;			// 0=no, 1=afk
+@@ -316,7 +316,7 @@ union
+ 				/*0376*/ Color_Struct color_primary;	// Color of primary item
+ 				/*0380*/ Color_Struct color_secondary;	// Color of secondary item
+ 			} equipment_colors;
+-			/*0348*/ Color_Struct colors[MAX_MATERIALS]; // Array elements correspond to struct equipment_colors above
++			/*0348*/ Color_Struct colors[Material_Count]; // Array elements correspond to struct equipment_colors above
+ 		 };
+ /*0384*/ uint8	lfg;			// 0=off, 1=lfg on
+ /*0385*/
+@@ -787,7 +787,7 @@ struct SuspendedMinion_Struct
+ 	/*002*/	uint32	HP;
+ 	/*006*/	uint32	Mana;
+ 	/*010*/	SpellBuff_Struct	Buffs[BUFF_COUNT];
+-	/*510*/	uint32	Items[MAX_MATERIALS];
++	/*510*/	uint32	Items[Material_Count];
+ 	/*546*/	char	Name[64];
+ 	/*610*/
+ };
+@@ -892,9 +892,9 @@ struct PlayerProfile_Struct
+ /*0304*/	uint8				ability_time_minutes;
+ /*0305*/	uint8				ability_time_hours;	//place holder
+ /*0306*/	uint8				unknown0306[6];		// @bp Spacer/Flag?
+-/*0312*/	uint32				item_material[MAX_MATERIALS];	// Item texture/material of worn/held items
++/*0312*/	uint32				item_material[Material_Count];	// Item texture/material of worn/held items
+ /*0348*/	uint8				unknown0348[44];
+-/*0392*/	Color_Struct		item_tint[MAX_MATERIALS];
++/*0392*/	Color_Struct		item_tint[Material_Count];
+ /*0428*/	AA_Array			aa_array[MAX_PP_AA_ARRAY];
+ /*2348*/	float				unknown2384;		//seen ~128, ~47
+ /*2352*/	char				servername[32];		// length probably not right
+@@ -2013,7 +2013,7 @@ struct Illusion_Struct { //size: 256 - SoF
+ /*092*/	uint32	drakkin_heritage;	//
+ /*096*/	uint32	drakkin_tattoo;		//
+ /*100*/	uint32	drakkin_details;	//
+-/*104*/	uint32	armor_tint[MAX_MATERIALS];	//
++/*104*/	uint32	armor_tint[Material_Count];	//
+ /*140*/	uint8	eyecolor1;		// Field Not Identified in any Illusion Struct
+ /*141*/	uint8	eyecolor2;		// Field Not Identified in any Illusion Struct
+ /*142*/	uint8	unknown138[114];	//
+@@ -3257,7 +3257,7 @@ struct DyeStruct
+ 			struct Color_Struct secondary;	// or this
+ 		}
+ 		dyes;
+-		struct Color_Struct dye[MAX_MATERIALS];
++		struct Color_Struct dye[Material_Count];
+ 	};
+ };
+ 
+@@ -5059,6 +5059,152 @@ struct MercenaryMerchantResponse_Struct {
+ /*0004*/
+ };
+ 
++struct SlotHeader_Struct // Type/Main header for use as key type in inventory map
++{
++	int16	type;
++	int16	main;
++};
++
++struct Slot_Struct // Base slot value struct..not auto-initialized to 'Invalid' (Use for return types/packet struct)
++{
++	int16	type;
++	int16	main;
++	int16	sub;
++	int16	aug;
++};
++
++struct SlotPacket_Struct // Base slot packet struct..not auto-initialized to 'Invalid' (Use for return types/packet structs)
++{
++	int16	type;
++	int16	unknown02;
++	int16	main;
++	int16	sub;
++	int16	aug;
++	int16	unknown01;
++};
++
++// If the default values used are changed at any point, 'AutoSlot' and 'InventorySlot' will need to be updated/recoded -U
++struct AutoSlot_Struct // Self-invalidating struct. Includes limited base struct accessors... (Internal Use)
++{
++	int16	type;
++	int16	unknown02;
++	int16	main;
++	int16	sub;
++	int16	aug;
++	int16	unknown01;
++
++	AutoSlot_Struct()						{ type = -1; unknown02 = 0; main = -1; sub = -1; aug = -1; unknown01 = 0; };
++	AutoSlot_Struct(SlotHeader_Struct r)	{ type = r.type; unknown02 = 0; main = r.main; sub = -1; aug = -1; unknown01 = 0; };
++	AutoSlot_Struct(Slot_Struct r)			{ type = r.type; unknown02 = 0; main = r.main; sub = r.sub; aug = r.aug; unknown01 = 0; };
++	AutoSlot_Struct(SlotPacket_Struct r)	{ type = r.type; unknown02 = r.unknown02; main = r.main; sub = r.sub; aug = r.aug; unknown01 = r.unknown01; };
++
++	SlotHeader_Struct	SlotHeader()
++	{
++		SlotHeader_Struct return_struct;
++
++		return_struct.type	= type;
++		return_struct.main	= main;
++
++		return return_struct;
++	}
++	Slot_Struct	Slot()
++	{
++		Slot_Struct return_struct;
++
++		return_struct.type	= type;
++		return_struct.main	= main;
++		return_struct.sub	= sub;
++		return_struct.aug	= aug;
++
++		return return_struct;
++	};
++	SlotPacket_Struct	SlotPacket()
++	{
++		SlotPacket_Struct return_struct;
++
++		return_struct.type		= type;
++		return_struct.unknown02	= unknown02;
++		return_struct.main		= main;
++		return_struct.sub		= sub;
++		return_struct.aug		= aug;
++		return_struct.unknown01	= unknown01;
++
++		return return_struct;
++	};
++
++	void	operator = (SlotHeader_Struct r)	{ type = r.type; unknown02 = 0; main = r.main; sub = -1; aug = -1; unknown01 = 0; };
++	void	operator = (Slot_Struct r)			{ type = r.type; unknown02 = 0; main = r.main; sub = r.sub; aug = r.aug; unknown01 = 0; };
++	void	operator = (SlotPacket_Struct r)	{ type = r.type; unknown02 = r.unknown02; main = r.main; sub = r.sub; aug = r.aug; unknown01 = r.unknown01; };
++	void	operator = (AutoSlot_Struct r)		{ type = r.type; unknown02 = r.unknown02; main = r.main; sub = r.sub; aug = r.aug; unknown01 = r.unknown01; };
++};
++
++struct InventorySlot_Struct : AutoSlot_Struct // AutoSlot_Struct, plus a few basic methods to query the struct (Internal use)
++{
++	InventorySlot_Struct()						{ type = -1; unknown02 = 0; main = -1; sub = -1; aug = -1; unknown01 = 0; };
++	InventorySlot_Struct(SlotHeader_Struct r)	{ type = r.type; unknown02 = 0; main = r.main; sub = -1; aug = -1; unknown01 = 0; };
++	InventorySlot_Struct(Slot_Struct r)			{ type = r.type; unknown02 = 0; main = r.main; sub = r.sub; aug = r.aug; unknown01 = 0; };
++	InventorySlot_Struct(SlotPacket_Struct r)	{ type = r.type; unknown02 = r.unknown02; main = r.main; sub = r.sub; aug = r.aug; unknown01 = r.unknown01; };
++	InventorySlot_Struct(AutoSlot_Struct r)		{ type = r.type; unknown02 = r.unknown02; main = r.main; sub = r.sub; aug = r.aug; unknown01 = r.unknown01; };
++	
++	void	Invalidate() { type = -1; unknown02 = 0; main = -1; sub = -1; aug = -1; unknown01 = 0; };
++
++	Slot_Struct	MainAugmentParent()
++	{
++		Slot_Struct return_struct;
++
++		return_struct.type	= type;
++		return_struct.main	= main;
++		return_struct.sub	= -1;
++		return_struct.aug	= -1;
++
++		return return_struct;
++	};
++	Slot_Struct	SubItemParent()
++	{
++		Slot_Struct return_struct;
++
++		return_struct.type	= type;
++		return_struct.main	= main;
++		return_struct.sub	= -1;
++		return_struct.aug	= -1;
++
++		return return_struct;
++	};
++	Slot_Struct	SubAugmentParent()
++	{
++		Slot_Struct return_struct;
++
++		return_struct.type	= type;
++		return_struct.main	= main;
++		return_struct.sub	= sub;
++		return_struct.aug	= -1;
++
++		return return_struct;
++	};
++
++	// Hard-coded checks based on a 0xFFFF (-1) invalid value
++	bool	IsInvalid()			{ return (!(~type) && !(unknown02) && !(~main) && !(~sub) && !(~aug) && !(unknown01)); };
++	bool	IsDeleteRequest()	{ return (!(~type) && !(~main) && !(~sub) && !(~aug)); };
++
++	bool	IsValidServerSlot();
++	bool	IsValidNPCSlot();
++	// bool	IsValidClientSlot(Client* client) { return <client's valid slot check>; }; // put code segment somewhere...
++
++	bool	IsMainItem()	{ return ((~main) && !(~sub) && !(~aug)); };
++	bool	IsMainAugment()	{ return ((~main) && !(~sub) && (~aug)); };
++	bool	IsSubItem()		{ return ((~main) && (~sub) && !(~aug)); };
++	bool	IsSubAugment()	{ return ((~main) && (~sub) && (~aug)); };
++
++	bool	IsSubInRange()	{ return !(sub & LimitSizes::OutOfRange); };
++	bool	IsAugInRange()	{ return !(aug & LimitSizes::OutOfRange); };
++
++	void	operator = (SlotHeader_Struct r)	{ type = r.type; unknown02 = 0; main = r.main; sub = -1; aug = -1; unknown01 = 0; };
++	void	operator = (Slot_Struct r)			{ type = r.type; unknown02 = 0; main = r.main; sub = r.sub; aug = r.aug; unknown01 = 0; };
++	void	operator = (SlotPacket_Struct r)	{ type = r.type; unknown02 = r.unknown02; main = r.main; sub = r.sub; aug = r.aug; unknown01 = r.unknown01; };
++	void	operator = (AutoSlot_Struct r)		{ type = r.type; unknown02 = r.unknown02; main = r.main; sub = r.sub; aug = r.aug; unknown01 = r.unknown01; };
++	void	operator = (InventorySlot_Struct r)	{ type = r.type; unknown02 = r.unknown02; main = r.main; sub = r.sub; aug = r.aug; unknown01 = r.unknown01; };
++};
++
+ struct ServerLootItem_Struct {
+ 	uint32	item_id;
+ 	int16	equipSlot;
+@@ -5079,4 +5225,3 @@ typedef std::list<ServerLootItem_Struct*> ItemList;
+ #pragma pack()
+ 
+ #endif
+-
+diff --git a/zone/client_packet.cpp b/zone/client_packet.cpp
+index dbc57aa..329dd8f 100644
+--- a/zone/client_packet.cpp
++++ b/zone/client_packet.cpp
+@@ -511,6 +511,19 @@ void Client::Handle_Connect_OP_ZoneEntry(const EQApplicationPacket *app)
+ 	ClientVersion = Connection()->ClientVersion();
+ 	ClientVersionBit = 1 << (ClientVersion - 1);
+ 
++	// IF the client object is sent to the client before this point, we're in trouble...
++	if(!m_inv.IsLimitsSet())
++	{
++		InventoryLimits::SetClientInventoryLimits(m_inv.GetLimits(), ClientVersion);
++		m_inv.ResetLimboQueue(m_inv[Type_Limbo]);
++	}
++	else
++	{
++		m_inv.GetLimits().ResetInventoryLimits();
++		InventoryLimits::SetClientInventoryLimits(m_inv.GetLimits(), ClientVersion);
++		m_inv.ResetLimboQueue(m_inv[Type_Limbo]);
++	}
++
+ 	// Antighost code
+ 	// tmp var is so the search doesnt find this object
+ 	Client* client = entity_list.GetClientByName(cze->char_name);
+diff --git a/zone/inventory.cpp b/zone/inventory.cpp
+index 5793e2a..74e11f7 100644
+--- a/zone/inventory.cpp
++++ b/zone/inventory.cpp
+@@ -15,6 +15,7 @@
+ 	along with this program; if not, write to the Free Software
+ 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
++
+ #include "../common/debug.h"
+ #include "masterentity.h"
+ #include "worldserver.h"
+@@ -2349,43 +2350,55 @@ bool Client::MoveItemToInventory(ItemInst *ItemToReturn, bool UpdateClient) {
+ 	return true;
+ }
+ 
+-void Inventory::SetCustomItemData(uint32 character_id, int16 slot_id, std::string identifier, std::string value) {
+-	ItemInst *inst = GetItem(slot_id);
+-	if(inst) {
+-		inst->SetCustomData(identifier, value);
+-		database.SaveInventory(character_id, inst, slot_id);
+-	}
++std::string Inventory::GetCustomItemData(Slot_Struct s_struct, std::string identifier)
++{
++	ItemInst* inst = GetItem(s_struct);
++	
++	if(inst) { return item->GetCustomData(identifier); }
++
++	return "";
+ }
+ 
+-void Inventory::SetCustomItemData(uint32 character_id, int16 slot_id, std::string identifier, int value) {
+-	ItemInst *inst = GetItem(slot_id);
+-	if(inst) {
++void Inventory::SetCustomItemData(uint32 character_id, Slot_Struct s_struct, std::string identifier, std::string value)
++{
++	ItemInst* inst = GetItem(s_struct);
++
++	if(inst)
++	{
+ 		inst->SetCustomData(identifier, value);
+-		database.SaveInventory(character_id, inst, slot_id);
++		database.SaveInventory(character_id, inst, s_struct);
+ 	}
+ }
+ 
+-void Inventory::SetCustomItemData(uint32 character_id, int16 slot_id, std::string identifier, float value) {
+-	ItemInst *inst = GetItem(slot_id);
+-	if(inst) {
++void Inventory::SetCustomItemData(uint32 character_id, Slot_Struct s_struct, std::string identifier, int value)
++{
++	ItemInst* inst = GetItem(s_struct);
++
++	if(inst)
++	{
+ 		inst->SetCustomData(identifier, value);
+-		database.SaveInventory(character_id, inst, slot_id);
++		database.SaveInventory(character_id, inst, s_struct);
+ 	}
+ }
+ 
+-void Inventory::SetCustomItemData(uint32 character_id, int16 slot_id, std::string identifier, bool value) {
+-	ItemInst *inst = GetItem(slot_id);
+-	if(inst) {
++void Inventory::SetCustomItemData(uint32 character_id, Slot_Struct s_struct, std::string identifier, float value)
++{
++	ItemInst* inst = GetItem(s_struct);
++
++	if(inst)
++	{
+ 		inst->SetCustomData(identifier, value);
+-		database.SaveInventory(character_id, inst, slot_id);
++		database.SaveInventory(character_id, inst, s_struct);
+ 	}
+ }
+ 
+-std::string Inventory::GetCustomItemData(int16 slot_id, std::string identifier) {
+-	ItemInst *inst = GetItem(slot_id);
+-	if(inst) {
+-		return inst->GetCustomData(identifier);
++void Inventory::SetCustomItemData(uint32 character_id, Slot_Struct s_struct, std::string identifier, bool value)
++{
++	ItemInst* inst = GetItem(s_struct);
++
++	if(inst)
++	{
++		inst->SetCustomData(identifier, value);
++		database.SaveInventory(character_id, inst, s_struct);
+ 	}
+-	return "";
+ }
+-
