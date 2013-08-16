@@ -1,16 +1,16 @@
- common/Item.cpp            | 3033 ++++++++++++++++++++++++++++++++++++++++++++
- common/Item.h              |  570 +++++++++
- common/eq_constants.h      |  918 ++++++++++++++
- common/eq_packet_structs.h |  161 ++-
+ common/Item.cpp            | 3116 ++++++++++++++++++++++++++++++++++++++++++++
+ common/Item.h              |  564 ++++++++
+ common/eq_constants.h      |  918 +++++++++++++
+ common/eq_packet_structs.h |  157 ++-
  zone/client_packet.cpp     |   13 +
  zone/inventory.cpp         |   61 +-
- 6 files changed, 4724 insertions(+), 32 deletions(-)
+ 6 files changed, 4797 insertions(+), 32 deletions(-)
 
 diff --git a/common/Item.cpp b/common/Item.cpp
-index c8a8be8..8a04bba 100644
+index c8a8be8..8d2d28c 100644
 --- a/common/Item.cpp
 +++ b/common/Item.cpp
-@@ -15,3 +15,3036 @@
+@@ -15,3 +15,3119 @@
  	along with this program; if not, write to the Free Software
  	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
@@ -780,20 +780,20 @@ index c8a8be8..8a04bba 100644
 +// Add non-(G)et(P)ut(R)emove(D)elete Item/Augment code below here
 +bool Inventory::SwapItem(Slot_Struct s_struct_a, Slot_Struct s_struct_b)
 +{
-+	// This needs rework to incorporate InventoryLimits validations..
-+	// ..will probably move 'IsSlotAllowed' up to Inventory to avoid issues
++	// This needs major review during ops checks
 +	
-+	/*
 +	// Temp holding areas for a and b
-+	ItemInst* inst_a = GetItem(slot_a);
-+	ItemInst* inst_b = GetItem(slot_b);
++	ItemInst* inst_a = GetItem(s_struct_a);
++	ItemInst* inst_b = GetItem(s_struct_b);
 +
-+	if(inst_a) { if(!inst_a->IsSlotAllowed(slot_b)) { return false; } }
-+	if(inst_b) { if(!inst_b->IsSlotAllowed(slot_a)) { return false; } }
++	if(inst_a) { if(!IsSlotAllowed(s_struct_b, inst_a)) { return false; } }
++	if(inst_b) { if(!IsSlotAllowed(s_struct_a, inst_b)) { return false; } }
 +
-+	_PutItem(slot_a, inst_b); // Copy b->a
-+	_PutItem(slot_b, inst_a); // Copy a->b
-+	*/
++	inst_a = RemoveItem(s_struct_a);
++	inst_b = RemoveItem(s_struct_b);
++
++	PutItem(s_struct_a, inst_b); // Copy b->a
++	PutItem(s_struct_b, inst_a); // Copy a->b
 +
 +	return true;
 +}
@@ -801,35 +801,91 @@ index c8a8be8..8a04bba 100644
 +// Cursor methods
 +Slot_Struct Inventory::PushCursor(ItemInst* inst)
 +{
-+	/*
-+	m_cursor.push(inst.Clone());
-+	return SLOT_CURSOR;
-+	*/
-+	InventorySlot_Struct return_struct;
++	InventorySlot_Struct is_struct;
++	is_struct.type = Type_Possessions;
++	is_struct.main = Slot_Cursor;
++
++	if(m_inventory.find(is_struct.SlotHeader()) == m_inventory.end())
++	{
++		PutItem(is_struct.Slot(), inst);
++
++		return is_struct.Slot();
++	}
++
++	if(!m_limboqueue.m_available.empty())
++	{
++		is_struct.type = Type_Limbo;
++		is_struct.main = m_limboqueue.m_available.front();
++		m_limboqueue.m_available.pop_front();
++
++		PutItem(is_struct.Slot(), inst);
++
++		return is_struct.Slot();
++	}
 +	
-+	return return_struct.Slot();
++	is_struct.Invalidate();
++
++	return is_struct.Slot();
 +}
 +
 +Slot_Struct Inventory::PushCursor(const ItemInst& inst)
 +{
-+	/*
-+	m_cursor.push(inst.Clone());
-+	return SLOT_CURSOR;
-+	*/
-+	InventorySlot_Struct return_struct;
++	InventorySlot_Struct is_struct;
++	is_struct.type = Type_Possessions;
++	is_struct.main = Slot_Cursor;
++
++	if(m_inventory.find(is_struct.SlotHeader()) == m_inventory.end())
++	{
++		PutItem(is_struct.Slot(), inst.Clone());
++
++		return is_struct.Slot();
++	}
++
++	if(!m_limboqueue.m_available.empty())
++	{
++		is_struct.type = Type_Limbo;
++		is_struct.main = m_limboqueue.m_available.front();
++		m_limboqueue.m_available.pop_front();
++
++		PutItem(is_struct.Slot(), inst.Clone());
++
++		return is_struct.Slot();
++	}
 +	
-+	return return_struct.Slot();
++	is_struct.Invalidate();
++
++	return is_struct.Slot();
 +}
 +
-+Slot_Struct Inventory::PushCursor(SharedDatabase *db, uint32 augment_id)
++Slot_Struct Inventory::PushCursor(SharedDatabase *db, uint32 item_id)
 +{
-+	/*
-+	m_cursor.push(inst.Clone());
-+	return SLOT_CURSOR;
-+	*/
-+	InventorySlot_Struct return_struct;
++	InventorySlot_Struct is_struct;
++	is_struct.type = Type_Possessions;
++	is_struct.main = Slot_Cursor;
++
++	if(m_inventory.find(is_struct.SlotHeader()) == m_inventory.end())
++	{
++		ItemInst* db_inst = db->CreateItem(item_id);
++		PutItem(is_struct.Slot(), db_inst);
++
++		return is_struct.Slot();
++	}
++
++	if(!m_limboqueue.m_available.empty())
++	{
++		is_struct.type = Type_Limbo;
++		is_struct.main = m_limboqueue.m_available.front();
++		m_limboqueue.m_available.pop_front();
++
++		ItemInst* db_inst = db->CreateItem(item_id);
++		PutItem(is_struct.Slot(), db_inst);
++
++		return is_struct.Slot();
++	}
 +	
-+	return return_struct.Slot();
++	is_struct.Invalidate();
++
++	return is_struct.Slot();
 +}
 +
 +Slot_Struct Inventory::MoveLimboToCursor(Slot_Struct limbo_struct, Slot_Struct cursor_struct) // from->to
@@ -861,11 +917,64 @@ index c8a8be8..8a04bba 100644
 +
 +bool Inventory::IsValidItemSlot(Slot_Struct s_struct) const
 +{
++	if(s_struct.aug == LimitSizes::Aug_Invalid)
++	{
++		if(s_struct.type == Type_Possessions)
++		{
++			if(!m_limits.IsValidEquipmentSlot(s_struct.main) &&
++				!m_limits.IsValidPersonalSlot(s_struct.main) &&
++				s_struct.main != Slot_Cursor)
++			{
++				return false;
++			}
++		}
++		else if(s_struct.type > Type_Possessions && s_struct.type < Type_Count)
++		{
++			if((s_struct.main < LimitSizes::Main_Start) || (s_struct.main >= m_limits[s_struct.type])) { return false; }
++		}
++		else { return false; }
++
++		if(s_struct.sub == LimitSizes::Sub_Invalid) { return true; }
++		else if((s_struct.sub >= LimitSizes::Sub_Start) && (s_struct.sub < m_limits.GetContainerMax()))
++		{
++			AutoSlot_Struct as_struct(s_struct);
++			iter_Inventory container_iter = m_inventory.find(as_struct.SlotHeader());
++
++			if((container_iter != m_inventory.end()) && _ContainerPass(container_iter->second))
++			{
++				if(s_struct.sub < container_iter->second->GetItem()->BagSlots) { return true; }
++			}
++		}
++	}
++	
 +	return false;
 +}
 +
 +bool Inventory::IsValidAugmentSlot(Slot_Struct s_struct) const
 +{
++	if(s_struct.aug >= LimitSizes::Aug_Start && s_struct.aug < m_limits.GetAugmentMax())
++	{
++		InventorySlot_Struct is_struct(s_struct);
++
++		if(is_struct.IsMainAugment() && IsValidItemSlot(is_struct.MainAugmentParent()))
++		{
++			iter_Inventory common_iter = m_inventory.find(is_struct.SlotHeader());
++
++			if((common_iter != m_inventory.end()) && _CommonPass(common_iter->second)) { return true; }
++		}
++		else if(is_struct.IsSubAugment() && IsValidItemSlot(is_struct.SubAugmentParent()))
++		{
++			iter_Inventory container_iter = m_inventory.find(is_struct.SlotHeader());
++
++			if((container_iter != m_inventory.end()) && _ContainerPass(container_iter->second))
++			{
++				ItemInst* common_inst = container_iter->second->_GetContent((uint8)s_struct.sub);
++
++				if(_CommonPass(common_inst)) { return true; }
++			}
++		}
++	}
++	
 +	return false;
 +}
 +
@@ -879,7 +988,7 @@ index c8a8be8..8a04bba 100644
 +		{
 +			if(s_struct.type == Type_Possessions)
 +			{
-+				if(s_struct.main >= LimitSizes::Personal_Start && s_struct.main < ServerInventoryLimits[Type_Possessions])
++				if(s_struct.main >= m_limits.GetPersonalStart() && s_struct.main < m_limits[Type_Possessions])
 +				{
 +					if(s_struct.sub >= LimitSizes::Sub_Invalid && s_struct.sub < LimitSizes::Container_Max) { return true; }
 +				}
@@ -924,6 +1033,47 @@ index c8a8be8..8a04bba 100644
 +	}
 +
 +	return false;
++}
++
++int16 Inventory::AvailableContainerSlot(ItemInst* item_inst) const // FirstOpenSlot()
++{
++	if(_ContainerPass(item_inst))
++	{
++		uint8 sub_slot = LimitSizes::Sub_Start;
++		while((sub_slot < item_inst->m_item->BagSlots) && (sub_slot < m_limits.GetContainerMax()))
++		{
++			if(item_inst->m_contents.find(sub_slot) == item_inst->m_contents.end()) { return sub_slot; }
++
++			sub_slot++;
++		}
++	}
++
++	return LimitSizes::Sub_Invalid;
++}
++
++// THIS NEEDS TO BE TESTED!!! (Augment sync will probably be off until this is verified/corrected)
++int16 Inventory::AvailableAugmentSlot(uint32 aug_type, ItemInst* item_inst) const
++{
++	// I made some changes and need to make sure that I understand them..and that upstream calls are updated as well -U
++	if(!_CommonPass(item_inst)) { return LimitSizes::Aug_Invalid; }
++
++	uint8 aug_slot = LimitSizes::Aug_Start;
++	while(aug_slot < m_limits.GetAugmentMax())
++	{
++		if(!item_inst->_GetContent(aug_slot))
++		{
++			if(aug_type == -1 ||
++				(item_inst->m_item->AugSlotType[aug_slot] &&
++				((1 << (item_inst->m_item->AugSlotType[aug_slot] - 1)) & aug_type)))
++			{
++				break;
++			}
++		}
++
++		aug_slot++;
++	}
++
++	return ((aug_slot < m_limits.GetAugmentMax()) ? aug_slot : LimitSizes::Aug_Invalid);
 +}
 +
 +Slot_Struct Inventory::CalcSlotFromMaterial(uint8 material_slot, bool has_bracer01, bool has_bracer02)
@@ -1017,18 +1167,56 @@ index c8a8be8..8a04bba 100644
 +	}
 +}
 +
-+bool Inventory::IsItemEquipable(Slot_Struct s_struct, ItemInst* item) const
++uint16 Inventory::GetTotalItemCount(ItemInst* item_inst) const
 +{
-+	// Needs to be converted to use InventoryLimits
-+	if(item)
++	uint16 item_count = 1 + item_inst->m_contents.size();
++
++	if(_ContainerPass(item_inst))
++	{
++		iter_Contents sub_iter = item_inst->begin();
++		while(sub_iter != item_inst->end())
++		{
++			if(_CommonPass(sub_iter->second)) { item_count += sub_iter->second->m_contents.size(); }
++
++			sub_iter++;
++		}
++	}
++
++	return item_count;
++}
++
++bool Inventory::IsNoneEmptyContainer(ItemInst* item_inst)
++{
++	if(_ContainerPass(item_inst)) { return !item_inst->m_contents.empty(); }
++
++	return false;
++}
++
++bool Inventory::IsItemAugmented(ItemInst* item_inst)
++{
++	if(_CommonPass(item_inst)) { return !item_inst->m_contents.empty(); }
++
++	return false;
++}
++
++bool Inventory::IsItemEquipable(uint16 race_id, uint16 class_id, ItemInst* inst) const
++{
++	if(!inst || (inst->m_item->Slots == 0)) { return false; }
++
++	return inst->m_item->IsEquipable(race_id, class_id);
++}
++
++bool Inventory::IsItemEquipable(Slot_Struct s_struct, ItemInst* inst) const
++{
++	if(inst)
 +	{
 +		if(s_struct.type == Type_Possessions)
 +		{
 +			if(s_struct.sub == LimitSizes::Sub_Invalid && s_struct.aug == LimitSizes::Aug_Invalid)
 +			{
-+				if(s_struct.main >= LimitSizes::Equipment_Start && s_struct.main <= LimitSizes::Equipment_End)
++				if(s_struct.main >= m_limits.GetEquipmentStart() && s_struct.main <= m_limits.GetEquipmentEnd())
 +				{
-+					if(item->m_item->Slots & (1 << s_struct.main)) { return true; }
++					if(m_limits.GetEquipmentBitMask() & inst->m_item->Slots & (1 << s_struct.main)) { return true; }
 +				}
 +			}
 +		}
@@ -1037,12 +1225,26 @@ index c8a8be8..8a04bba 100644
 +	return false;
 +}
 +
-+bool Inventory::AvailableWearSlot(uint32 aug_wear_slots, ItemInst* item) const
++bool Inventory::IsItemAugmentable(ItemInst* item_inst) const
 +{
-+	if(_CommonPass(item))
++	if(_CommonPass(item_inst))
++	{
++		uint8 aug_index = (uint8)m_limits.GetAugmentMax();
++		while(aug_index)
++		{
++			if(item_inst->m_item->AugSlotType[--aug_index]) { return true; }
++		}
++	}
++
++	return false;
++}
++
++bool Inventory::AvailableWearSlot(uint32 aug_wear_slots, ItemInst* inst) const
++{
++	if(_CommonPass(inst))
 +	{
 +		uint32 wear_index = LimitSizes::Equipment_End;
-+		do { if((1 << wear_index--) & item->m_item->Slots & aug_wear_slots) { return true; } }
++		do { if((1 << wear_index--) & inst->m_item->Slots & aug_wear_slots) { return true; } }
 +		while(wear_index);
 +	}
 +
@@ -1096,11 +1298,10 @@ index c8a8be8..8a04bba 100644
 +		else if(get_struct.IsSubItem())
 +		{
 +			ItemInst* container_inst = _GetContent(get_struct.SlotHeader());
-+			
-+			// IsSubInRange() (et al.) should be handled in IsValidClientItemSlot()
-+			if(_ContainerPass(container_inst) && get_struct.IsSubInRange()) { return container_inst->_GetContent((uint8)get_struct.sub); }
 +
-+			// TODO: Log no parent container/OOR error
++			if(_ContainerPass(container_inst)) { return container_inst->_GetContent((uint8)get_struct.sub); }
++
++			// TODO: Log no parent container
 +		}
 +	}
 +	
@@ -1120,9 +1321,9 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* container_inst = _GetContent(get_struct.SlotHeader());
 +			
-+			if(_ContainerPass(container_inst) && get_struct.IsSubInRange()) { return container_inst->_GetContent((uint8)get_struct.sub); }
++			if(_ContainerPass(container_inst)) { return container_inst->_GetContent((uint8)get_struct.sub); }
 +
-+			// TODO: Log no parent container/OOR error
++			// TODO: Log no parent container
 +		}
 +	}
 +	
@@ -1149,7 +1350,7 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* container_inst = _GetContent(put_struct.SlotHeader());
 +
-+			if(_ContainerPass(container_inst) && put_struct.IsSubInRange())
++			if(_ContainerPass(container_inst))
 +			{
 +				container_inst->_DeleteContent((uint8)put_struct.sub);
 +				container_inst->_PutContent((uint8)put_struct.sub, inst);
@@ -1157,7 +1358,7 @@ index c8a8be8..8a04bba 100644
 +				return s_struct;
 +			}
 +
-+			// TODO: Log no parent container/OOR error
++			// TODO: Log no parent container
 +		}
 +	}
 +	
@@ -1183,7 +1384,7 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* container_inst = _GetContent(put_struct.SlotHeader());
 +
-+			if(_ContainerPass(container_inst) && put_struct.IsSubInRange())
++			if(_ContainerPass(container_inst))
 +			{
 +				container_inst->_DeleteContent((uint8)put_struct.sub);
 +				container_inst->_PutContent((uint8)put_struct.sub, inst.Clone());
@@ -1191,7 +1392,7 @@ index c8a8be8..8a04bba 100644
 +				return s_struct;
 +			}
 +
-+			// TODO: Log no parent container/OOR error
++			// TODO: Log no parent container
 +		}
 +	}
 +	
@@ -1218,7 +1419,7 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* container_inst = _GetContent(put_struct.SlotHeader());
 +
-+			if(_ContainerPass(container_inst) && put_struct.IsSubInRange())
++			if(_ContainerPass(container_inst))
 +			{
 +				container_inst->_DeleteContent((uint8)put_struct.sub);
 +				container_inst->_PutContent((uint8)put_struct.sub, db_inst);
@@ -1226,7 +1427,7 @@ index c8a8be8..8a04bba 100644
 +				return s_struct;
 +			}
 +
-+			// TODO: Log no parent container/OOR error
++			// TODO: Log no parent container
 +		}
 +	}
 +	
@@ -1246,9 +1447,9 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* container_inst = _GetContent(remove_struct.SlotHeader());
 +
-+			if(_ContainerPass(container_inst) && remove_struct.IsSubInRange()) { return container_inst->_RemoveContent((uint8)remove_struct.sub); }
++			if(_ContainerPass(container_inst)) { return container_inst->_RemoveContent((uint8)remove_struct.sub); }
 +
-+			// TODO: Log no parent container/OOR error
++			// TODO: Log no parent container
 +		}
 +	}
 +
@@ -1292,7 +1493,7 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* container_inst = _GetContent(delete_struct.SlotHeader());
 +
-+			if(_ContainerPass(container_inst) && delete_struct.IsSubInRange())
++			if(_ContainerPass(container_inst))
 +			{
 +				ItemInst* sub_inst = container_inst->_RemoveContent((uint8)delete_struct.sub);
 +
@@ -1338,23 +1539,23 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* main_inst = _GetContent(get_struct.SlotHeader());
 +
-+			if(_CommonPass(main_inst) && get_struct.IsAugInRange()) { return main_inst->_GetContent((uint8)get_struct.aug); }
++			if(_CommonPass(main_inst)) { return main_inst->_GetContent((uint8)get_struct.aug); }
 +		}
 +		else if(get_struct.IsSubAugment())
 +		{
 +			ItemInst* container_inst = _GetContent(get_struct.SlotHeader());
 +			
-+			if(_ContainerPass(container_inst) && get_struct.IsSubInRange())
++			if(_ContainerPass(container_inst))
 +			{
 +				ItemInst* sub_inst = container_inst->_GetContent((uint8)get_struct.sub);
 +
-+				if(_CommonPass(sub_inst) && get_struct.IsAugInRange())
++				if(_CommonPass(sub_inst))
 +				{
 +					return sub_inst->_GetContent((uint8)get_struct.aug);
 +				}
 +			}
 +
-+			// TODO: Log no parent container/OOR error
++			// TODO: Log no parent container
 +		}
 +	}
 +	
@@ -1373,23 +1574,23 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* main_inst = _GetContent(get_struct.SlotHeader());
 +
-+			if(_CommonPass(main_inst) && get_struct.IsAugInRange()) { return main_inst->_GetContent((uint8)get_struct.aug); }
++			if(_CommonPass(main_inst)) { return main_inst->_GetContent((uint8)get_struct.aug); }
 +		}
 +		else if(get_struct.IsSubAugment())
 +		{
 +			ItemInst* container_inst = _GetContent(get_struct.SlotHeader());
 +			
-+			if(_ContainerPass(container_inst) && get_struct.IsSubInRange())
++			if(_ContainerPass(container_inst))
 +			{
 +				ItemInst* sub_inst = container_inst->_GetContent((uint8)get_struct.sub);
 +
-+				if(_CommonPass(sub_inst) && get_struct.IsAugInRange())
++				if(_CommonPass(sub_inst))
 +				{
 +					return sub_inst->_GetContent((uint8)get_struct.aug);
 +				}
 +			}
 +
-+			// TODO: Log no parent container/OOR error
++			// TODO: Log no parent container
 +		}
 +	}
 +	
@@ -1406,7 +1607,7 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* main_inst = _GetContent(put_struct.SlotHeader());
 +			
-+			if(_CommonPass(main_inst) && put_struct.IsAugInRange())
++			if(_CommonPass(main_inst))
 +			{
 +				main_inst->_DeleteContent((uint8)put_struct.aug);
 +				main_inst->_PutContent((uint8)put_struct.aug, inst);
@@ -1418,11 +1619,11 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* container_inst = _GetContent(put_struct.SlotHeader());
 +
-+			if(_ContainerPass(container_inst) && put_struct.IsSubInRange())
++			if(_ContainerPass(container_inst))
 +			{
 +				ItemInst* sub_inst = container_inst->_GetContent((uint8)put_struct.sub);
 +
-+				if(_CommonPass(sub_inst) && put_struct.IsAugInRange())
++				if(_CommonPass(sub_inst))
 +				{
 +					sub_inst->_DeleteContent((uint8)put_struct.aug);
 +					sub_inst->_PutContent((uint8)put_struct.aug, inst);
@@ -1431,7 +1632,7 @@ index c8a8be8..8a04bba 100644
 +				}
 +			}
 +
-+			// TODO: Log no parent container/OOR error
++			// TODO: Log no parent container
 +		}
 +	}
 +	
@@ -1450,7 +1651,7 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* main_inst = _GetContent(put_struct.SlotHeader());
 +			
-+			if(_CommonPass(main_inst) && put_struct.IsAugInRange())
++			if(_CommonPass(main_inst))
 +			{
 +				main_inst->_DeleteContent((uint8)put_struct.aug);
 +				main_inst->_PutContent((uint8)put_struct.aug, inst.Clone());
@@ -1462,11 +1663,11 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* container_inst = _GetContent(put_struct.SlotHeader());
 +
-+			if(_ContainerPass(container_inst) && put_struct.IsSubInRange())
++			if(_ContainerPass(container_inst))
 +			{
 +				ItemInst* sub_inst = container_inst->_GetContent((uint8)put_struct.sub);
 +
-+				if(_CommonPass(sub_inst) && put_struct.IsAugInRange())
++				if(_CommonPass(sub_inst))
 +				{
 +					sub_inst->_DeleteContent((uint8)put_struct.aug);
 +					sub_inst->_PutContent((uint8)put_struct.aug, inst.Clone());
@@ -1475,7 +1676,7 @@ index c8a8be8..8a04bba 100644
 +				}
 +			}
 +
-+			// TODO: Log no parent container/OOR error
++			// TODO: Log no parent container
 +		}
 +	}
 +	
@@ -1495,7 +1696,7 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* main_inst = _GetContent(put_struct.SlotHeader());
 +			
-+			if(_CommonPass(main_inst) && put_struct.IsAugInRange())
++			if(_CommonPass(main_inst))
 +			{
 +				main_inst->_DeleteContent((uint8)put_struct.aug);
 +				main_inst->_PutContent((uint8)put_struct.aug, db_inst);
@@ -1507,11 +1708,11 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* container_inst = _GetContent(put_struct.SlotHeader());
 +
-+			if(_ContainerPass(container_inst) && put_struct.IsSubInRange())
++			if(_ContainerPass(container_inst))
 +			{
 +				ItemInst* sub_inst = container_inst->_GetContent((uint8)put_struct.sub);
 +
-+				if(_CommonPass(sub_inst) && put_struct.IsAugInRange())
++				if(_CommonPass(sub_inst))
 +				{
 +					sub_inst->_DeleteContent((uint8)put_struct.aug);
 +					sub_inst->_PutContent((uint8)put_struct.aug, db_inst);
@@ -1520,7 +1721,7 @@ index c8a8be8..8a04bba 100644
 +				}
 +			}
 +
-+			// TODO: Log no parent container/OOR error
++			// TODO: Log no parent container
 +		}
 +	}
 +	
@@ -1539,20 +1740,20 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* main_inst = _GetContent(remove_struct.SlotHeader());
 +
-+			if(_CommonPass(main_inst) && remove_struct.IsAugInRange()) { return main_inst->_RemoveContent((uint8)remove_struct.aug); }
++			if(_CommonPass(main_inst)) { return main_inst->_RemoveContent((uint8)remove_struct.aug); }
 +		}
 +		else if(remove_struct.IsSubAugment())
 +		{
 +			ItemInst* container_inst = _GetContent(remove_struct.SlotHeader());
 +
-+			if(_ContainerPass(container_inst) && remove_struct.IsSubInRange())
++			if(_ContainerPass(container_inst))
 +			{
 +				ItemInst* sub_inst = container_inst->_GetContent((uint8)remove_struct.sub);
 +
-+				if(_CommonPass(sub_inst) && remove_struct.IsAugInRange()) { return sub_inst->_RemoveContent((uint8)remove_struct.aug); }
++				if(_CommonPass(sub_inst)) { return sub_inst->_RemoveContent((uint8)remove_struct.aug); }
 +			}
 +
-+			// TODO: Log no parent container/OOR error
++			// TODO: Log no parent container
 +		}
 +	}
 +
@@ -1569,7 +1770,7 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* main_inst = _GetContent(delete_struct.SlotHeader());
 +
-+			if(_CommonPass(main_inst) && delete_struct.IsAugInRange())
++			if(_CommonPass(main_inst))
 +			{
 +				main_inst->_DeleteContent((uint8)delete_struct.aug);
 +
@@ -1580,11 +1781,11 @@ index c8a8be8..8a04bba 100644
 +		{
 +			ItemInst* container_inst = _GetContent(delete_struct.SlotHeader());
 +
-+			if(_ContainerPass(container_inst) && delete_struct.IsSubInRange())
++			if(_ContainerPass(container_inst))
 +			{
 +				ItemInst* sub_inst = container_inst->_GetContent((uint8)delete_struct.sub);
 +
-+				if(_CommonPass(sub_inst) && delete_struct.IsAugInRange())
++				if(_CommonPass(sub_inst))
 +				{
 +					sub_inst->_DeleteContent((uint8)delete_struct.aug);
 +
@@ -1687,8 +1888,8 @@ index c8a8be8..8a04bba 100644
 +{
 +	if(_ContainerPass(item_inst))
 +	{
-+		iter_Contents sub_iter = item_inst->_begin();
-+		while(sub_iter != item_inst->_end())
++		iter_Contents sub_iter = item_inst->begin();
++		while(sub_iter != item_inst->end())
 +		{
 +			if(sub_iter->second)
 +			{
@@ -1709,8 +1910,8 @@ index c8a8be8..8a04bba 100644
 +{
 +	if(_CommonPass(item_inst))
 +	{
-+		iter_Contents aug_iter = item_inst->_begin();
-+		while(aug_iter != item_inst->_end())
++		iter_Contents aug_iter = item_inst->begin();
++		while(aug_iter != item_inst->end())
 +		{
 +			if(aug_iter->second)
 +			{
@@ -1802,7 +2003,7 @@ index c8a8be8..8a04bba 100644
 +	m_charges		= charges;
 +	m_instnodrop	= false;
 +
-+	if(_CommonPass()) { m_color = m_item->Color; }
++	if(m_item && (m_item->ItemClass == ItemClassCommon)) { m_color = m_item->Color; }
 +	else { m_color = 0; }
 +
 +	// m_currentslot	= -1;
@@ -1828,7 +2029,7 @@ index c8a8be8..8a04bba 100644
 +	m_charges		= charges;
 +	m_instnodrop	= false;
 +
-+	if(_CommonPass()) { m_color = m_item->Color; }
++	if(m_item && (m_item->ItemClass == ItemClassCommon)) { m_color = m_item->Color; }
 +	else { m_color = 0; }
 +
 +	// m_currentslot	= -1;
@@ -2059,20 +2260,6 @@ index c8a8be8..8a04bba 100644
 +	return kills;
 +}
 +
-+bool ItemInst::IsType(ItemClass item_class) const
-+{
-+	if(m_item) { return (m_item->ItemClass == item_class); }
-+
-+	return false;
-+}
-+
-+bool ItemInst::IsEquipable(uint16 race_id, uint16 class_id) const
-+{
-+	if(!m_item || (m_item->Slots == 0)) { return false; }
-+
-+	return m_item->IsEquipable(race_id, class_id);
-+}
-+
 +bool ItemInst::IsWeapon() const
 +{
 +	if(m_item)
@@ -2089,59 +2276,6 @@ index c8a8be8..8a04bba 100644
 +	if(!m_item) { return false; }
 +	
 +	return ((m_item->ItemType == ItemTypeArrow) || (m_item->ItemType == ItemTypeThrowing) || (m_item->ItemType == ItemTypeThrowingv2));
-+}
-+
-+bool ItemInst::IsExpendable() const
-+{
-+	if(!m_item) { return false; }
-+
-+	return ((m_item->Click.Type == ET_Expendable ) || (m_item->ItemType == ItemTypePotion));
-+}
-+
-+bool ItemInst::IsAugmentable() const
-+{
-+	if(_CommonPass())
-+	{
-+		uint8 aug_index = LimitSizes::Augment_Max;
-+		while(aug_index)
-+		{
-+			if(m_item->AugSlotType[--aug_index]) { return true; }
-+		}
-+	}
-+
-+	return false;
-+}
-+
-+bool ItemInst::IsNoneEmptyContainer()
-+{
-+	if(_ContainerPass()) { return !m_contents.empty(); }
-+
-+	return false;
-+}
-+
-+bool ItemInst::IsAugmented()
-+{
-+	if(_CommonPass()) { return !m_contents.empty(); }
-+
-+	return false;
-+}
-+
-+uint16 ItemInst::GetTotalItemCount() const
-+{
-+	uint16 item_count = 1 + m_contents.size();
-+
-+	if(_ContainerPass())
-+	{
-+		iter_Contents sub_iter = m_contents.begin();
-+		while(sub_iter != m_contents.end())
-+		{
-+			if(sub_iter->second->_CommonPass()) { item_count += sub_iter->second->m_contents.size(); }
-+
-+			sub_iter++;
-+		}
-+	}
-+
-+	return item_count;
 +}
 +
 +void ItemInst::DeleteMapItems()
@@ -2294,22 +2428,6 @@ index c8a8be8..8a04bba 100644
 +	return s;
 +}
 +
-+int16 ItemInst::AvailableItemSlot() const // FirstOpenSlot()
-+{
-+	if(_ContainerPass())
-+	{
-+		uint8 sub_slot = LimitSizes::Sub_Start;
-+		while(sub_slot < m_item->BagSlots)
-+		{
-+			if(m_contents.find(sub_slot) == m_contents.end()) { return sub_slot; }
-+
-+			sub_slot++;
-+		}
-+	}
-+
-+	return LimitSizes::Sub_Invalid;
-+}
-+
 +uint32 ItemInst::GetItemID(uint8 sub_slot) const
 +{
 +	ItemInst* get_inst = GetItem(sub_slot);
@@ -2319,7 +2437,7 @@ index c8a8be8..8a04bba 100644
 +
 +ItemInst* ItemInst::GetItem(uint8 sub_slot) const
 +{
-+	if(_ContainerPass())
++	if(m_item && (m_item->ItemClass == ItemClassContainer))
 +	{
 +		ItemInst* get_inst = _GetContent(sub_slot);
 +
@@ -2327,31 +2445,6 @@ index c8a8be8..8a04bba 100644
 +	}
 +	
 +	return nullptr;
-+}
-+
-+// THIS NEEDS TO BE TESTED!!! (Augment sync will probably be off until this is verified/corrected)
-+int16 ItemInst::AvailableAugmentSlot(uint32 aug_type) const
-+{
-+	// I made some changes and need to make sure that I understand them..and that upstream calls are updated as well -U
-+	if(!_CommonPass()) { return LimitSizes::Aug_Invalid; }
-+
-+	uint8 aug_slot = LimitSizes::Aug_Start;
-+	while(aug_slot < LimitSizes::Augment_Max)
-+	{
-+		if(!_GetContent(aug_slot))
-+		{
-+			if(aug_type == -1 ||
-+				(m_item->AugSlotType[aug_slot] &&
-+				((1 << (m_item->AugSlotType[aug_slot] - 1)) & aug_type)))
-+			{
-+				break;
-+			}
-+		}
-+
-+		aug_slot++;
-+	}
-+
-+	return ((aug_slot < LimitSizes::Augment_Max) ? aug_slot : LimitSizes::Aug_Invalid);
 +}
 +
 +uint32 ItemInst::GetAugmentID(uint8 aug_slot) const
@@ -2363,7 +2456,7 @@ index c8a8be8..8a04bba 100644
 +
 +ItemInst* ItemInst::GetAugment(uint8 aug_slot) const
 +{
-+	if(_CommonPass())
++	if(m_item && (m_item->ItemClass == ItemClassCommon))
 +	{
 +		ItemInst* get_inst = _GetContent(aug_slot);
 +
@@ -2371,16 +2464,6 @@ index c8a8be8..8a04bba 100644
 +	}
 +	
 +	return nullptr;
-+}
-+
-+bool ItemInst::_ContainerPass() const
-+{
-+	return (m_item && (m_item->ItemClass == ItemClassContainer));
-+}
-+
-+bool ItemInst::_CommonPass() const
-+{
-+	return (m_item && (m_item->ItemClass == ItemClassCommon));
 +}
 +
 +ItemInst* ItemInst::_GetContent(uint8 content_slot) const
@@ -3048,10 +3131,10 @@ index c8a8be8..8a04bba 100644
 +}
 +// ################################################################################################
 diff --git a/common/Item.h b/common/Item.h
-index c8a8be8..2211aef 100644
+index c8a8be8..2f326e6 100644
 --- a/common/Item.h
 +++ b/common/Item.h
-@@ -15,3 +15,573 @@
+@@ -15,3 +15,567 @@
  	along with this program; if not, write to the Free Software
  	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
@@ -3281,7 +3364,6 @@ index c8a8be8..2211aef 100644
 +
 +	Slot_Struct	MoveLimboToCursor(Slot_Struct limbo_struct, Slot_Struct cursor_struct); // from -> to
 +
-+	// Consider adding augments to dump
 +	void	dumpEntireInventory();
 +	void	dumpSpecificInventory(InventorySlotTypes slot_type);
 +
@@ -3292,15 +3374,25 @@ index c8a8be8..2211aef 100644
 +	bool	IsSlotAllowed(Slot_Struct s_struct, ItemInst* item) const;
 +	bool	SupportsContainers(Slot_Struct s_struct) const;
 +
++	int16	AvailableContainerSlot(ItemInst* item_inst) const; // FirstOpenSlot()
++	int16	AvailableAugmentSlot(uint32 aug_type, ItemInst* item_inst) const;
++
 +	static Slot_Struct	CalcSlotFromMaterial(uint8 material_slot, bool has_bracer01 = false, bool has_bracer02 = false);
 +	static uint8	CalcMaterialFromSlot(Slot_Struct s_struct);
 +
 +	// Item methods
-+	bool	IsItemEquipable(Slot_Struct s_struct, ItemInst* item) const;
-+	bool	AvailableWearSlot(uint32 aug_wear_slots, ItemInst* item) const;
++	uint16	GetTotalItemCount(ItemInst* item_inst) const;
++	bool	IsNoneEmptyContainer(ItemInst* item_inst);
++	bool	IsItemAugmented(ItemInst* item_inst);
++	
++	bool	IsItemEquipable(uint16 race_id, uint16 class_id, ItemInst* inst) const;
++	bool	IsItemEquipable(Slot_Struct s_struct, ItemInst* inst) const;
++
++	bool	IsItemAugmentable(ItemInst* item_inst) const;
++	bool	AvailableWearSlot(uint32 aug_wear_slots, ItemInst* inst) const;
 +
 +	bool	CheckNoDrop(Slot_Struct s_struct);
-+	
++
 +	static bool	CanItemFitInContainer(const Item_Struct *item_to_try, const Item_Struct *container);
 +
 +	// ItemInst property accessors (inventory.cpp)
@@ -3437,23 +3529,15 @@ index c8a8be8..2211aef 100644
 +	bool	EvolveOnAllKills() const;
 +	uint32	GetKillsNeeded(uint8 current_level);
 +
-+	bool	IsType(ItemClass item_class) const;
-+	
++	bool	IsType(ItemClass item_class) const { return m_item ? (m_item->ItemClass == item_class) : false; }
 +	bool	IsStackable() const	{ return (m_item ? m_item->Stackable : false); }
++	bool	IsExpendable() const { return m_item ? ((m_item->Click.Type == ET_Expendable ) || (m_item->ItemType == ItemTypePotion)) : false; }
 +	bool	IsEvolving() const	{ return (m_evolveLvl >= 1); }
 +	bool	IsActivated() const	{ return m_activated; }
 +	bool	IsScaling() const	{ return m_scaling; }
 +
-+	bool	IsEquipable(uint16 race_id, uint16 class_id) const;
 +	bool	IsWeapon() const;
 +	bool	IsAmmo() const;
-+	
-+	bool	IsExpendable() const;
-+	bool	IsAugmentable() const;
-+
-+	bool	IsNoneEmptyContainer();
-+	bool	IsAugmented();
-+	uint16	GetTotalItemCount() const;
 +
 +	void	ClearTimers() { m_timers.clear(); }
 +
@@ -3471,22 +3555,16 @@ index c8a8be8..2211aef 100644
 +
 +	std::map<std::string, Timer>&	GetTimers() { return m_timers; }
 +
-+	// std::map<uint8, ItemInst*>*	GetItemContents() { return &m_contents; }
-+
 +	iter_Contents	begin() const	{ return m_contents.begin(); }
 +	iter_Contents	end() const		{ return m_contents.end(); }
 +
 +	std::string	Serialize(Slot_Struct s_struct) const;
 +
 +	// Container (bag) methods
-+	int16	AvailableItemSlot() const; // FirstOpenSlot()
-+
 +	uint32	GetItemID(uint8 sub_slot) const;
 +	ItemInst*	GetItem(uint8 sub_slot) const;
 +	
 +	// Augment methods
-+	int16	AvailableAugmentSlot(uint32 aug_type) const;	
-+
 +	uint32	GetAugmentID(uint8 aug_slot) const;
 +	ItemInst*	GetAugment(uint8 aug_slot) const;
 +
@@ -3506,13 +3584,12 @@ index c8a8be8..2211aef 100644
 +	ItemInst*	_RemoveContent(uint8 content_slot);
 +	void		_DeleteContent(uint8 content_slot);
 +
++	map_Contents*	_GetContents() { return &m_contents; }
++
 +	_iter_Contents	_begin()	{ return m_contents.begin(); }
 +	_iter_Contents	_end()		{ return m_contents.end(); }
 +
 +private:
-+	bool	_ContainerPass() const;
-+	bool	_CommonPass() const;
-+
 +	ItemUseType			m_use_type;
 +	const Item_Struct*	m_item;
 +	Item_Struct*		m_scaledItem;
@@ -4552,7 +4629,7 @@ index c8a8be8..71a66de 100644
 +
 +#endif
 diff --git a/common/eq_packet_structs.h b/common/eq_packet_structs.h
-index f5bc21a..4e56395 100644
+index f5bc21a..5528bcf 100644
 --- a/common/eq_packet_structs.h
 +++ b/common/eq_packet_structs.h
 @@ -270,7 +270,7 @@ struct Spawn_Struct {
@@ -4612,7 +4689,7 @@ index f5bc21a..4e56395 100644
  	};
  };
  
-@@ -5059,6 +5059,152 @@ struct MercenaryMerchantResponse_Struct {
+@@ -5059,6 +5059,148 @@ struct MercenaryMerchantResponse_Struct {
  /*0004*/
  };
  
@@ -4745,15 +4822,11 @@ index f5bc21a..4e56395 100644
 +
 +	bool	IsValidServerSlot();
 +	bool	IsValidNPCSlot();
-+	// bool	IsValidClientSlot(Client* client) { return <client's valid slot check>; }; // put code segment somewhere...
 +
 +	bool	IsMainItem()	{ return ((~main) && !(~sub) && !(~aug)); };
 +	bool	IsMainAugment()	{ return ((~main) && !(~sub) && (~aug)); };
 +	bool	IsSubItem()		{ return ((~main) && (~sub) && !(~aug)); };
 +	bool	IsSubAugment()	{ return ((~main) && (~sub) && (~aug)); };
-+
-+	bool	IsSubInRange()	{ return !(sub & LimitSizes::OutOfRange); };
-+	bool	IsAugInRange()	{ return !(aug & LimitSizes::OutOfRange); };
 +
 +	void	operator = (SlotHeader_Struct r)	{ type = r.type; unknown02 = 0; main = r.main; sub = -1; aug = -1; unknown01 = 0; };
 +	void	operator = (Slot_Struct r)			{ type = r.type; unknown02 = 0; main = r.main; sub = r.sub; aug = r.aug; unknown01 = 0; };
@@ -4765,7 +4838,7 @@ index f5bc21a..4e56395 100644
  struct ServerLootItem_Struct {
  	uint32	item_id;
  	int16	equipSlot;
-@@ -5079,4 +5225,3 @@ typedef std::list<ServerLootItem_Struct*> ItemList;
+@@ -5079,4 +5221,3 @@ typedef std::list<ServerLootItem_Struct*> ItemList;
  #pragma pack()
  
  #endif
