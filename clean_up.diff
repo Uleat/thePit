@@ -1,0 +1,2506 @@
+ changelog.txt                |   6 ++
+ common/Item.cpp              | 116 +++++++++++------------
+ common/Item.h                |   4 +-
+ common/eq_constants.h        | 217 +++++++++++++++++++++++--------------------
+ common/eq_packet_structs.h   |  14 +--
+ common/extprofile.h          |   2 +-
+ common/patches/RoF.cpp       |   6 +-
+ common/patches/SoD.cpp       |   6 +-
+ common/patches/SoF.cpp       |   2 +-
+ common/patches/Underfoot.cpp |   6 +-
+ common/shareddb.cpp          |  10 +-
+ world/worlddb.cpp            |   4 +-
+ zone/MobAI.cpp               |   2 +-
+ zone/Object.cpp              |  12 +--
+ zone/attack.cpp              |   8 +-
+ zone/bonuses.cpp             |  14 +--
+ zone/bot.cpp                 |  56 +++++------
+ zone/client.cpp              | 128 ++++++++++++-------------
+ zone/client_mods.cpp         |   4 +-
+ zone/client_packet.cpp       |  16 ++--
+ zone/client_process.cpp      |   6 +-
+ zone/command.cpp             |  16 ++--
+ zone/corpse.cpp              |   4 +-
+ zone/effects.cpp             |   2 +-
+ zone/forage.cpp              |   4 +-
+ zone/inventory.cpp           |  20 ++--
+ zone/loottables.cpp          |  18 ++--
+ zone/lua_general.cpp         |  20 ++--
+ zone/lua_iteminst.cpp        |   2 +-
+ zone/merc.cpp                |   4 +-
+ zone/mob.cpp                 |  18 ++--
+ zone/mob.h                   |   6 +-
+ zone/npc.cpp                 |  12 +--
+ zone/perl_questitem.cpp      |   2 +-
+ zone/questmgr.cpp            |   2 +-
+ zone/special_attacks.cpp     |   8 +-
+ zone/spell_effects.cpp       |   4 +-
+ zone/spells.cpp              |   8 +-
+ zone/tradeskills.cpp         |   6 +-
+ zone/trading.cpp             |  22 ++---
+ zone/zone.cpp                |   2 +-
+ zone/zonedb.cpp              |  12 +--
+ zone/zonedump.h              |   2 +-
+ 43 files changed, 425 insertions(+), 408 deletions(-)
+
+diff --git a/changelog.txt b/changelog.txt
+index 19198d5..dfb4ec9 100644
+--- a/changelog.txt
++++ b/changelog.txt
+@@ -1,5 +1,11 @@
+ EQEMu Changelog (Started on Sept 24, 2003 15:50)
+ -------------------------------------------------------
++== 10/19/2013 ==
++Uleat: Remarked out a few broken legacy lines of code that caused compile failures on higher debug levels. Note: There is at least one other segment that should be remarked out as well, but it currently can not be accessed through CMake settings (ifdef "SOLAR")
++Uleat: Renamed the 'Item Class' enumeration
++Uleat: Renamed the 'Item Effect Type' enumeration
++Uleat: Changed 'MATERIAL' defines to 'Material Slot' enumeration. Renamed 'Bracer' to 'Wrist' (reflects game usage)
++
+ == 10/18/2013 ==
+ Uleat: Expanded the 'Bag Type' enumeration to include all known values. Also, set in place additional 'Bag Type' to 'Skill Type' conversions. Some of these will need to be verified before activation.
+ Uleat: Cleaned up some unused enumerations to show a move towards standardization. More to come...
+diff --git a/common/Item.cpp b/common/Item.cpp
+index ff54f04..e92c909 100644
+--- a/common/Item.cpp
++++ b/common/Item.cpp
+@@ -60,7 +60,7 @@ ItemInst::ItemInst(const Item_Struct* item, int16 charges) {
+ 	m_price = 0;
+ 	m_instnodrop = false;
+ 	m_merchantslot = 0;
+-	if(m_item &&m_item->ItemClass == ItemClassCommon)
++	if(m_item &&m_item->ItemClass == ItemClass_Common)
+ 		m_color = m_item->Color;
+ 	else
+ 		m_color = 0;
+@@ -82,7 +82,7 @@ ItemInst::ItemInst(SharedDatabase *db, uint32 item_id, int16 charges) {
+ 	m_price = 0;
+ 	m_merchantslot = 0;
+ 	m_instnodrop=false;
+-	if(m_item && m_item->ItemClass == ItemClassCommon)
++	if(m_item && m_item->ItemClass == ItemClass_Common)
+ 		m_color = m_item->Color;
+ 	else
+ 		m_color = 0;
+@@ -220,10 +220,10 @@ ItemInst* ItemInst::Clone() const
+ }
+ 
+ // Query item type
+-bool ItemInst::IsType(ItemClass item_class) const
++bool ItemInst::IsType(ItemClasses item_class) const
+ {
+ 	// Check usage type
+-	if ((m_use_type == ItemUseWorldContainer) && (item_class == ItemClassContainer))
++	if ((m_use_type == ItemUseWorldContainer) && (item_class == ItemClass_Container))
+ 
+ 		return true;
+ 	if (!m_item)
+@@ -272,7 +272,7 @@ bool ItemInst::IsEquipable(int16 slot_id) const
+ 
+ int8 ItemInst::AvailableAugmentSlot(int32 augtype) const
+ {
+-	if (m_item->ItemClass != ItemClassCommon || !m_item)
++	if (m_item->ItemClass != ItemClass_Common || !m_item)
+ 		return -1;
+ 
+ 	int i;
+@@ -289,7 +289,7 @@ int8 ItemInst::AvailableAugmentSlot(int32 augtype) const
+ 
+ bool ItemInst::AvailableWearSlot(uint32 aug_wear_slots) const
+ {
+-	if (m_item->ItemClass != ItemClassCommon || !m_item)
++	if (m_item->ItemClass != ItemClass_Common || !m_item)
+ 		return false;
+ 
+ 	int i;
+@@ -306,7 +306,7 @@ bool ItemInst::AvailableWearSlot(uint32 aug_wear_slots) const
+ uint32 ItemInst::GetAugmentItemID(uint8 slot) const
+ {
+ uint32 id=0;
+-	if (m_item->ItemClass == ItemClassCommon) {
++	if (m_item->ItemClass == ItemClass_Common) {
+ 		return GetItemID(slot);
+ 	}
+ 
+@@ -327,7 +327,7 @@ uint32 id=0;
+ // Has attack/delay?
+ bool ItemInst::IsWeapon() const
+ {
+-	if (!m_item || m_item->ItemClass != ItemClassCommon)
++	if (!m_item || m_item->ItemClass != ItemClass_Common)
+ 		return false;
+ 	if(m_item->ItemType==ItemTypeArrow && m_item->Damage != 0)
+ 		return true;
+@@ -351,7 +351,7 @@ bool ItemInst::IsAmmo() const {
+ // Retrieve augment inside item
+ ItemInst* ItemInst::GetAugment(uint8 slot) const
+ {
+-	if (m_item->ItemClass == ItemClassCommon)
++	if (m_item->ItemClass == ItemClass_Common)
+ 		return GetItem(slot);
+ 
+ 	return nullptr;
+@@ -360,14 +360,14 @@ ItemInst* ItemInst::GetAugment(uint8 slot) const
+ // Remove augment from item and destroy it
+ void ItemInst::DeleteAugment(uint8 index)
+ {
+-	if (m_item->ItemClass == ItemClassCommon)
++	if (m_item->ItemClass == ItemClass_Common)
+ 		DeleteItem(index);
+ }
+ 
+ // Remove augment from item and return it
+ ItemInst* ItemInst::RemoveAugment(uint8 index)
+ {
+-	if (m_item->ItemClass == ItemClassCommon)
++	if (m_item->ItemClass == ItemClass_Common)
+ 		return PopItem(index);
+ 
+ 	return nullptr;
+@@ -376,7 +376,7 @@ ItemInst* ItemInst::RemoveAugment(uint8 index)
+ // Add an augment to the item
+ void ItemInst::PutAugment(uint8 slot, const ItemInst& augment)
+ {
+-	if (m_item->ItemClass == ItemClassCommon)
++	if (m_item->ItemClass == ItemClass_Common)
+ 		PutItem(slot,augment);
+ }
+ 
+@@ -565,35 +565,35 @@ ItemInst* Inventory::GetItem(int16 slot_id) const
+ 	else if (slot_id>=3031 && slot_id<=3110) {
+ 		// Trade bag slots
+ 		ItemInst* inst = _GetItem(m_trade, Inventory::CalcSlotId(slot_id));
+-		if (inst && inst->IsType(ItemClassContainer)) {
++		if (inst && inst->IsType(ItemClass_Container)) {
+ 			result = inst->GetItem(Inventory::CalcBagIdx(slot_id));
+ 		}
+ 	}
+ 	else if (slot_id>=2531 && slot_id<=2550) {
+ 		// Shared Bank bag slots
+ 		ItemInst* inst = _GetItem(m_shbank, Inventory::CalcSlotId(slot_id));
+-		if (inst && inst->IsType(ItemClassContainer)) {
++		if (inst && inst->IsType(ItemClass_Container)) {
+ 			result = inst->GetItem(Inventory::CalcBagIdx(slot_id));
+ 		}
+ 	}
+ 	else if (slot_id>=2031 && slot_id<=2270) {
+ 		// Bank bag slots
+ 		ItemInst* inst = _GetItem(m_bank, Inventory::CalcSlotId(slot_id));
+-		if (inst && inst->IsType(ItemClassContainer)) {
++		if (inst && inst->IsType(ItemClass_Container)) {
+ 			result = inst->GetItem(Inventory::CalcBagIdx(slot_id));
+ 		}
+ 	}
+ 	else if (slot_id>=331 && slot_id<=340) {
+ 		// Cursor bag slots
+ 		ItemInst* inst = m_cursor.peek_front();
+-		if (inst && inst->IsType(ItemClassContainer)) {
++		if (inst && inst->IsType(ItemClass_Container)) {
+ 			result = inst->GetItem(Inventory::CalcBagIdx(slot_id));
+ 		}
+ 	}
+ 	else if (slot_id>=251 && slot_id<=330) {
+ 		// Personal inventory bag slots
+ 		ItemInst* inst = _GetItem(m_inv, Inventory::CalcSlotId(slot_id));
+-		if (inst && inst->IsType(ItemClassContainer)) {
++		if (inst && inst->IsType(ItemClass_Container)) {
+ 			result = inst->GetItem(Inventory::CalcBagIdx(slot_id));
+ 		}
+ 	}
+@@ -1017,7 +1017,7 @@ bool Inventory::HasSpaceForItem(const Item_Struct *ItemToTry, int16 Quantity) {
+ 				Quantity -= ChargeSlotsLeft;
+ 
+ 			}
+-			if (InvItem && InvItem->IsType(ItemClassContainer)) {
++			if (InvItem && InvItem->IsType(ItemClass_Container)) {
+ 
+ 				int16 BaseSlotID = Inventory::CalcSlotId(i, 0);
+ 				uint8 BagSize=InvItem->GetItem()->BagSlots;
+@@ -1061,7 +1061,7 @@ bool Inventory::HasSpaceForItem(const Item_Struct *ItemToTry, int16 Quantity) {
+ 			}
+ 
+ 		}
+-		else if(InvItem->IsType(ItemClassContainer) && CanItemFitInContainer(ItemToTry, InvItem->GetItem())) {
++		else if(InvItem->IsType(ItemClass_Container) && CanItemFitInContainer(ItemToTry, InvItem->GetItem())) {
+ 
+ 			int16 BaseSlotID = Inventory::CalcSlotId(i, 0);
+ 
+@@ -1175,7 +1175,7 @@ ItemInst* Inventory::PopItem(int16 slot_id)
+ 	else {
+ 		// Is slot inside bag?
+ 		ItemInst* baginst = GetItem(Inventory::CalcSlotId(slot_id));
+-		if (baginst != nullptr && baginst->IsType(ItemClassContainer)) {
++		if (baginst != nullptr && baginst->IsType(ItemClass_Container)) {
+ 			p = baginst->PopItem(Inventory::CalcBagIdx(slot_id));
+ 		}
+ 	}
+@@ -1198,7 +1198,7 @@ int16 Inventory::FindFreeSlot(bool for_bag, bool try_cursor, uint8 min_size, boo
+ 	if (!for_bag) {
+ 		for (int16 i=22; i<=29; i++) {
+ 			const ItemInst* inst = GetItem(i);
+-			if (inst && inst->IsType(ItemClassContainer)
++			if (inst && inst->IsType(ItemClass_Container)
+ 				&& inst->GetItem()->BagSize >= min_size)
+ 			{
+ 				if(inst->GetItem()->BagType == BagType_Quiver && inst->GetItem()->ItemType != ItemTypeArrow)
+@@ -1231,7 +1231,7 @@ int16 Inventory::FindFreeSlot(bool for_bag, bool try_cursor, uint8 min_size, boo
+ void Inventory::dumpBagContents(ItemInst *inst, iter_inst *it) {
+ 	iter_contents itb;
+ 
+-	if (!inst || !inst->IsType(ItemClassContainer)) 
++	if (!inst || !inst->IsType(ItemClass_Container)) 
+ 		return;
+ 
+ 	// Go through bag, if bag
+@@ -1291,7 +1291,7 @@ int Inventory::GetSlotByItemInstCollection(const std::map<int16, ItemInst*> &col
+ 			return iter->first;
+ 		}
+ 
+-		if(t_inst && !t_inst->IsType(ItemClassContainer)) {
++		if(t_inst && !t_inst->IsType(ItemClass_Container)) {
+ 			for(auto b_iter = t_inst->_begin(); b_iter != t_inst->_end(); ++b_iter) {
+ 				if(b_iter->second == inst) {
+ 					return Inventory::CalcSlotId(iter->first, b_iter->first);
+@@ -1407,7 +1407,7 @@ int16 Inventory::_PutItem(int16 slot_id, ItemInst* inst)
+ 	else {
+ 		// Slot must be within a bag
+ 		ItemInst* baginst = GetItem(Inventory::CalcSlotId(slot_id)); // Get parent bag
+-		if (baginst && baginst->IsType(ItemClassContainer)) {
++		if (baginst && baginst->IsType(ItemClass_Container)) {
+ 			baginst->_PutItem(Inventory::CalcBagIdx(slot_id), inst);
+ 			result = slot_id;
+ 		}
+@@ -1445,7 +1445,7 @@ int16 Inventory::_HasItem(std::map<int16, ItemInst*>& bucket, uint32 item_id, ui
+ 			}
+ 		}
+ 		// Go through bag, if bag
+-		if (inst && inst->IsType(ItemClassContainer)) {
++		if (inst && inst->IsType(ItemClass_Container)) {
+ 
+ 			for (itb=inst->_begin(); itb!=inst->_end(); itb++) {
+ 				ItemInst* baginst = itb->second;
+@@ -1489,7 +1489,7 @@ int16 Inventory::_HasItem(ItemInstQueue& iqueue, uint32 item_id, uint8 quantity)
+ 			}
+ 		}
+ 		// Go through bag, if bag
+-		if (inst && inst->IsType(ItemClassContainer)) {
++		if (inst && inst->IsType(ItemClass_Container)) {
+ 
+ 			for (itb=inst->_begin(); itb!=inst->_end(); itb++) {
+ 				ItemInst* baginst = itb->second;
+@@ -1522,18 +1522,18 @@ int16 Inventory::_HasItemByUse(std::map<int16, ItemInst*>& bucket, uint8 use, ui
+ 	// Check item: After failed checks, check bag contents (if bag)
+ 	for (it=bucket.begin(); it!=bucket.end(); it++) {
+ 		inst = it->second;
+-		if (inst && inst->IsType(ItemClassCommon) && inst->GetItem()->ItemType == use) {
++		if (inst && inst->IsType(ItemClass_Common) && inst->GetItem()->ItemType == use) {
+ 			quantity_found += (inst->GetCharges()<=0) ? 1 : inst->GetCharges();
+ 			if (quantity_found >= quantity)
+ 				return it->first;
+ 		}
+ 
+ 		// Go through bag, if bag
+-		if (inst && inst->IsType(ItemClassContainer)) {
++		if (inst && inst->IsType(ItemClass_Container)) {
+ 
+ 			for (itb=inst->_begin(); itb!=inst->_end(); itb++) {
+ 				ItemInst* baginst = itb->second;
+-				if (baginst && baginst->IsType(ItemClassCommon) && baginst->GetItem()->ItemType == use) {
++				if (baginst && baginst->IsType(ItemClass_Common) && baginst->GetItem()->ItemType == use) {
+ 					quantity_found += (baginst->GetCharges()<=0) ? 1 : baginst->GetCharges();
+ 					if (quantity_found >= quantity)
+ 						return Inventory::CalcSlotId(it->first, itb->first);
+@@ -1556,18 +1556,18 @@ int16 Inventory::_HasItemByUse(ItemInstQueue& iqueue, uint8 use, uint8 quantity)
+ 	// Read-only iteration of queue
+ 	for (it=iqueue.begin(); it!=iqueue.end(); it++) {
+ 		ItemInst* inst = *it;
+-		if (inst && inst->IsType(ItemClassCommon) && inst->GetItem()->ItemType == use) {
++		if (inst && inst->IsType(ItemClass_Common) && inst->GetItem()->ItemType == use) {
+ 			quantity_found += (inst->GetCharges()<=0) ? 1 : inst->GetCharges();
+ 			if (quantity_found >= quantity)
+ 				return SLOT_CURSOR;
+ 		}
+ 
+ 		// Go through bag, if bag
+-		if (inst && inst->IsType(ItemClassContainer)) {
++		if (inst && inst->IsType(ItemClass_Container)) {
+ 
+ 			for (itb=inst->_begin(); itb!=inst->_end(); itb++) {
+ 				ItemInst* baginst = itb->second;
+-				if (baginst && baginst->IsType(ItemClassCommon) && baginst->GetItem()->ItemType == use) {
++				if (baginst && baginst->IsType(ItemClass_Common) && baginst->GetItem()->ItemType == use) {
+ 					quantity_found += (baginst->GetCharges()<=0) ? 1 : baginst->GetCharges();
+ 					if (quantity_found >= quantity)
+ 						return Inventory::CalcSlotId(SLOT_CURSOR, itb->first);
+@@ -1601,11 +1601,11 @@ int16 Inventory::_HasItemByLoreGroup(std::map<int16, ItemInst*>& bucket, uint32
+ 			}
+ 		}
+ 		// Go through bag, if bag
+-		if (inst && inst->IsType(ItemClassContainer)) {
++		if (inst && inst->IsType(ItemClass_Container)) {
+ 
+ 			for (itb=inst->_begin(); itb!=inst->_end(); itb++) {
+ 				ItemInst* baginst = itb->second;
+-				if (baginst && baginst->IsType(ItemClassCommon)&& baginst->GetItem()->LoreGroup == loregroup)
++				if (baginst && baginst->IsType(ItemClass_Common)&& baginst->GetItem()->LoreGroup == loregroup)
+ 					return Inventory::CalcSlotId(it->first, itb->first);
+ 
+ 				ItemInst* Aug2;
+@@ -1644,11 +1644,11 @@ int16 Inventory::_HasItemByLoreGroup(ItemInstQueue& iqueue, uint32 loregroup)
+ 			}
+ 		}
+ 		// Go through bag, if bag
+-		if (inst && inst->IsType(ItemClassContainer)) {
++		if (inst && inst->IsType(ItemClass_Container)) {
+ 
+ 			for (itb=inst->_begin(); itb!=inst->_end(); itb++) {
+ 				ItemInst* baginst = itb->second;
+-				if (baginst && baginst->IsType(ItemClassCommon)&& baginst->GetItem()->LoreGroup == loregroup)
++				if (baginst && baginst->IsType(ItemClass_Common)&& baginst->GetItem()->LoreGroup == loregroup)
+ 					return Inventory::CalcSlotId(SLOT_CURSOR, itb->first);
+ 
+ 
+@@ -1692,7 +1692,7 @@ uint8 ItemInst::GetTotalItemCount() const
+ {
+ 	uint8 item_count = 1;
+ 
+-	if(m_item->ItemClass != ItemClassContainer) { return item_count; }
++	if(m_item->ItemClass != ItemClass_Container) { return item_count; }
+ 
+ 	for(int idx = 0; idx < m_item->BagSlots; idx++) { if(GetItem(idx)) { item_count++; } }
+ 
+@@ -1701,7 +1701,7 @@ uint8 ItemInst::GetTotalItemCount() const
+ 
+ bool ItemInst::IsNoneEmptyContainer()
+ {
+-	if(m_item->ItemClass != ItemClassContainer)
++	if(m_item->ItemClass != ItemClass_Container)
+ 		return false;
+ 
+ 	for(int i = 0; i < m_item->BagSlots; ++i)
+@@ -1790,26 +1790,26 @@ int16 Inventory::CalcSlotFromMaterial(uint8 material)
+ {
+ 	switch(material)
+ 	{
+-		case MATERIAL_HEAD:
++		case MatSlot_Head:
+ 			return SLOT_HEAD;
+-		case MATERIAL_CHEST:
++		case MatSlot_Chest:
+ 			return SLOT_CHEST;
+-		case MATERIAL_ARMS:
++		case MatSlot_Arms:
+ 			return SLOT_ARMS;
+-		case MATERIAL_BRACER:
++		case MatSlot_Wrist:
+ 			return SLOT_BRACER01;	// there's 2 bracers, only one bracer material
+-		case MATERIAL_HANDS:
++		case MatSlot_Hands:
+ 			return SLOT_HANDS;
+-		case MATERIAL_LEGS:
++		case MatSlot_Legs:
+ 			return SLOT_LEGS;
+-		case MATERIAL_FEET:
++		case MatSlot_Feet:
+ 			return SLOT_FEET;
+-		case MATERIAL_PRIMARY:
++		case MatSlot_Primary:
+ 			return SLOT_PRIMARY;
+-		case MATERIAL_SECONDARY:
++		case MatSlot_Secondary:
+ 			return SLOT_SECONDARY;
+ 		default:
+-			return -1;
++			return SLOT_INVALID;
+ 	}
+ }
+ 
+@@ -1818,26 +1818,26 @@ uint8 Inventory::CalcMaterialFromSlot(int16 equipslot)
+ 	switch(equipslot)
+ 	{
+ 		case SLOT_HEAD:
+-			return MATERIAL_HEAD;
++			return MatSlot_Head;
+ 		case SLOT_CHEST:
+-			return MATERIAL_CHEST;
++			return MatSlot_Chest;
+ 		case SLOT_ARMS:
+-			return MATERIAL_ARMS;
++			return MatSlot_Arms;
+ 		case SLOT_BRACER01:
+ 		case SLOT_BRACER02:
+-			return MATERIAL_BRACER;
++			return MatSlot_Wrist;
+ 		case SLOT_HANDS:
+-			return MATERIAL_HANDS;
++			return MatSlot_Hands;
+ 		case SLOT_LEGS:
+-			return MATERIAL_LEGS;
++			return MatSlot_Legs;
+ 		case SLOT_FEET:
+-			return MATERIAL_FEET;
++			return MatSlot_Feet;
+ 		case SLOT_PRIMARY:
+-			return MATERIAL_PRIMARY;
++			return MatSlot_Primary;
+ 		case SLOT_SECONDARY:
+-			return MATERIAL_SECONDARY;
++			return MatSlot_Secondary;
+ 		default:
+-			return 0xFF;
++			return MatSlot_Invalid;
+ 	}
+ }
+ 
+diff --git a/common/Item.h b/common/Item.h
+index 47eb755..d1daaac 100644
+--- a/common/Item.h
++++ b/common/Item.h
+@@ -285,7 +285,7 @@ public:
+ 	~ItemInst();
+ 
+ 	// Query item type
+-	bool IsType(ItemClass item_class) const;
++	bool IsType(ItemClasses item_class) const;
+ 
+ 	// Can item be stacked?
+ 	bool IsStackable() const;
+@@ -302,7 +302,7 @@ public:
+ 	int8 AvailableAugmentSlot(int32 augtype) const;
+ 	inline int32 GetAugmentType() const { return m_item->AugType; }
+ 
+-	inline bool IsExpendable() const { return ((m_item->Click.Type == ET_Expendable ) || (m_item->ItemType == ItemTypePotion)); }
++	inline bool IsExpendable() const { return ((m_item->Click.Type == EffType_Expendable ) || (m_item->ItemType == ItemTypePotion)); }
+ 
+ 	//
+ 	// Contents
+diff --git a/common/eq_constants.h b/common/eq_constants.h
+index 1c52484..6649845 100644
+--- a/common/eq_constants.h
++++ b/common/eq_constants.h
+@@ -38,14 +38,15 @@ enum ItemAttributes : uint32
+ };
+ 
+ /*
+-** Item types
++**	Item classes
+ **
+ */
+-enum ItemClass
++enum ItemClasses : uint8
+ {
+-	ItemClassCommon		= 0,
+-	ItemClassContainer	= 1,
+-	ItemClassBook		= 2
++	ItemClass_Common = 0,
++	ItemClass_Container,
++	ItemClass_Book,
++	ItemClass_Count
+ };
+ 
+ /*
+@@ -174,18 +175,20 @@ enum ContainerTypes : uint8
+ };
+ 
+ /*
+-** Item Effect Types
++**	Item effect types
+ **
+ */
+-enum {
+-	ET_CombatProc = 0,
+-	ET_ClickEffect = 1,
+-	ET_WornEffect = 2,
+-	ET_Expendable = 3,
+-	ET_EquipClick = 4,
+-	ET_ClickEffect2 = 5,	//name unknown
+-	ET_Focus = 6,
+-	ET_Scroll = 7
++enum ItemEffectTypes
++{
++	EffType_CombatProc = 0,
++	EffType_ClickEffect,
++	EffType_WornEffect,
++	EffType_Expendable,
++	EffType_EquipClick,
++	EffType_ClickEffect2,	//name unknown
++	EffType_Focus,
++	EffType_Scroll,
++	EffType_Count
+ };
+ 
+ //SpawnAppearance types:
+@@ -501,7 +504,7 @@ typedef enum {
+ #define STAT_DAMAGE_SHIELD	20
+ 
+ /*
+-**	Recast timer types. Used as an off set to charProfileStruct timers.
++**	Recast timer types. Used as an offset to charProfileStruct timers.
+ **
+ **	(Another orphaned enumeration...)
+ */
+@@ -545,95 +548,103 @@ static const uint8 SpellDamageType = 0xe7;
+ static const uint8 DamageTypeUnknown = 0xFF;
+ 
+ //indexed by 'SkillType'
+-static const uint8 SkillDamageTypes[HIGHEST_SKILL+1] = {
+-	/* _1H_BLUNT */ 0,
+-	/* _1H_SLASHING */ 1,
+-	/* _2H_BLUNT */ 0,
+-	/* _2H_SLASHING */ 1,
+-	/* ABJURE */ SpellDamageType,
+-	/* ALTERATION */ SpellDamageType,
+-	/* APPLY_POISON */ DamageTypeUnknown,
+-	/* ARCHERY */ 7,
+-	/* BACKSTAB */ 8,
+-	/* BIND_WOUND */ DamageTypeUnknown,
+-	/* BASH */ 10,
+-	/* BLOCKSKILL */ DamageTypeUnknown,
+-	/* BRASS_INSTRUMENTS */ SpellDamageType,
+-	/* CHANNELING */ DamageTypeUnknown,
+-	/* CONJURATION */ SpellDamageType,
+-	/* DEFENSE */ DamageTypeUnknown,
+-	/* DISARM */ DamageTypeUnknown,
+-	/* DISARM_TRAPS */ DamageTypeUnknown,
+-	/* DIVINATION */ SpellDamageType,
+-	/* DODGE */ DamageTypeUnknown,
+-	/* DOUBLE_ATTACK */ DamageTypeUnknown,
+-	/* DRAGON_PUNCH */ 21,
+-	/* DUAL_WIELD */ DamageTypeUnknown,
+-	/* EAGLE_STRIKE */ 23,
+-	/* EVOCATION */ SpellDamageType,
+-	/* FEIGN_DEATH */ 4,
+-	/* FLYING_KICK */ 30,
+-	/* FORAGE */ DamageTypeUnknown,
+-	/* HAND_TO_HAND */ 4,
+-	/* HIDE */ DamageTypeUnknown,
+-	/* KICK */ 30,
+-	/* MEDITATE */ DamageTypeUnknown,
+-	/* MEND */ DamageTypeUnknown,
+-	/* OFFENSE */ DamageTypeUnknown,
+-	/* PARRY */ DamageTypeUnknown,
+-	/* PICK_LOCK */ DamageTypeUnknown,
+-	/* PIERCING */ 36,
+-	/* RIPOSTE */ DamageTypeUnknown,
+-	/* ROUND_KICK */ 30,
+-	/* SAFE_FALL */ DamageTypeUnknown,
+-	/* SENSE_HEADING */ DamageTypeUnknown,
+-	/* SINGING */ SpellDamageType,
+-	/* SNEAK */ DamageTypeUnknown,
+-	/* SPECIALIZE_ABJURE */ DamageTypeUnknown,
+-	/* SPECIALIZE_ALTERATION */ DamageTypeUnknown,
+-	/* SPECIALIZE_CONJURATION */ DamageTypeUnknown,
+-	/* SPECIALIZE_DIVINATION */ DamageTypeUnknown,
+-	/* SPECIALIZE_EVOCATION */ DamageTypeUnknown,
+-	/* PICK_POCKETS */ DamageTypeUnknown,
+-	/* STRINGED_INSTRUMENTS */ SpellDamageType,
+-	/* SWIMMING */ DamageTypeUnknown,
+-	/* THROWING */ 51,
+-	/* TIGER_CLAW */ 23,
+-	/* TRACKING */ DamageTypeUnknown,
+-	/* WIND_INSTRUMENTS */ SpellDamageType,
+-	/* FISHING */ DamageTypeUnknown,
+-	/* MAKE_POISON */ DamageTypeUnknown,
+-	/* TINKERING */ DamageTypeUnknown,
+-	/* RESEARCH */ DamageTypeUnknown,
+-	/* ALCHEMY */ DamageTypeUnknown,
+-	/* BAKING */ DamageTypeUnknown,
+-	/* TAILORING */ DamageTypeUnknown,
+-	/* SENSE_TRAPS */ DamageTypeUnknown,
+-	/* BLACKSMITHING */ DamageTypeUnknown,
+-	/* FLETCHING */ DamageTypeUnknown,
+-	/* BREWING */ DamageTypeUnknown,
+-	/* ALCOHOL_TOLERANCE */ DamageTypeUnknown,
+-	/* BEGGING */ DamageTypeUnknown,
+-	/* JEWELRY_MAKING */ DamageTypeUnknown,
+-	/* POTTERY */ DamageTypeUnknown,
+-	/* PERCUSSION_INSTRUMENTS */ SpellDamageType,
+-	/* INTIMIDATION */ DamageTypeUnknown,
+-	/* BERSERKING */ DamageTypeUnknown,
+-	/* TAUNT */ DamageTypeUnknown,
+-	/* FRENZY */ 74
++static const uint8 SkillDamageTypes[HIGHEST_SKILL + 1] =
++{
++/*_1H_BLUNT*/				0,
++/*_1H_SLASHING*/			1,
++/*_2H_BLUNT*/				0,
++/*_2H_SLASHING*/			1,
++/*ABJURE*/					SpellDamageType,
++/*ALTERATION*/				SpellDamageType,
++/*APPLY_POISON*/			DamageTypeUnknown,
++/*ARCHERY*/					7,
++/*BACKSTAB*/				8,
++/*BIND_WOUND*/				DamageTypeUnknown,
++/*BASH*/					10,
++/*BLOCKSKILL*/				DamageTypeUnknown,
++/*BRASS_INSTRUMENTS*/		SpellDamageType,
++/*CHANNELING*/				DamageTypeUnknown,
++/*CONJURATION*/				SpellDamageType,
++/*DEFENSE*/					DamageTypeUnknown,
++/*DISARM*/					DamageTypeUnknown,
++/*DISARM_TRAPS*/			DamageTypeUnknown,
++/*DIVINATION*/				SpellDamageType,
++/*DODGE*/					DamageTypeUnknown,
++/*DOUBLE_ATTACK*/			DamageTypeUnknown,
++/*DRAGON_PUNCH*/			21,
++/*DUAL_WIELD*/				DamageTypeUnknown,
++/*EAGLE_STRIKE*/			23,
++/*EVOCATION*/				SpellDamageType,
++/*FEIGN_DEATH*/				4,
++/*FLYING_KICK*/				30,
++/*FORAGE*/					DamageTypeUnknown,
++/*HAND_TO_HAND*/			4,
++/*HIDE*/					DamageTypeUnknown,
++/*KICK*/					30,
++/*MEDITATE*/				DamageTypeUnknown,
++/*MEND*/					DamageTypeUnknown,
++/*OFFENSE*/					DamageTypeUnknown,
++/*PARRY*/					DamageTypeUnknown,
++/*PICK_LOCK*/				DamageTypeUnknown,
++/*PIERCING*/				36,
++/*RIPOSTE*/					DamageTypeUnknown,
++/*ROUND_KICK*/				30,
++/*SAFE_FALL*/				DamageTypeUnknown,
++/*SENSE_HEADING*/			DamageTypeUnknown,
++/*SINGING*/					SpellDamageType,
++/*SNEAK*/					DamageTypeUnknown,
++/*SPECIALIZE_ABJURE*/		DamageTypeUnknown,
++/*SPECIALIZE_ALTERATION*/	DamageTypeUnknown,
++/*SPECIALIZE_CONJURATION*/	DamageTypeUnknown,
++/*SPECIALIZE_DIVINATION*/	DamageTypeUnknown,
++/*SPECIALIZE_EVOCATION*/	DamageTypeUnknown,
++/*PICK_POCKETS*/			DamageTypeUnknown,
++/*STRINGED_INSTRUMENTS*/	SpellDamageType,
++/*SWIMMING*/				DamageTypeUnknown,
++/*THROWING*/				51,
++/*TIGER_CLAW*/				23,
++/*TRACKING*/				DamageTypeUnknown,
++/*WIND_INSTRUMENTS*/		SpellDamageType,
++/*FISHING*/					DamageTypeUnknown,
++/*MAKE_POISON*/				DamageTypeUnknown,
++/*TINKERING*/				DamageTypeUnknown,
++/*RESEARCH*/				DamageTypeUnknown,
++/*ALCHEMY*/					DamageTypeUnknown,
++/*BAKING*/					DamageTypeUnknown,
++/*TAILORING*/				DamageTypeUnknown,
++/*SENSE_TRAPS*/				DamageTypeUnknown,
++/*BLACKSMITHING*/			DamageTypeUnknown,
++/*FLETCHING*/				DamageTypeUnknown,
++/*BREWING*/					DamageTypeUnknown,
++/*ALCOHOL_TOLERANCE*/		DamageTypeUnknown,
++/*BEGGING*/					DamageTypeUnknown,
++/*JEWELRY_MAKING*/			DamageTypeUnknown,
++/*POTTERY*/					DamageTypeUnknown,
++/*PERCUSSION_INSTRUMENTS*/	SpellDamageType,
++/*INTIMIDATION*/			DamageTypeUnknown,
++/*BERSERKING*/				DamageTypeUnknown,
++/*TAUNT*/					DamageTypeUnknown,
++/*FRENZY*/					74
+ };
+ 
+-// Indexing positions into item material arrays
+-#define MATERIAL_HEAD		0
+-#define MATERIAL_CHEST		1
+-#define MATERIAL_ARMS		2
+-#define MATERIAL_BRACER		3
+-#define MATERIAL_HANDS		4
+-#define MATERIAL_LEGS		5
+-#define MATERIAL_FEET		6
+-#define MATERIAL_PRIMARY	7
+-#define MATERIAL_SECONDARY	8
+-#define MAX_MATERIALS		9	//number of equipables
++/*
++**	Material slots
++**
++*/
++enum MaterialSlots : uint8
++{
++	MatSlot_Head = 0,
++	MatSlot_Chest,
++	MatSlot_Arms,
++	MatSlot_Wrist,
++	MatSlot_Hands,
++	MatSlot_Legs,
++	MatSlot_Feet,
++	MatSlot_Primary,
++	MatSlot_Secondary,
++	MatSlot_Count,
++	MatSlot_Invalid = 255
++};
+ 
+ // Used for worn NPC inventory tracking. NPCs don't use
+ // augments, so only the basic slots need to be kept track of.
+diff --git a/common/eq_packet_structs.h b/common/eq_packet_structs.h
+index 29c5eb0..02a812a 100644
+--- a/common/eq_packet_structs.h
++++ b/common/eq_packet_structs.h
+@@ -270,7 +270,7 @@ struct Spawn_Struct {
+ 				/*0225*/ uint32 equip_primary;		// Equipment: Primary Visual
+ 				/*0229*/ uint32 equip_secondary;	// Equipment: Secondary Visual
+ 			} equip;
+-			/*0197*/ uint32 equipment[MAX_MATERIALS]; // Array elements correspond to struct equipment above
++			/*0197*/ uint32 equipment[MatSlot_Count]; // Array elements correspond to struct equipment above
+ 		 };
+ /*0233*/ float	runspeed;		// Speed when running
+ /*0036*/ uint8	afk;			// 0=no, 1=afk
+@@ -316,7 +316,7 @@ union
+ 				/*0376*/ Color_Struct color_primary;	// Color of primary item
+ 				/*0380*/ Color_Struct color_secondary;	// Color of secondary item
+ 			} equipment_colors;
+-			/*0348*/ Color_Struct colors[MAX_MATERIALS]; // Array elements correspond to struct equipment_colors above
++			/*0348*/ Color_Struct colors[MatSlot_Count]; // Array elements correspond to struct equipment_colors above
+ 		 };
+ /*0384*/ uint8	lfg;			// 0=off, 1=lfg on
+ /*0385*/
+@@ -787,7 +787,7 @@ struct SuspendedMinion_Struct
+ 	/*002*/	uint32	HP;
+ 	/*006*/	uint32	Mana;
+ 	/*010*/	SpellBuff_Struct	Buffs[BUFF_COUNT];
+-	/*510*/	uint32	Items[MAX_MATERIALS];
++	/*510*/	uint32	Items[MatSlot_Count];
+ 	/*546*/	char	Name[64];
+ 	/*610*/
+ };
+@@ -892,9 +892,9 @@ struct PlayerProfile_Struct
+ /*0304*/	uint8				ability_time_minutes;
+ /*0305*/	uint8				ability_time_hours;	//place holder
+ /*0306*/	uint8				unknown0306[6];		// @bp Spacer/Flag?
+-/*0312*/	uint32				item_material[MAX_MATERIALS];	// Item texture/material of worn/held items
++/*0312*/	uint32				item_material[MatSlot_Count];	// Item texture/material of worn/held items
+ /*0348*/	uint8				unknown0348[44];
+-/*0392*/	Color_Struct		item_tint[MAX_MATERIALS];
++/*0392*/	Color_Struct		item_tint[MatSlot_Count];
+ /*0428*/	AA_Array			aa_array[MAX_PP_AA_ARRAY];
+ /*2348*/	float				unknown2384;		//seen ~128, ~47
+ /*2352*/	char				servername[32];		// length probably not right
+@@ -2013,7 +2013,7 @@ struct Illusion_Struct { //size: 256 - SoF
+ /*092*/	uint32	drakkin_heritage;	//
+ /*096*/	uint32	drakkin_tattoo;		//
+ /*100*/	uint32	drakkin_details;	//
+-/*104*/	uint32	armor_tint[MAX_MATERIALS];	//
++/*104*/	uint32	armor_tint[MatSlot_Count];	//
+ /*140*/	uint8	eyecolor1;		// Field Not Identified in any Illusion Struct
+ /*141*/	uint8	eyecolor2;		// Field Not Identified in any Illusion Struct
+ /*142*/	uint8	unknown138[114];	//
+@@ -3257,7 +3257,7 @@ struct DyeStruct
+ 			struct Color_Struct secondary;	// or this
+ 		}
+ 		dyes;
+-		struct Color_Struct dye[MAX_MATERIALS];
++		struct Color_Struct dye[MatSlot_Count];
+ 	};
+ };
+ 
+diff --git a/common/extprofile.h b/common/extprofile.h
+index 74e9a89..7685076 100644
+--- a/common/extprofile.h
++++ b/common/extprofile.h
+@@ -41,7 +41,7 @@ struct ExtendedProfile_Struct {
+ 	uint16				old_pet_hp;
+ 	uint16				old_pet_mana;
+ 	SpellBuff_Struct	pet_buffs[BUFF_COUNT];
+-	uint32				pet_items[MAX_MATERIALS];
++	uint32				pet_items[MatSlot_Count];
+ 	char				merc_name[64];
+ 
+ 	uint32				aa_effects;
+diff --git a/common/patches/RoF.cpp b/common/patches/RoF.cpp
+index fbfbcc9..905a5a5 100644
+--- a/common/patches/RoF.cpp
++++ b/common/patches/RoF.cpp
+@@ -717,7 +717,7 @@ ENCODE(OP_SendCharInfo) {
+ 			eq2->gender = emu->gender[r];
+ 			eq2->face = emu->face[r];
+ 			int k;
+-			for(k = 0; k < MAX_MATERIALS; k++) {
++			for(k = 0; k < MatSlot_Count; k++) {
+ 				eq2->equip[k].equip0 = emu->equip[r][k];
+ 				eq2->equip[k].equip1 = 0;
+ 				eq2->equip[k].equip2 = 0;
+@@ -2015,13 +2015,13 @@ ENCODE(OP_ZoneSpawns)
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 
+-				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, emu->equipment[MATERIAL_PRIMARY]);
++				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, emu->equipment[MatSlot_Primary]);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 
+-				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, emu->equipment[MATERIAL_SECONDARY]);
++				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, emu->equipment[MatSlot_Secondary]);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+diff --git a/common/patches/SoD.cpp b/common/patches/SoD.cpp
+index 517479b..6e17bc9 100644
+--- a/common/patches/SoD.cpp
++++ b/common/patches/SoD.cpp
+@@ -335,7 +335,7 @@ ENCODE(OP_SendCharInfo) {
+ 			eq2->haircolor = emu->haircolor[r];
+ 			eq2->face = emu->face[r];
+ 			int k;
+-			for(k = 0; k < MAX_MATERIALS; k++) {
++			for(k = 0; k < MatSlot_Count; k++) {
+ 				eq2->equip[k].equip0 = emu->equip[r][k];
+ 				eq2->equip[k].equip1 = 0;
+ 				eq2->equip[k].itemid = 0;
+@@ -1216,11 +1216,11 @@ ENCODE(OP_ZoneSpawns) {
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 
+-				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, emu->equipment[MATERIAL_PRIMARY]);
++				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, emu->equipment[MatSlot_Primary]);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 
+-				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, emu->equipment[MATERIAL_SECONDARY]);
++				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, emu->equipment[MatSlot_Secondary]);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 			}
+diff --git a/common/patches/SoF.cpp b/common/patches/SoF.cpp
+index b7e1dac..d891ea0 100644
+--- a/common/patches/SoF.cpp
++++ b/common/patches/SoF.cpp
+@@ -334,7 +334,7 @@ ENCODE(OP_SendCharInfo) {
+ 			eq2->haircolor = emu->haircolor[r];
+ 			eq2->face = emu->face[r];
+ 			int k;
+-			for(k = 0; k < MAX_MATERIALS; k++) {
++			for(k = 0; k < MatSlot_Count; k++) {
+ 				eq2->equip[k].equip0 = emu->equip[r][k];
+ 				eq2->equip[k].equip1 = 0;
+ 				eq2->equip[k].itemid = 0;
+diff --git a/common/patches/Underfoot.cpp b/common/patches/Underfoot.cpp
+index ddfe243..dcd6717 100644
+--- a/common/patches/Underfoot.cpp
++++ b/common/patches/Underfoot.cpp
+@@ -336,7 +336,7 @@ ENCODE(OP_SendCharInfo) {
+ 			eq2->haircolor = emu->haircolor[r];
+ 			eq2->face = emu->face[r];
+ 			int k;
+-			for(k = 0; k < MAX_MATERIALS; k++) {
++			for(k = 0; k < MatSlot_Count; k++) {
+ 				eq2->equip[k].equip0 = emu->equip[r][k];
+ 				eq2->equip[k].equip1 = 0;
+ 				eq2->equip[k].itemid = 0;
+@@ -1228,11 +1228,11 @@ ENCODE(OP_ZoneSpawns) {
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 
+-				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, emu->equipment[MATERIAL_PRIMARY]);
++				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, emu->equipment[MatSlot_Primary]);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 
+-				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, emu->equipment[MATERIAL_SECONDARY]);
++				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, emu->equipment[MatSlot_Secondary]);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 				VARSTRUCT_ENCODE_TYPE(uint32, Buffer, 0);
+ 			}
+diff --git a/common/shareddb.cpp b/common/shareddb.cpp
+index 00f5355..efc9d07 100644
+--- a/common/shareddb.cpp
++++ b/common/shareddb.cpp
+@@ -209,7 +209,7 @@ bool SharedDatabase::SaveInventory(uint32 char_id, const ItemInst* inst, int16 s
+ 	if(slot_id >= 400 && slot_id <= 404)
+ 		return(true);
+ 
+-	if (inst && inst->IsType(ItemClassCommon)) {
++	if (inst && inst->IsType(ItemClass_Common)) {
+ 		for(int i=0;i<5;i++) {
+ 			ItemInst *auginst=inst->GetItem(i);
+ 			augslot[i]=(auginst && auginst->GetItem()) ? auginst->GetItem()->ID : 0;
+@@ -300,7 +300,7 @@ bool SharedDatabase::SaveInventory(uint32 char_id, const ItemInst* inst, int16 s
+ 	safe_delete_array(query);
+ 
+ 	// Save bag contents, if slot supports bag contents
+-	if (inst && inst->IsType(ItemClassContainer) && Inventory::SupportsContainers(slot_id)) {
++	if (inst && inst->IsType(ItemClass_Container) && Inventory::SupportsContainers(slot_id)) {
+ 		for (uint8 idx=0; idx<10; idx++) {
+ 			const ItemInst* baginst = inst->GetItem(idx);
+ 			SaveInventory(char_id, baginst, Inventory::CalcSlotId(slot_id, idx));
+@@ -441,7 +441,7 @@ bool SharedDatabase::GetSharedBank(uint32 id, Inventory* inv, bool is_charid) {
+ 				int16 put_slot_id = SLOT_INVALID;
+ 
+ 				ItemInst* inst = CreateBaseItem(item, charges);
+-				if (item->ItemClass == ItemClassCommon) {
++				if (item->ItemClass == ItemClass_Common) {
+ 					for(int i=0;i<5;i++) {
+ 						if (aug[i]) {
+ 							inst->PutAugment(this, i, aug[i]);
+@@ -573,7 +573,7 @@ bool SharedDatabase::GetInventory(uint32 char_id, Inventory* inv) {
+ 				else
+ 					inst->SetCharges(charges);
+ 
+-				if (item->ItemClass == ItemClassCommon) {
++				if (item->ItemClass == ItemClass_Common) {
+ 					for(int i=0;i<5;i++) {
+ 						if (aug[i]) {
+ 							inst->PutAugment(this, i, aug[i]);
+@@ -677,7 +677,7 @@ bool SharedDatabase::GetInventory(uint32 account_id, char* name, Inventory* inv)
+ 				inst->SetColor(color);
+ 			inst->SetCharges(charges);
+ 
+-			if (item->ItemClass == ItemClassCommon) {
++			if (item->ItemClass == ItemClass_Common) {
+ 				for(int i=0;i<5;i++) {
+ 					if (aug[i]) {
+ 						inst->PutAugment(this, i, aug[i]);
+diff --git a/world/worlddb.cpp b/world/worlddb.cpp
+index 9099060..cefb79e 100644
+--- a/world/worlddb.cpp
++++ b/world/worlddb.cpp
+@@ -197,11 +197,11 @@ void WorldDatabase::GetCharSelectInfo(uint32 account_id, CharacterSelect_Struct*
+ 						cs->cs_colors[char_num][material].color = color;
+ 
+ 						// the weapons are kept elsewhere
+-						if ((material==MATERIAL_PRIMARY) || (material==MATERIAL_SECONDARY))
++						if ((material==MatSlot_Primary) || (material==MatSlot_Secondary))
+ 						{
+ 							if(strlen(item->GetItem()->IDFile) > 2) {
+ 								uint32 idfile=atoi(&item->GetItem()->IDFile[2]);
+-								if (material==MATERIAL_PRIMARY)
++								if (material==MatSlot_Primary)
+ 									cs->primary[char_num]=idfile;
+ 								else
+ 									cs->secondary[char_num]=idfile;
+diff --git a/zone/MobAI.cpp b/zone/MobAI.cpp
+index 773c720..4fe9854 100644
+--- a/zone/MobAI.cpp
++++ b/zone/MobAI.cpp
+@@ -1312,7 +1312,7 @@ void Mob::AI_Process() {
+ 				{
+ 					int myclass = GetClass();
+ 					//can only dual wield without a weapon if your a monk
+-					if(GetSpecialAbility(SPECATK_INNATE_DW) || (GetEquipment(MATERIAL_SECONDARY) != 0 && GetLevel() > 29) || myclass == MONK || myclass == MONKGM) {
++					if(GetSpecialAbility(SPECATK_INNATE_DW) || (GetEquipment(MatSlot_Secondary) != 0 && GetLevel() > 29) || myclass == MONK || myclass == MONKGM) {
+ 						float DualWieldProbability = (GetSkill(DUAL_WIELD) + GetLevel()) / 400.0f;
+ 						if(MakeRandomFloat(0.0, 1.0) < DualWieldProbability)
+ 						{
+diff --git a/zone/Object.cpp b/zone/Object.cpp
+index c4a8b0b..260a48d 100644
+--- a/zone/Object.cpp
++++ b/zone/Object.cpp
+@@ -326,7 +326,7 @@ void Object::PutItem(uint8 index, const ItemInst* inst)
+ 		return;
+ 	}
+ 
+-	if (m_inst && m_inst->IsType(ItemClassContainer)) {
++	if (m_inst && m_inst->IsType(ItemClass_Container)) {
+ 		if (inst) {
+ 			m_inst->PutItem(index, *inst);
+ 		}
+@@ -367,7 +367,7 @@ void Object::Close() {
+ // Remove item from container
+ void Object::DeleteItem(uint8 index)
+ {
+-	if (m_inst && m_inst->IsType(ItemClassContainer)) {
++	if (m_inst && m_inst->IsType(ItemClass_Container)) {
+ 		m_inst->DeleteItem(index);
+ 
+ 		// This is _highly_ inefficient, but for now it will work: Save entire object to database
+@@ -380,7 +380,7 @@ ItemInst* Object::PopItem(uint8 index)
+ {
+ 	ItemInst* inst = nullptr;
+ 
+-	if (m_inst && m_inst->IsType(ItemClassContainer)) {
++	if (m_inst && m_inst->IsType(ItemClass_Container)) {
+ 		inst = m_inst->PopItem(index);
+ 
+ 		// This is _highly_ inefficient, but for now it will work: Save entire object to database
+@@ -535,7 +535,7 @@ bool Object::HandleClick(Client* sender, const ClickObject_Struct* click_object)
+ 
+ 		// Send items inside of container
+ 
+-		if (m_inst && m_inst->IsType(ItemClassContainer)) {
++		if (m_inst && m_inst->IsType(ItemClass_Container)) {
+ 
+ 			//Clear out no-drop and no-rent items first if different player opens it
+ 			if(user != last_user)
+@@ -590,7 +590,7 @@ uint32 ZoneDatabase::AddObject(uint32 type, uint32 icon, const Object_Struct& ob
+ 	}
+ 	else {
+ 		// Save container contents, if container
+-		if (inst && inst->IsType(ItemClassContainer)) {
++		if (inst && inst->IsType(ItemClass_Container)) {
+ 			SaveWorldContainer(object.zone_id, database_id, inst);
+ 		}
+ 	}
+@@ -632,7 +632,7 @@ void ZoneDatabase::UpdateObject(uint32 id, uint32 type, uint32 icon, const Objec
+ 	}
+ 	else {
+ 		// Save container contents, if container
+-		if (inst && inst->IsType(ItemClassContainer)) {
++		if (inst && inst->IsType(ItemClass_Container)) {
+ 			SaveWorldContainer(object.zone_id, id, inst);
+ 		}
+ 	}
+diff --git a/zone/attack.cpp b/zone/attack.cpp
+index f93e2f2..0207609 100644
+--- a/zone/attack.cpp
++++ b/zone/attack.cpp
+@@ -57,7 +57,7 @@ bool Mob::AttackAnimation(SkillType &skillinuse, int Hand, const ItemInst* weapo
+ {
+ 	// Determine animation
+ 	int type = 0;
+-	if (weapon && weapon->IsType(ItemClassCommon)) {
++	if (weapon && weapon->IsType(ItemClass_Common)) {
+ 		const Item_Struct* item = weapon->GetItem();
+ #if EQDEBUG >= 11
+ 			LogFile->write(EQEMuLog::Debug, "Weapon skill:%i", item->ItemType);
+@@ -3846,7 +3846,7 @@ void Mob::TryWeaponProc(const ItemInst* weapon_g, Mob *on, uint16 hand) {
+ 		return;
+ 	}
+ 
+-	if(!weapon_g->IsType(ItemClassCommon)) {
++	if(!weapon_g->IsType(ItemClass_Common)) {
+ 		TryWeaponProc(nullptr, (const Item_Struct*) nullptr, on, hand);
+ 		return;
+ 	}
+@@ -3874,7 +3874,7 @@ void Mob::TryWeaponProc(const ItemInst* weapon_g, Mob *on, uint16 hand) {
+ 		if(!aug)
+ 			continue;
+ 
+-		if (aug->Proc.Type == ET_CombatProc) {
++		if (aug->Proc.Type == EffType_CombatProc) {
+ 				ProcChance = ProcChance*(100+aug->ProcRate)/100;
+ 			if (MakeRandomFloat(0, 1) < ProcChance) {
+ 				if(aug->Proc.Level > ourlevel) {
+@@ -3907,7 +3907,7 @@ void Mob::TryWeaponProc(const ItemInst *inst, const Item_Struct* weapon, Mob *on
+ 	//give weapon a chance to proc first.
+ 	if(weapon != nullptr) {
+ 		skillinuse = GetSkillByItemType(weapon->ItemType);
+-		if (weapon->Proc.Type == ET_CombatProc) {
++		if (weapon->Proc.Type == EffType_CombatProc) {
+ 			float WPC = ProcChance*(100.0f+(float)weapon->ProcRate)/100.0f;
+ 			if (MakeRandomFloat(0, 1) <= WPC) {	// 255 dex = 0.084 chance of proc. No idea what this number should be really.
+ 				if(weapon->Proc.Level > ourlevel) {
+diff --git a/zone/bonuses.cpp b/zone/bonuses.cpp
+index ca0a35b..6f524c9 100644
+--- a/zone/bonuses.cpp
++++ b/zone/bonuses.cpp
+@@ -173,7 +173,7 @@ void Client::CalcItemBonuses(StatBonuses* newbon) {
+ }
+ 
+ void Client::AddItemBonuses(const ItemInst *inst, StatBonuses* newbon, bool isAug, bool isTribute) {
+-	if(!inst || !inst->IsType(ItemClassCommon))
++	if(!inst || !inst->IsType(ItemClass_Common))
+ 	{
+ 		return;
+ 	}
+@@ -402,11 +402,11 @@ void Client::AddItemBonuses(const ItemInst *inst, StatBonuses* newbon, bool isAu
+ 		else
+ 			newbon->DSMitigation += item->DSMitigation;
+ 	}
+-	if (item->Worn.Effect>0 && (item->Worn.Type == ET_WornEffect)) { // latent effects
++	if (item->Worn.Effect>0 && (item->Worn.Type == EffType_WornEffect)) { // latent effects
+ 		ApplySpellsBonuses(item->Worn.Effect, item->Worn.Level, newbon, 0, true);
+ 	}
+ 
+-	if (item->Focus.Effect>0 && (item->Focus.Type == ET_Focus)) { // focus effects
++	if (item->Focus.Effect>0 && (item->Focus.Type == EffType_Focus)) { // focus effects
+ 		ApplySpellsBonuses(item->Focus.Effect, item->Focus.Level, newbon, 0, true);
+ 	}
+ 
+@@ -531,7 +531,7 @@ void Client::AddItemBonuses(const ItemInst *inst, StatBonuses* newbon, bool isAu
+ 
+ void Client::CalcEdibleBonuses(StatBonuses* newbon) {
+ #if EQDEBUG >= 11
+-	cout<<"Client::CalcEdibleBonuses(StatBonuses* newbon)"<<endl;
++	// std::cout<<"Client::CalcEdibleBonuses(StatBonuses* newbon)"<<endl; // BROKEN
+ #endif
+ 	// Search player slots for skill=14(food) and skill=15(drink)
+ 		uint32 i;
+@@ -543,7 +543,7 @@ void Client::CalcEdibleBonuses(StatBonuses* newbon) {
+ 		if (food && drink)
+ 			break;
+ 		const ItemInst* inst = GetInv().GetItem(i);
+-		if (inst && inst->GetItem() && inst->IsType(ItemClassCommon)) {
++		if (inst && inst->GetItem() && inst->IsType(ItemClass_Common)) {
+ 			const Item_Struct *item=inst->GetItem();
+ 			if (item->ItemType == ItemTypeFood && !food)
+ 				food = true;
+@@ -559,7 +559,7 @@ void Client::CalcEdibleBonuses(StatBonuses* newbon) {
+ 		if (food && drink)
+ 			break;
+ 		const ItemInst* inst = GetInv().GetItem(i);
+-		if (inst && inst->GetItem() && inst->IsType(ItemClassCommon)) {
++		if (inst && inst->GetItem() && inst->IsType(ItemClass_Common)) {
+ 			const Item_Struct *item=inst->GetItem();
+ 			if (item->ItemType == ItemTypeFood && !food)
+ 				food = true;
+@@ -2386,7 +2386,7 @@ void NPC::CalcItemBonuses(StatBonuses *newbon)
+ 				if(cur->CombatEffects > 0) {
+ 					newbon->ProcChance += cur->CombatEffects;
+ 				}
+-				if (cur->Worn.Effect>0 && (cur->Worn.Type == ET_WornEffect)) { // latent effects
++				if (cur->Worn.Effect>0 && (cur->Worn.Type == EffType_WornEffect)) { // latent effects
+ 					ApplySpellsBonuses(cur->Worn.Effect, cur->Worn.Level, newbon);
+ 				}
+ 				if (cur->Haste > newbon->haste)
+diff --git a/zone/bot.cpp b/zone/bot.cpp
+index b5596f4..d73b72e 100644
+--- a/zone/bot.cpp
++++ b/zone/bot.cpp
+@@ -4336,7 +4336,7 @@ void Bot::SetBotItemInSlot(uint32 slotID, uint32 itemID, const ItemInst* inst, s
+ 	uint32 augslot[5] = { 0, 0, 0, 0, 0 };
+ 
+ 	if(this->GetBotID() > 0 && slotID >= 0 && itemID > 0) {
+-		if (inst && inst->IsType(ItemClassCommon)) {
++		if (inst && inst->IsType(ItemClass_Common)) {
+ 			for(int i=0; i<5; ++i) {
+ 				ItemInst* auginst = inst->GetItem(i);
+ 				augslot[i] = (auginst && auginst->GetItem()) ? auginst->GetItem()->ID : 0;
+@@ -4584,8 +4584,8 @@ void Bot::FillSpawnStruct(NewSpawn_Struct* ns, Mob* ForWho) {
+ 		if(inst) {
+ 			item = inst->GetItem();
+ 			if(item) {
+-				ns->spawn.equipment[MATERIAL_HANDS]	= item->Material;
+-				ns->spawn.colors[MATERIAL_HANDS].color = GetEquipmentColor(MATERIAL_HANDS);
++				ns->spawn.equipment[MatSlot_Hands]	= item->Material;
++				ns->spawn.colors[MatSlot_Hands].color = GetEquipmentColor(MatSlot_Hands);
+ 			}
+ 		}
+ 
+@@ -4593,8 +4593,8 @@ void Bot::FillSpawnStruct(NewSpawn_Struct* ns, Mob* ForWho) {
+ 		if(inst) {
+ 			item = inst->GetItem();
+ 			if(item) {
+-				ns->spawn.equipment[MATERIAL_HEAD] = item->Material;
+-				ns->spawn.colors[MATERIAL_HEAD].color = GetEquipmentColor(MATERIAL_HEAD);
++				ns->spawn.equipment[MatSlot_Head] = item->Material;
++				ns->spawn.colors[MatSlot_Head].color = GetEquipmentColor(MatSlot_Head);
+ 			}
+ 		}
+ 
+@@ -4602,8 +4602,8 @@ void Bot::FillSpawnStruct(NewSpawn_Struct* ns, Mob* ForWho) {
+ 		if(inst) {
+ 			item = inst->GetItem();
+ 			if(item) {
+-				ns->spawn.equipment[MATERIAL_ARMS] = item->Material;
+-				ns->spawn.colors[MATERIAL_ARMS].color = GetEquipmentColor(MATERIAL_ARMS);
++				ns->spawn.equipment[MatSlot_Arms] = item->Material;
++				ns->spawn.colors[MatSlot_Arms].color = GetEquipmentColor(MatSlot_Arms);
+ 			}
+ 		}
+ 
+@@ -4611,8 +4611,8 @@ void Bot::FillSpawnStruct(NewSpawn_Struct* ns, Mob* ForWho) {
+ 		if(inst) {
+ 			item = inst->GetItem();
+ 			if(item) {
+-				ns->spawn.equipment[MATERIAL_BRACER] = item->Material;
+-				ns->spawn.colors[MATERIAL_BRACER].color	= GetEquipmentColor(MATERIAL_BRACER);
++				ns->spawn.equipment[MatSlot_Wrist] = item->Material;
++				ns->spawn.colors[MatSlot_Wrist].color	= GetEquipmentColor(MatSlot_Wrist);
+ 			}
+ 		}
+ 
+@@ -4620,8 +4620,8 @@ void Bot::FillSpawnStruct(NewSpawn_Struct* ns, Mob* ForWho) {
+ 		if(inst) {
+ 			item = inst->GetItem();
+ 			if(item) {
+-				ns->spawn.equipment[MATERIAL_BRACER] = item->Material;
+-				ns->spawn.colors[MATERIAL_BRACER].color	= GetEquipmentColor(MATERIAL_BRACER);
++				ns->spawn.equipment[MatSlot_Wrist] = item->Material;
++				ns->spawn.colors[MatSlot_Wrist].color	= GetEquipmentColor(MatSlot_Wrist);
+ 			}
+ 		}
+ 
+@@ -4629,8 +4629,8 @@ void Bot::FillSpawnStruct(NewSpawn_Struct* ns, Mob* ForWho) {
+ 		if(inst) {
+ 			item = inst->GetItem();
+ 			if(item) {
+-				ns->spawn.equipment[MATERIAL_CHEST]	= item->Material;
+-				ns->spawn.colors[MATERIAL_CHEST].color = GetEquipmentColor(MATERIAL_CHEST);
++				ns->spawn.equipment[MatSlot_Chest]	= item->Material;
++				ns->spawn.colors[MatSlot_Chest].color = GetEquipmentColor(MatSlot_Chest);
+ 			}
+ 		}
+ 
+@@ -4638,8 +4638,8 @@ void Bot::FillSpawnStruct(NewSpawn_Struct* ns, Mob* ForWho) {
+ 		if(inst) {
+ 			item = inst->GetItem();
+ 			if(item) {
+-				ns->spawn.equipment[MATERIAL_LEGS] = item->Material;
+-				ns->spawn.colors[MATERIAL_LEGS].color = GetEquipmentColor(MATERIAL_LEGS);
++				ns->spawn.equipment[MatSlot_Legs] = item->Material;
++				ns->spawn.colors[MatSlot_Legs].color = GetEquipmentColor(MatSlot_Legs);
+ 			}
+ 		}
+ 
+@@ -4647,8 +4647,8 @@ void Bot::FillSpawnStruct(NewSpawn_Struct* ns, Mob* ForWho) {
+ 		if(inst) {
+ 			item = inst->GetItem();
+ 			if(item) {
+-				ns->spawn.equipment[MATERIAL_FEET] = item->Material;
+-				ns->spawn.colors[MATERIAL_FEET].color = GetEquipmentColor(MATERIAL_FEET);
++				ns->spawn.equipment[MatSlot_Feet] = item->Material;
++				ns->spawn.colors[MatSlot_Feet].color = GetEquipmentColor(MatSlot_Feet);
+ 			}
+ 		}
+ 
+@@ -4657,8 +4657,8 @@ void Bot::FillSpawnStruct(NewSpawn_Struct* ns, Mob* ForWho) {
+ 			item = inst->GetItem();
+ 			if(item) {
+ 				if(strlen(item->IDFile) > 2)
+-					ns->spawn.equipment[MATERIAL_PRIMARY] = atoi(&item->IDFile[2]);
+-					ns->spawn.colors[MATERIAL_PRIMARY].color = GetEquipmentColor(MATERIAL_PRIMARY);
++					ns->spawn.equipment[MatSlot_Primary] = atoi(&item->IDFile[2]);
++					ns->spawn.colors[MatSlot_Primary].color = GetEquipmentColor(MatSlot_Primary);
+ 			}
+ 		}
+ 
+@@ -4667,8 +4667,8 @@ void Bot::FillSpawnStruct(NewSpawn_Struct* ns, Mob* ForWho) {
+ 			item = inst->GetItem();
+ 			if(item) {
+ 				if(strlen(item->IDFile) > 2)
+-					ns->spawn.equipment[MATERIAL_SECONDARY] = atoi(&item->IDFile[2]);
+-					ns->spawn.colors[MATERIAL_SECONDARY].color = GetEquipmentColor(MATERIAL_SECONDARY);
++					ns->spawn.equipment[MatSlot_Secondary] = atoi(&item->IDFile[2]);
++					ns->spawn.colors[MatSlot_Secondary].color = GetEquipmentColor(MatSlot_Secondary);
+ 			}
+ 		}
+ 	}
+@@ -5431,8 +5431,8 @@ void Bot::BotRemoveEquipItem(int slot) {
+ 		if(materialFromSlot != 0xFF) {
+ 			equipment[slot] = 0; // npc has more than just material slots. Valid material should mean valid inventory index
+ 			SendWearChange(materialFromSlot);
+-			if(materialFromSlot == MATERIAL_CHEST)
+-				SendWearChange(MATERIAL_ARMS);
++			if(materialFromSlot == MatSlot_Chest)
++				SendWearChange(MatSlot_Arms);
+ 		}
+ 	}
+ }
+@@ -7981,7 +7981,7 @@ int Bot::GetMonkHandToHandDamage(void)
+ 		// Have a look to see if we have epic fists on
+ 
+ 		uint32 botWeaponId = INVALID_ID;
+-		botWeaponId = CastToNPC()->GetEquipment(MATERIAL_HANDS);
++		botWeaponId = CastToNPC()->GetEquipment(MatSlot_Hands);
+ 		if(botWeaponId == 10652) { //Monk Epic ID
+ 			return 9;
+ 		}
+@@ -9026,7 +9026,7 @@ void Bot::SetAttackTimer() {
+ 		if(i == SLOT_SECONDARY) {
+ 			//if we have a 2H weapon in our main hand, no dual
+ 			if(PrimaryWeapon != nullptr) {
+-				if(	PrimaryWeapon->ItemClass == ItemClassCommon
++				if(	PrimaryWeapon->ItemClass == ItemClass_Common
+ 					&& (PrimaryWeapon->ItemType == ItemType2HS
+ 					||	PrimaryWeapon->ItemType == ItemType2HB
+ 					||	PrimaryWeapon->ItemType == ItemType2HPierce)) {
+@@ -9045,7 +9045,7 @@ void Bot::SetAttackTimer() {
+ 		//see if we have a valid weapon
+ 		if(ItemToUse != nullptr) {
+ 			//check type and damage/delay
+-			if(ItemToUse->ItemClass != ItemClassCommon
++			if(ItemToUse->ItemClass != ItemClass_Common
+ 				|| ItemToUse->Damage == 0
+ 				|| ItemToUse->Delay == 0) {
+ 					//no weapon
+@@ -11448,7 +11448,7 @@ void Bot::CalcItemBonuses()
+ 							itembonuses.windMod += itemtmp->BardValue;
+ 						}
+ 					}
+-					if ((itemtmp->Worn.Effect != 0) && (itemtmp->Worn.Type == ET_WornEffect)) { // latent effects
++					if ((itemtmp->Worn.Effect != 0) && (itemtmp->Worn.Type == EffType_WornEffect)) { // latent effects
+ 						ApplySpellsBonuses(itemtmp->Worn.Effect, itemtmp->Worn.Level, &itembonuses);
+ 					}
+ 				}
+@@ -11532,7 +11532,7 @@ void Bot::CalcItemBonuses()
+ 					itembonuses.windMod += itemtmp->BardValue;
+ 				}
+ 			}
+-			if ((itemtmp->Worn.Effect != 0) && (itemtmp->Worn.Type == ET_WornEffect)) { // latent effects
++			if ((itemtmp->Worn.Effect != 0) && (itemtmp->Worn.Type == EffType_WornEffect)) { // latent effects
+ 				ApplySpellsBonuses(itemtmp->Worn.Effect, itemtmp->Worn.Level, &itembonuses);
+ 			}
+ 		}
+diff --git a/zone/client.cpp b/zone/client.cpp
+index 699bd31..0f294d4 100644
+--- a/zone/client.cpp
++++ b/zone/client.cpp
+@@ -1856,55 +1856,55 @@ void Client::FillSpawnStruct(NewSpawn_Struct* ns, Mob* ForWho)
+ 	// (update: i think pp should do it, as this holds LoY dye - plus, this is ugly code with Inventory!)
+ 	const Item_Struct* item = nullptr;
+ 	const ItemInst* inst = nullptr;
+-	if ((inst = m_inv[SLOT_HANDS]) && inst->IsType(ItemClassCommon)) {
++	if ((inst = m_inv[SLOT_HANDS]) && inst->IsType(ItemClass_Common)) {
+ 		item = inst->GetItem();
+-		ns->spawn.equipment[MATERIAL_HANDS]	= item->Material;
+-		ns->spawn.colors[MATERIAL_HANDS].color	= GetEquipmentColor(MATERIAL_HANDS);
++		ns->spawn.equipment[MatSlot_Hands]	= item->Material;
++		ns->spawn.colors[MatSlot_Hands].color	= GetEquipmentColor(MatSlot_Hands);
+ 	}
+-	if ((inst = m_inv[SLOT_HEAD]) && inst->IsType(ItemClassCommon)) {
++	if ((inst = m_inv[SLOT_HEAD]) && inst->IsType(ItemClass_Common)) {
+ 		item = inst->GetItem();
+-		ns->spawn.equipment[MATERIAL_HEAD]	= item->Material;
+-		ns->spawn.colors[MATERIAL_HEAD].color	= GetEquipmentColor(MATERIAL_HEAD);
++		ns->spawn.equipment[MatSlot_Head]	= item->Material;
++		ns->spawn.colors[MatSlot_Head].color	= GetEquipmentColor(MatSlot_Head);
+ 	}
+-	if ((inst = m_inv[SLOT_ARMS]) && inst->IsType(ItemClassCommon)) {
++	if ((inst = m_inv[SLOT_ARMS]) && inst->IsType(ItemClass_Common)) {
+ 		item = inst->GetItem();
+-		ns->spawn.equipment[MATERIAL_ARMS]	= item->Material;
+-		ns->spawn.colors[MATERIAL_ARMS].color	= GetEquipmentColor(MATERIAL_ARMS);
++		ns->spawn.equipment[MatSlot_Arms]	= item->Material;
++		ns->spawn.colors[MatSlot_Arms].color	= GetEquipmentColor(MatSlot_Arms);
+ 	}
+-	if ((inst = m_inv[SLOT_BRACER01]) && inst->IsType(ItemClassCommon)) {
++	if ((inst = m_inv[SLOT_BRACER01]) && inst->IsType(ItemClass_Common)) {
+ 		item = inst->GetItem();
+-		ns->spawn.equipment[MATERIAL_BRACER]= item->Material;
+-		ns->spawn.colors[MATERIAL_BRACER].color	= GetEquipmentColor(MATERIAL_BRACER);
++		ns->spawn.equipment[MatSlot_Wrist]= item->Material;
++		ns->spawn.colors[MatSlot_Wrist].color	= GetEquipmentColor(MatSlot_Wrist);
+ 	}
+-	if ((inst = m_inv[SLOT_BRACER02]) && inst->IsType(ItemClassCommon)) {
++	if ((inst = m_inv[SLOT_BRACER02]) && inst->IsType(ItemClass_Common)) {
+ 		item = inst->GetItem();
+-		ns->spawn.equipment[MATERIAL_BRACER]= item->Material;
+-		ns->spawn.colors[MATERIAL_BRACER].color	= GetEquipmentColor(MATERIAL_BRACER);
++		ns->spawn.equipment[MatSlot_Wrist]= item->Material;
++		ns->spawn.colors[MatSlot_Wrist].color	= GetEquipmentColor(MatSlot_Wrist);
+ 	}
+-	if ((inst = m_inv[SLOT_CHEST]) && inst->IsType(ItemClassCommon)) {
++	if ((inst = m_inv[SLOT_CHEST]) && inst->IsType(ItemClass_Common)) {
+ 		item = inst->GetItem();
+-		ns->spawn.equipment[MATERIAL_CHEST]	= item->Material;
+-		ns->spawn.colors[MATERIAL_CHEST].color	= GetEquipmentColor(MATERIAL_CHEST);
++		ns->spawn.equipment[MatSlot_Chest]	= item->Material;
++		ns->spawn.colors[MatSlot_Chest].color	= GetEquipmentColor(MatSlot_Chest);
+ 	}
+-	if ((inst = m_inv[SLOT_LEGS]) && inst->IsType(ItemClassCommon)) {
++	if ((inst = m_inv[SLOT_LEGS]) && inst->IsType(ItemClass_Common)) {
+ 		item = inst->GetItem();
+-		ns->spawn.equipment[MATERIAL_LEGS]	= item->Material;
+-		ns->spawn.colors[MATERIAL_LEGS].color	= GetEquipmentColor(MATERIAL_LEGS);
++		ns->spawn.equipment[MatSlot_Legs]	= item->Material;
++		ns->spawn.colors[MatSlot_Legs].color	= GetEquipmentColor(MatSlot_Legs);
+ 	}
+-	if ((inst = m_inv[SLOT_FEET]) && inst->IsType(ItemClassCommon)) {
++	if ((inst = m_inv[SLOT_FEET]) && inst->IsType(ItemClass_Common)) {
+ 		item = inst->GetItem();
+-		ns->spawn.equipment[MATERIAL_FEET]	= item->Material;
+-		ns->spawn.colors[MATERIAL_FEET].color	= GetEquipmentColor(MATERIAL_FEET);
++		ns->spawn.equipment[MatSlot_Feet]	= item->Material;
++		ns->spawn.colors[MatSlot_Feet].color	= GetEquipmentColor(MatSlot_Feet);
+ 	}
+-	if ((inst = m_inv[SLOT_PRIMARY]) && inst->IsType(ItemClassCommon)) {
++	if ((inst = m_inv[SLOT_PRIMARY]) && inst->IsType(ItemClass_Common)) {
+ 		item = inst->GetItem();
+ 		if (strlen(item->IDFile) > 2)
+-			ns->spawn.equipment[MATERIAL_PRIMARY] = atoi(&item->IDFile[2]);
++			ns->spawn.equipment[MatSlot_Primary] = atoi(&item->IDFile[2]);
+ 	}
+-	if ((inst = m_inv[SLOT_SECONDARY]) && inst->IsType(ItemClassCommon)) {
++	if ((inst = m_inv[SLOT_SECONDARY]) && inst->IsType(ItemClass_Common)) {
+ 		item = inst->GetItem();
+ 		if (strlen(item->IDFile) > 2)
+-			ns->spawn.equipment[MATERIAL_SECONDARY] = atoi(&item->IDFile[2]);
++			ns->spawn.equipment[MatSlot_Secondary] = atoi(&item->IDFile[2]);
+ 	}
+ 
+ 	//these two may be related to ns->spawn.texture
+@@ -2760,27 +2760,27 @@ bool Client::BindWound(Mob* bindmob, bool start, bool fail){
+ 
+ void Client::SetMaterial(int16 in_slot, uint32 item_id){
+ 	const Item_Struct* item = database.GetItem(item_id);
+-	if (item && (item->ItemClass==ItemClassCommon)) {
++	if (item && (item->ItemClass==ItemClass_Common)) {
+ 		if (in_slot==SLOT_HEAD)
+-			m_pp.item_material[MATERIAL_HEAD]		= item->Material;
++			m_pp.item_material[MatSlot_Head]		= item->Material;
+ 		else if (in_slot==SLOT_CHEST)
+-			m_pp.item_material[MATERIAL_CHEST]		= item->Material;
++			m_pp.item_material[MatSlot_Chest]		= item->Material;
+ 		else if (in_slot==SLOT_ARMS)
+-			m_pp.item_material[MATERIAL_ARMS]		= item->Material;
++			m_pp.item_material[MatSlot_Arms]		= item->Material;
+ 		else if (in_slot==SLOT_BRACER01)
+-			m_pp.item_material[MATERIAL_BRACER]		= item->Material;
++			m_pp.item_material[MatSlot_Wrist]		= item->Material;
+ 		else if (in_slot==SLOT_BRACER02)
+-			m_pp.item_material[MATERIAL_BRACER]		= item->Material;
++			m_pp.item_material[MatSlot_Wrist]		= item->Material;
+ 		else if (in_slot==SLOT_HANDS)
+-			m_pp.item_material[MATERIAL_HANDS]		= item->Material;
++			m_pp.item_material[MatSlot_Hands]		= item->Material;
+ 		else if (in_slot==SLOT_LEGS)
+-			m_pp.item_material[MATERIAL_LEGS]		= item->Material;
++			m_pp.item_material[MatSlot_Legs]		= item->Material;
+ 		else if (in_slot==SLOT_FEET)
+-			m_pp.item_material[MATERIAL_FEET]		= item->Material;
++			m_pp.item_material[MatSlot_Feet]		= item->Material;
+ 		else if (in_slot==SLOT_PRIMARY)
+-			m_pp.item_material[MATERIAL_PRIMARY]	= atoi(item->IDFile+2);
++			m_pp.item_material[MatSlot_Primary]		= atoi(item->IDFile+2);
+ 		else if (in_slot==SLOT_SECONDARY)
+-			m_pp.item_material[MATERIAL_SECONDARY]	= atoi(item->IDFile+2);
++			m_pp.item_material[MatSlot_Secondary]	= atoi(item->IDFile+2);
+ 	}
+ }
+ 
+@@ -2963,25 +2963,25 @@ void Client::SetTint(int16 in_slot, uint32 color) {
+ // Still need to reconcile bracer01 versus bracer02
+ void Client::SetTint(int16 in_slot, Color_Struct& color) {
+ 	if (in_slot==SLOT_HEAD)
+-		m_pp.item_tint[MATERIAL_HEAD].color=color.color;
++		m_pp.item_tint[MatSlot_Head].color=color.color;
+ 	else if (in_slot==SLOT_ARMS)
+-		m_pp.item_tint[MATERIAL_ARMS].color=color.color;
++		m_pp.item_tint[MatSlot_Arms].color=color.color;
+ 	else if (in_slot==SLOT_BRACER01)
+-		m_pp.item_tint[MATERIAL_BRACER].color=color.color;
++		m_pp.item_tint[MatSlot_Wrist].color=color.color;
+ 	else if (in_slot==SLOT_BRACER02)
+-		m_pp.item_tint[MATERIAL_BRACER].color=color.color;
++		m_pp.item_tint[MatSlot_Wrist].color=color.color;
+ 	else if (in_slot==SLOT_HANDS)
+-		m_pp.item_tint[MATERIAL_HANDS].color=color.color;
++		m_pp.item_tint[MatSlot_Hands].color=color.color;
+ 	else if (in_slot==SLOT_PRIMARY)
+-		m_pp.item_tint[MATERIAL_PRIMARY].color=color.color;
++		m_pp.item_tint[MatSlot_Primary].color=color.color;
+ 	else if (in_slot==SLOT_SECONDARY)
+-		m_pp.item_tint[MATERIAL_SECONDARY].color=color.color;
++		m_pp.item_tint[MatSlot_Secondary].color=color.color;
+ 	else if (in_slot==SLOT_CHEST)
+-		m_pp.item_tint[MATERIAL_CHEST].color=color.color;
++		m_pp.item_tint[MatSlot_Chest].color=color.color;
+ 	else if (in_slot==SLOT_LEGS)
+-		m_pp.item_tint[MATERIAL_LEGS].color=color.color;
++		m_pp.item_tint[MatSlot_Legs].color=color.color;
+ 	else if (in_slot==SLOT_FEET)
+-		m_pp.item_tint[MATERIAL_FEET].color=color.color;
++		m_pp.item_tint[MatSlot_Feet].color=color.color;
+ }
+ 
+ void Client::SetHideMe(bool flag)
+@@ -3050,25 +3050,25 @@ uint8 Client::SlotConvert(uint8 slot,bool bracer){
+ 	if(bracer)
+ 		return SLOT_BRACER02;
+ 	switch(slot){
+-		case MATERIAL_HEAD:
++		case MatSlot_Head:
+ 			slot2=SLOT_HEAD;
+ 			break;
+-		case MATERIAL_CHEST:
++		case MatSlot_Chest:
+ 			slot2=SLOT_CHEST;
+ 			break;
+-		case MATERIAL_ARMS:
++		case MatSlot_Arms:
+ 			slot2=SLOT_ARMS;
+ 			break;
+-		case MATERIAL_BRACER:
++		case MatSlot_Wrist:
+ 			slot2=SLOT_BRACER01;
+ 			break;
+-		case MATERIAL_HANDS:
++		case MatSlot_Hands:
+ 			slot2=SLOT_HANDS;
+ 			break;
+-		case MATERIAL_LEGS:
++		case MatSlot_Legs:
+ 			slot2=SLOT_LEGS;
+ 			break;
+-		case MATERIAL_FEET:
++		case MatSlot_Feet:
+ 			slot2=SLOT_FEET;
+ 			break;
+ 		}
+@@ -3079,25 +3079,25 @@ uint8 Client::SlotConvert2(uint8 slot){
+ 	uint8 slot2=0;
+ 	switch(slot){
+ 		case SLOT_HEAD:
+-			slot2=MATERIAL_HEAD;
++			slot2=MatSlot_Head;
+ 			break;
+ 		case SLOT_CHEST:
+-			slot2=MATERIAL_CHEST;
++			slot2=MatSlot_Chest;
+ 			break;
+ 		case SLOT_ARMS:
+-			slot2=MATERIAL_ARMS;
++			slot2=MatSlot_Arms;
+ 			break;
+ 		case SLOT_BRACER01:
+-			slot2=MATERIAL_BRACER;
++			slot2=MatSlot_Wrist;
+ 			break;
+ 		case SLOT_HANDS:
+-			slot2=MATERIAL_HANDS;
++			slot2=MatSlot_Hands;
+ 			break;
+ 		case SLOT_LEGS:
+-			slot2=MATERIAL_LEGS;
++			slot2=MatSlot_Legs;
+ 			break;
+ 		case SLOT_FEET:
+-			slot2=MATERIAL_FEET;
++			slot2=MatSlot_Feet;
+ 			break;
+ 		}
+ 	return slot2;
+@@ -6122,7 +6122,7 @@ void Client::Doppelganger(uint16 spell_id, Mob *target, const char *name_overrid
+ 	made_npc->drakkin_details = GetDrakkinDetails();
+ 	made_npc->d_meele_texture1 = GetEquipmentMaterial(7);
+ 	made_npc->d_meele_texture2 = GetEquipmentMaterial(8);
+-	for (int i = 0; i < MAX_MATERIALS; i++)	{
++	for (int i = 0; i < MatSlot_Count; i++)	{
+ 		made_npc->armor_tint[i] = GetEquipmentColor(i);
+ 	}
+ 	made_npc->loottable_id = 0;
+diff --git a/zone/client_mods.cpp b/zone/client_mods.cpp
+index b05b30e..b2038ae 100644
+--- a/zone/client_mods.cpp
++++ b/zone/client_mods.cpp
+@@ -466,7 +466,7 @@ int16 Client::GetRawItemAC() {
+ 
+ 	for (int16 slot_id=0; slot_id<21; slot_id++) {
+ 		const ItemInst* inst = m_inv[slot_id];
+-		if (inst && inst->IsType(ItemClassCommon)) {
++		if (inst && inst->IsType(ItemClass_Common)) {
+ 			Total += inst->GetItem()->AC;
+ 		}
+ 	}
+@@ -1188,7 +1188,7 @@ uint32 Client::CalcCurrentWeight() {
+ 					bagslot += 1;
+ 			}
+ 			ItemInst* baginst = GetInv().GetItem(bagslot);
+-			if (baginst && baginst->GetItem() && baginst->IsType(ItemClassContainer))
++			if (baginst && baginst->GetItem() && baginst->IsType(ItemClass_Container))
+ 				reduction = baginst->GetItem()->BagWR;
+ 			if (reduction > 0)
+ 				TmpWeight -= TmpWeight*reduction/100;
+diff --git a/zone/client_packet.cpp b/zone/client_packet.cpp
+index 94a95cd..0adb132 100644
+--- a/zone/client_packet.cpp
++++ b/zone/client_packet.cpp
+@@ -414,7 +414,7 @@ int Client::HandlePacket(const EQApplicationPacket *app)
+ 	}
+ 
+ 	#if EQDEBUG >= 9
+-		std::cout << "Received 0x" << hex << setw(4) << setfill('0') << opcode << ", size=" << dec << app->size << std::endl;
++		// std::cout << "Received 0x" << hex << setw(4) << setfill('0') << opcode << ", size=" << dec << app->size << std::endl; // BROKEN
+ 	#endif
+ 
+ 	#ifdef SOLAR
+@@ -2038,7 +2038,7 @@ void Client::Handle_OP_ItemVerifyRequest(const EQApplicationPacket *app)
+             if(!aug)
+                 continue;
+ 
+-            if ( (aug->Click.Type == ET_ClickEffect) || (aug->Click.Type == ET_Expendable) || (aug->Click.Type == ET_EquipClick) || (aug->Click.Type == ET_ClickEffect2) )
++            if ( (aug->Click.Type == EffType_ClickEffect) || (aug->Click.Type == EffType_Expendable) || (aug->Click.Type == EffType_EquipClick) || (aug->Click.Type == EffType_ClickEffect2) )
+             {
+                 tryaug = true;
+                 clickaug = (ItemInst*)aug_i;
+@@ -2052,7 +2052,7 @@ void Client::Handle_OP_ItemVerifyRequest(const EQApplicationPacket *app)
+ 		{
+ 			LogFile->write(EQEMuLog::Debug, "Item with no effect right clicked by %s",GetName());
+ 		}
+-		else if (inst->IsType(ItemClassCommon))
++		else if (inst->IsType(ItemClass_Common))
+ 		{
+ 			if(item->ItemType == ItemTypeSpell && (strstr((const char*)item->Name, "Tome of ") || strstr((const char*)item->Name, "Skill: ")))
+ 			{
+@@ -2063,7 +2063,7 @@ void Client::Handle_OP_ItemVerifyRequest(const EQApplicationPacket *app)
+ 			{
+ 				return;
+ 			}
+-			else if ((item->Click.Type == ET_ClickEffect) || (item->Click.Type == ET_Expendable) || (item->Click.Type == ET_EquipClick) || (item->Click.Type == ET_ClickEffect2))
++			else if ((item->Click.Type == EffType_ClickEffect) || (item->Click.Type == EffType_Expendable) || (item->Click.Type == EffType_EquipClick) || (item->Click.Type == EffType_ClickEffect2))
+ 			{
+ 				if (inst->GetCharges() == 0)
+ 				{
+@@ -3274,7 +3274,7 @@ void Client::Handle_OP_MoveItem(const EQApplicationPacket *app)
+ 		else {
+ 			int16 from_parent = m_inv.CalcSlotId(mi->from_slot);
+ 			if(!m_inv[from_parent]) { mi_hack = true; }
+-			else if(!m_inv[from_parent]->IsType(ItemClassContainer)) { mi_hack = true; }
++			else if(!m_inv[from_parent]->IsType(ItemClass_Container)) { mi_hack = true; }
+ 			else if(m_inv.CalcBagIdx(mi->from_slot) >= m_inv[from_parent]->GetItem()->BagSlots) { mi_hack = true; }
+ 		}
+ 	}
+@@ -3284,7 +3284,7 @@ void Client::Handle_OP_MoveItem(const EQApplicationPacket *app)
+ 		else {
+ 			int16 to_parent = m_inv.CalcSlotId(mi->to_slot);
+ 			if(!m_inv[to_parent]) { mi_hack = true; }
+-			else if(!m_inv[to_parent]->IsType(ItemClassContainer)) { mi_hack = true; }
++			else if(!m_inv[to_parent]->IsType(ItemClass_Container)) { mi_hack = true; }
+ 			else if(m_inv.CalcBagIdx(mi->to_slot) >= m_inv[to_parent]->GetItem()->BagSlots) { mi_hack = true; }
+ 		}
+ 	}
+@@ -4509,7 +4509,7 @@ LogFile->write(EQEMuLog::Debug, "OP CastSpell: slot=%d, spell=%d, target=%d, inv
+ 		{
+ 			const ItemInst* inst = m_inv[castspell->inventoryslot]; //slot values are int16, need to check packet on this field
+ 			//bool cancast = true;
+-			if (inst && inst->IsType(ItemClassCommon))
++			if (inst && inst->IsType(ItemClass_Common))
+ 			{
+ 				const Item_Struct* item = inst->GetItem();
+ 				if(item->Click.Effect != (uint32)castspell->spell_id)
+@@ -4519,7 +4519,7 @@ LogFile->write(EQEMuLog::Debug, "OP CastSpell: slot=%d, spell=%d, target=%d, inv
+ 					return;
+ 				}
+ 
+-				if ((item->Click.Type == ET_ClickEffect) || (item->Click.Type == ET_Expendable) || (item->Click.Type == ET_EquipClick) || (item->Click.Type == ET_ClickEffect2))
++				if ((item->Click.Type == EffType_ClickEffect) || (item->Click.Type == EffType_Expendable) || (item->Click.Type == EffType_EquipClick) || (item->Click.Type == EffType_ClickEffect2))
+ 				{
+ 					if(item->Click.Level2 > 0)
+ 					{
+diff --git a/zone/client_process.cpp b/zone/client_process.cpp
+index 1563018..874bac3 100644
+--- a/zone/client_process.cpp
++++ b/zone/client_process.cpp
+@@ -816,7 +816,7 @@ void Client::BulkSendInventoryItems() {
+ 		ItemInst* inst = m_inv.PopItem(slot_id);
+ 		if(inst) {
+ 			bool is_arrow = (inst->GetItem()->ItemType == ItemTypeArrow) ? true : false;
+-			int16 free_slot_id = m_inv.FindFreeSlot(inst->IsType(ItemClassContainer), true, inst->GetItem()->Size, is_arrow);
++			int16 free_slot_id = m_inv.FindFreeSlot(inst->IsType(ItemClass_Container), true, inst->GetItem()->Size, is_arrow);
+ 			mlog(INVENTORY__ERROR, "Incomplete Trade Transaction: Moving %s from slot %i to %i", inst->GetItem()->Name, slot_id, free_slot_id);
+ 			PutItemInInventory(free_slot_id, *inst, false);
+ 			database.SaveInventory(character_id, nullptr, slot_id);
+@@ -993,7 +993,7 @@ void Client::BulkSendMerchantInventory(int merchant_id, int npcid) {
+ 			else
+ 				handychance--;
+ 			int charges=1;
+-			if(item->ItemClass==ItemClassCommon)
++			if(item->ItemClass==ItemClass_Common)
+ 				charges=item->MaxCharges;
+ 			ItemInst* inst = database.CreateItem(item, charges);
+ 			if (inst) {
+@@ -1207,7 +1207,7 @@ void Client::OPMemorizeSpell(const EQApplicationPacket* app)
+ 		case memSpellScribing:	{	// scribing spell to book
+ 			const ItemInst* inst = m_inv[SLOT_CURSOR];
+ 
+-			if(inst && inst->IsType(ItemClassCommon))
++			if(inst && inst->IsType(ItemClass_Common))
+ 			{
+ 				const Item_Struct* item = inst->GetItem();
+ 
+diff --git a/zone/command.cpp b/zone/command.cpp
+index 7080b4f..708ccb9 100644
+--- a/zone/command.cpp
++++ b/zone/command.cpp
+@@ -2963,7 +2963,7 @@ void command_peekinv(Client *c, const Seperator *sep)
+ 					((item==0)?0:inst->GetCharges()));
+ 			}
+ 
+-			if (inst && inst->IsType(ItemClassContainer)) {
++			if (inst && inst->IsType(ItemClass_Container)) {
+ 				for (uint8 j=0; j<10; j++) {
+ 					const ItemInst* instbag = client->GetInv().GetItem(i, j);
+ 					item = (instbag) ? instbag->GetItem() : nullptr;
+@@ -3036,7 +3036,7 @@ void command_peekinv(Client *c, const Seperator *sep)
+ 						((item==0)?0:inst->GetCharges()));
+ 				}
+ 
+-				if (inst && inst->IsType(ItemClassContainer) && i==0) { // 'CSD 1' - only display contents of slot 30[0] container..higher ones don't exist
++				if (inst && inst->IsType(ItemClass_Container) && i==0) { // 'CSD 1' - only display contents of slot 30[0] container..higher ones don't exist
+ 					for (uint8 j=0; j<10; j++) {
+ 						const ItemInst* instbag = client->GetInv().GetItem(SLOT_CURSOR, j);
+ 						item = (instbag) ? instbag->GetItem() : nullptr;
+@@ -3107,7 +3107,7 @@ void command_peekinv(Client *c, const Seperator *sep)
+ 				((item==0)?0:inst->GetCharges()));
+ 			}
+ 
+-			if (inst && inst->IsType(ItemClassContainer)) {
++			if (inst && inst->IsType(ItemClass_Container)) {
+ 				for (uint8 j=0; j<10; j++) {
+ 					const ItemInst* instbag = client->GetInv().GetItem(i, j);
+ 					item = (instbag) ? instbag->GetItem() : nullptr;
+@@ -3148,7 +3148,7 @@ void command_peekinv(Client *c, const Seperator *sep)
+ 					((item==0)?0:inst->GetCharges()));
+ 			}
+ 
+-			if (inst && inst->IsType(ItemClassContainer)) {
++			if (inst && inst->IsType(ItemClass_Container)) {
+ 				for (uint8 j=0; j<10; j++) {
+ 					const ItemInst* instbag = client->GetInv().GetItem(i, j);
+ 					item = (instbag) ? instbag->GetItem() : nullptr;
+@@ -3193,7 +3193,7 @@ void command_peekinv(Client *c, const Seperator *sep)
+ 					((item==0)?0:inst->GetCharges()));
+ 			}
+ 
+-			if (inst && inst->IsType(ItemClassContainer)) {
++			if (inst && inst->IsType(ItemClass_Container)) {
+ 				for (uint8 j=0; j<10; j++) {
+ 					const ItemInst* instbag = client->GetInv().GetItem(i, j);
+ 					item = (instbag) ? instbag->GetItem() : nullptr;
+@@ -3569,7 +3569,7 @@ void command_equipitem(Client *c, const Seperator *sep)
+ 		bool partialmove = false;
+ 		int16 movecount;
+ 
+-		if (from_inst && from_inst->IsType(ItemClassCommon)) {
++		if (from_inst && from_inst->IsType(ItemClass_Common)) {
+ 			EQApplicationPacket* outapp = new EQApplicationPacket(OP_MoveItem, sizeof(MoveItem_Struct));
+ 			MoveItem_Struct* mi	= (MoveItem_Struct*)outapp->pBuffer;
+ 			mi->from_slot		= SLOT_CURSOR;
+@@ -4740,9 +4740,9 @@ void command_iteminfo(Client *c, const Seperator *sep)
+ 		c->Message(0, "  IDF: %s  Size: %i  Weight: %i  icon_id: %i  Price: %i", item->IDFile, item->Size, item->Weight, item->Icon, item->Price);
+ 		if (c->Admin() >= 200)
+ 			c->Message(0, "MinStatus: %i", item->MinStatus);
+-		if (item->ItemClass==ItemClassBook)
++		if (item->ItemClass==ItemClass_Book)
+ 			c->Message(0, "  This item is a Book: %s", item->Filename);
+-		else if (item->ItemClass==ItemClassContainer)
++		else if (item->ItemClass==ItemClass_Container)
+ 			c->Message(0, "  This item is a container with %i slots", item->BagSlots);
+ 		else {
+ 			c->Message(0, "  equipableSlots: %u equipable Classes: %u", item->Slots, item->Classes);
+diff --git a/zone/corpse.cpp b/zone/corpse.cpp
+index b3ccfe4..a11c5d4 100644
+--- a/zone/corpse.cpp
++++ b/zone/corpse.cpp
+@@ -449,7 +449,7 @@ std::list<uint32> Corpse::MoveItemToCorpse(Client *client, ItemInst *item, int16
+ 	returnlist.push_back(equipslot);
+ 
+ 	// Qualified bag slot iterations. processing bag slots that don't exist is probably not a good idea.
+-	if(item->IsType(ItemClassContainer) && ((equipslot >= 22 && equipslot <=30))) // Limit the bag check to inventory and cursor slots.
++	if(item->IsType(ItemClass_Container) && ((equipslot >= 22 && equipslot <=30))) // Limit the bag check to inventory and cursor slots.
+ 	{
+ 		for(bagindex = 0; bagindex <= 9; bagindex++)
+ 		{
+@@ -1240,7 +1240,7 @@ void Corpse::LootItem(Client* client, const EQApplicationPacket* app)
+ 		if(item_data)
+ 			RemoveItem(item_data->lootslot);
+ 		// remove bag contents too
+-		if (item->ItemClass == ItemClassContainer && (GetPKItem()!=-1 || GetPKItem()!=1))
++		if (item->ItemClass == ItemClass_Container && (GetPKItem()!=-1 || GetPKItem()!=1))
+ 		{
+ 			for (int i=0; i < 10; i++)
+ 			{
+diff --git a/zone/effects.cpp b/zone/effects.cpp
+index 73f1f8e..6bbf7b9 100644
+--- a/zone/effects.cpp
++++ b/zone/effects.cpp
+@@ -459,7 +459,7 @@ bool Client::TrainDiscipline(uint32 itemid) {
+ 		return(false);
+ 	}
+ 
+-	if(item->ItemClass != ItemClassCommon || item->ItemType != ItemTypeSpell) {
++	if(item->ItemClass != ItemClass_Common || item->ItemType != ItemTypeSpell) {
+ 		Message(13, "Invalid item type, you cannot learn from this item.");
+ 		//summon them the item back...
+ 		SummonItem(itemid);
+diff --git a/zone/forage.cpp b/zone/forage.cpp
+index 3bc553a..7ec4ff1 100644
+--- a/zone/forage.cpp
++++ b/zone/forage.cpp
+@@ -212,7 +212,7 @@ bool Client::CanFish() {
+ 	if(bslot != SLOT_INVALID)
+ 		Bait = m_inv.GetItem(bslot);
+ 
+-	if(!Pole || !Pole->IsType(ItemClassCommon) || Pole->GetItem()->ItemType != ItemTypeFishingPole) {
++	if(!Pole || !Pole->IsType(ItemClass_Common) || Pole->GetItem()->ItemType != ItemTypeFishingPole) {
+ 		if (m_inv.HasItemByUse(ItemTypeFishingPole, 1, invWhereWorn|invWherePersonal|invWhereBank|invWhereSharedBank|invWhereTrading|invWhereCursor))	//We have a fishing pole somewhere, just not equipped
+ 			Message_StringID(MT_Skills, FISHING_EQUIP_POLE);	//You need to put your fishing pole in your primary hand.
+ 		else	//We don't have a fishing pole anywhere
+@@ -220,7 +220,7 @@ bool Client::CanFish() {
+ 		return false;
+ 	}
+ 
+-	if (!Bait || !Bait->IsType(ItemClassCommon) || Bait->GetItem()->ItemType != ItemTypeFishingBait) {
++	if (!Bait || !Bait->IsType(ItemClass_Common) || Bait->GetItem()->ItemType != ItemTypeFishingBait) {
+ 		Message_StringID(MT_Skills, FISHING_NO_BAIT);	//You can't fish without fishing bait, go buy some.
+ 		return false;
+ 	}
+diff --git a/zone/inventory.cpp b/zone/inventory.cpp
+index eb38388..8c7ee0d 100644
+--- a/zone/inventory.cpp
++++ b/zone/inventory.cpp
+@@ -452,7 +452,7 @@ void Client::DeleteItemInInventory(int16 slot_id, int8 quantity, bool client_upd
+ 		qsaudit->items[parent_offset].aug_4		= m_inv[slot_id]->GetAugmentItemID(4);
+ 		qsaudit->items[parent_offset].aug_5		= m_inv[slot_id]->GetAugmentItemID(5);
+ 
+-		if(m_inv[slot_id]->IsType(ItemClassContainer)) {
++		if(m_inv[slot_id]->IsType(ItemClass_Container)) {
+ 			for(uint8 bag_idx = 0; bag_idx < m_inv[slot_id]->GetItem()->BagSlots; bag_idx++) {
+ 				ItemInst* bagitem = m_inv[slot_id]->GetItem(bag_idx);
+ 
+@@ -696,7 +696,7 @@ bool Client::AutoPutLootInInventory(ItemInst& inst, bool try_worn, bool try_curs
+ 
+ 	// #3: put it in inventory
+ 	bool is_arrow = (inst.GetItem()->ItemType == ItemTypeArrow) ? true : false;
+-	int16 slot_id = m_inv.FindFreeSlot(inst.IsType(ItemClassContainer), try_cursor, inst.GetItem()->Size, is_arrow);
++	int16 slot_id = m_inv.FindFreeSlot(inst.IsType(ItemClass_Container), try_cursor, inst.GetItem()->Size, is_arrow);
+ 	if (slot_id != SLOT_INVALID)
+ 	{
+ 		PutLootInInventory(slot_id, inst, bag_item_data);
+@@ -1124,7 +1124,7 @@ bool Client::SwapItem(MoveItem_Struct* move_in) {
+ 			DeleteItemInInventory(dst_slot_id,0,true);
+ 			return(false);
+ 		}
+-		if(src_slot_id >= 2500 && src_slot_id <= 2501 && src_inst->IsType(ItemClassContainer)){
++		if(src_slot_id >= 2500 && src_slot_id <= 2501 && src_inst->IsType(ItemClass_Container)){
+ 			for (uint8 idx=0; idx<10; idx++) {
+ 				const ItemInst* baginst = src_inst->GetItem(idx);
+ 				if(baginst && !database.VerifyInventory(account_id, Inventory::CalcSlotId(src_slot_id, idx), baginst)){
+@@ -1139,7 +1139,7 @@ bool Client::SwapItem(MoveItem_Struct* move_in) {
+ 			DeleteItemInInventory(src_slot_id,0,true);
+ 			return(false);
+ 		}
+-		if(dst_slot_id >= 2500 && dst_slot_id <= 2501 && dst_inst->IsType(ItemClassContainer)){
++		if(dst_slot_id >= 2500 && dst_slot_id <= 2501 && dst_inst->IsType(ItemClass_Container)){
+ 			for (uint8 idx=0; idx<10; idx++) {
+ 				const ItemInst* baginst = dst_inst->GetItem(idx);
+ 				if(baginst && !database.VerifyInventory(account_id, Inventory::CalcSlotId(dst_slot_id, idx), baginst)){
+@@ -1514,7 +1514,7 @@ void Client::QSSwapItemAuditor(MoveItem_Struct* move_in, bool postaction_call) {
+ 		qsaudit->items[move_count].aug_4		= from_inst->GetAugmentItemID(4);
+ 		qsaudit->items[move_count++].aug_5		= from_inst->GetAugmentItemID(5);
+ 
+-		if(from_inst->IsType(ItemClassContainer)) {
++		if(from_inst->IsType(ItemClass_Container)) {
+ 			for(uint8 bag_idx = 0; bag_idx < from_inst->GetItem()->BagSlots; bag_idx++) {
+ 				const ItemInst* from_baginst = from_inst->GetItem(bag_idx);
+ 
+@@ -1547,7 +1547,7 @@ void Client::QSSwapItemAuditor(MoveItem_Struct* move_in, bool postaction_call) {
+ 			qsaudit->items[move_count].aug_4		= to_inst->GetAugmentItemID(4);
+ 			qsaudit->items[move_count++].aug_5		= to_inst->GetAugmentItemID(5);
+ 
+-			if(to_inst->IsType(ItemClassContainer)) {
++			if(to_inst->IsType(ItemClass_Container)) {
+ 				for(uint8 bag_idx = 0; bag_idx < to_inst->GetItem()->BagSlots; bag_idx++) {
+ 					const ItemInst* to_baginst = to_inst->GetItem(bag_idx);
+ 
+@@ -1867,7 +1867,7 @@ void Client::MoveSlotNotAllowed(bool client_update) {
+ 		if(m_inv[slot_id] && !m_inv[slot_id]->IsSlotAllowed(slot_id)) {
+ 			ItemInst* inst = m_inv.PopItem(slot_id);
+ 			bool is_arrow = (inst->GetItem()->ItemType == ItemTypeArrow) ? true : false;
+-			int16 free_slot_id = m_inv.FindFreeSlot(inst->IsType(ItemClassContainer), true, inst->GetItem()->Size, is_arrow);
++			int16 free_slot_id = m_inv.FindFreeSlot(inst->IsType(ItemClass_Container), true, inst->GetItem()->Size, is_arrow);
+ 			mlog(INVENTORY__ERROR, "Slot Assignment Error: Moving %s from slot %i to %i", inst->GetItem()->Name, slot_id, free_slot_id);
+ 			PutItemInInventory(free_slot_id, *inst, client_update);
+ 			database.SaveInventory(character_id, nullptr, slot_id);
+@@ -1880,7 +1880,7 @@ void Client::MoveSlotNotAllowed(bool client_update) {
+ 	if(m_inv[slot_id] && !m_inv[slot_id]->IsSlotAllowed(slot_id)) {
+ 		ItemInst* inst = m_inv.PopItem(slot_id);
+ 		bool is_arrow = (inst->GetItem()->ItemType == ItemTypeArrow) ? true : false;
+-		int16 free_slot_id = m_inv.FindFreeSlot(inst->IsType(ItemClassContainer), true, inst->GetItem()->Size, is_arrow);
++		int16 free_slot_id = m_inv.FindFreeSlot(inst->IsType(ItemClass_Container), true, inst->GetItem()->Size, is_arrow);
+ 		mlog(INVENTORY__ERROR, "Slot Assignment Error: Moving %s from slot %i to %i", inst->GetItem()->Name, slot_id, free_slot_id);
+ 		PutItemInInventory(free_slot_id, *inst, (GetClientVersion() >= EQClientSoF) ? client_update : false);
+ 		database.SaveInventory(character_id, nullptr, slot_id);
+@@ -2261,7 +2261,7 @@ bool Client::MoveItemToInventory(ItemInst *ItemToReturn, bool UpdateClient) {
+ 			}
+ 			// If there is a bag in this slot, look inside it.
+ 			//
+-			if (InvItem && InvItem->IsType(ItemClassContainer)) {
++			if (InvItem && InvItem->IsType(ItemClass_Container)) {
+ 
+ 				int16 BaseSlotID = Inventory::CalcSlotId(i, 0);
+ 
+@@ -2316,7 +2316,7 @@ bool Client::MoveItemToInventory(ItemInst *ItemToReturn, bool UpdateClient) {
+ 
+ 			return true;
+ 		}
+-		if(InvItem->IsType(ItemClassContainer) && Inventory::CanItemFitInContainer(ItemToReturn->GetItem(), InvItem->GetItem())) {
++		if(InvItem->IsType(ItemClass_Container) && Inventory::CanItemFitInContainer(ItemToReturn->GetItem(), InvItem->GetItem())) {
+ 
+ 			int16 BaseSlotID = Inventory::CalcSlotId(i, 0);
+ 
+diff --git a/zone/loottables.cpp b/zone/loottables.cpp
+index 00ff4b6..548ed49 100644
+--- a/zone/loottables.cpp
++++ b/zone/loottables.cpp
+@@ -278,7 +278,7 @@ void NPC::AddLootDrop(const Item_Struct *item2, ItemList* itemlist, int16 charge
+ 			if (item2->Proc.Effect != 0)
+ 				CastToMob()->AddProcToWeapon(item2->Proc.Effect, true);
+ 
+-			eslot = MATERIAL_PRIMARY;
++			eslot = MatSlot_Primary;
+ 		}
+ 		else if (foundslot == SLOT_SECONDARY
+ 			&& (GetOwner() != nullptr || (GetLevel() >= 13 && MakeRandomInt(0,99) < NPC_DW_CHANCE) || (item2->Damage==0)) &&
+@@ -288,28 +288,28 @@ void NPC::AddLootDrop(const Item_Struct *item2, ItemList* itemlist, int16 charge
+ 			if (item2->Proc.Effect!=0)
+ 				CastToMob()->AddProcToWeapon(item2->Proc.Effect, true);
+ 
+-			eslot = MATERIAL_SECONDARY;
++			eslot = MatSlot_Secondary;
+ 		}
+ 		else if (foundslot == SLOT_HEAD) {
+-			eslot = MATERIAL_HEAD;
++			eslot = MatSlot_Head;
+ 		}
+ 		else if (foundslot == SLOT_CHEST) {
+-			eslot = MATERIAL_CHEST;
++			eslot = MatSlot_Chest;
+ 		}
+ 		else if (foundslot == SLOT_ARMS) {
+-			eslot = MATERIAL_ARMS;
++			eslot = MatSlot_Arms;
+ 		}
+ 		else if (foundslot == SLOT_BRACER01 || foundslot == SLOT_BRACER02) {
+-			eslot = MATERIAL_BRACER;
++			eslot = MatSlot_Wrist;
+ 		}
+ 		else if (foundslot == SLOT_HANDS) {
+-			eslot = MATERIAL_HANDS;
++			eslot = MatSlot_Hands;
+ 		}
+ 		else if (foundslot == SLOT_LEGS) {
+-			eslot = MATERIAL_LEGS;
++			eslot = MatSlot_Legs;
+ 		}
+ 		else if (foundslot == SLOT_FEET) {
+-			eslot = MATERIAL_FEET;
++			eslot = MatSlot_Feet;
+ 		}
+ 
+ 		/*
+diff --git a/zone/lua_general.cpp b/zone/lua_general.cpp
+index 6881983..0416ea1 100644
+--- a/zone/lua_general.cpp
++++ b/zone/lua_general.cpp
+@@ -1323,16 +1323,16 @@ luabind::scope lua_register_material() {
+ 	return luabind::class_<Materials>("Material")
+ 		.enum_("constants")
+ 		[
+-			luabind::value("Head", MATERIAL_HEAD),
+-			luabind::value("Chest", MATERIAL_CHEST),
+-			luabind::value("Arms", MATERIAL_ARMS),
+-			luabind::value("Bracer", MATERIAL_BRACER),
+-			luabind::value("Hands", MATERIAL_HANDS),
+-			luabind::value("Legs", MATERIAL_LEGS),
+-			luabind::value("Feet", MATERIAL_FEET),
+-			luabind::value("Primary", MATERIAL_PRIMARY),
+-			luabind::value("Secondary", MATERIAL_SECONDARY),
+-			luabind::value("Max", MAX_MATERIALS)
++			luabind::value("Head", MatSlot_Head),
++			luabind::value("Chest", MatSlot_Chest),
++			luabind::value("Arms", MatSlot_Arms),
++			luabind::value("Bracer", MatSlot_Wrist),
++			luabind::value("Hands", MatSlot_Hands),
++			luabind::value("Legs", MatSlot_Legs),
++			luabind::value("Feet", MatSlot_Feet),
++			luabind::value("Primary", MatSlot_Primary),
++			luabind::value("Secondary", MatSlot_Secondary),
++			luabind::value("Max", MatSlot_Count)
+ 		];
+ }
+ 
+diff --git a/zone/lua_iteminst.cpp b/zone/lua_iteminst.cpp
+index 0427614..20be460 100644
+--- a/zone/lua_iteminst.cpp
++++ b/zone/lua_iteminst.cpp
+@@ -41,7 +41,7 @@ Lua_ItemInst::Lua_ItemInst(const Lua_ItemInst& o) {
+ 
+ bool Lua_ItemInst::IsType(int item_class) {
+ 	Lua_Safe_Call_Bool();
+-	return self->IsType(static_cast<ItemClass>(item_class));
++	return self->IsType(static_cast<ItemClasses>(item_class));
+ }
+ 
+ bool Lua_ItemInst::IsStackable() {
+diff --git a/zone/merc.cpp b/zone/merc.cpp
+index c57548f..a825b1f 100644
+--- a/zone/merc.cpp
++++ b/zone/merc.cpp
+@@ -508,11 +508,11 @@ void Merc::AddItemBonuses(const Item_Struct *item, StatBonuses* newbon) {
+ 		else
+ 			newbon->DSMitigation += item->DSMitigation;
+ 	}
+-	if (item->Worn.Effect>0 && (item->Worn.Type == ET_WornEffect)) { // latent effects
++	if (item->Worn.Effect>0 && (item->Worn.Type == EffType_WornEffect)) { // latent effects
+ 		ApplySpellsBonuses(item->Worn.Effect, item->Worn.Level, newbon, 0, true);
+ 	}
+ 
+-	if (item->Focus.Effect>0 && (item->Focus.Type == ET_Focus)) { // focus effects
++	if (item->Focus.Effect>0 && (item->Focus.Type == EffType_Focus)) { // focus effects
+ 		ApplySpellsBonuses(item->Focus.Effect, item->Focus.Level, newbon, 0, true);
+ 	}
+ 
+diff --git a/zone/mob.cpp b/zone/mob.cpp
+index 91f42f1..690aa2a 100644
+--- a/zone/mob.cpp
++++ b/zone/mob.cpp
+@@ -72,7 +72,7 @@ Mob::Mob(const char* in_name,
+ 		uint32		in_drakkin_heritage,
+ 		uint32		in_drakkin_tattoo,
+ 		uint32		in_drakkin_details,
+-		uint32		in_armor_tint[MAX_MATERIALS],
++		uint32		in_armor_tint[MatSlot_Count],
+ 
+ 		uint8		in_aa_title,
+ 		uint8		in_see_invis, // see through invis/ivu
+@@ -238,7 +238,7 @@ Mob::Mob(const char* in_name,
+ 		SkillProcs[j].base_spellID = SPELL_UNKNOWN;
+ 	}
+ 
+-	for (i = 0; i < MAX_MATERIALS; i++)
++	for (i = 0; i < MatSlot_Count; i++)
+ 	{
+ 		if (in_armor_tint)
+ 		{
+@@ -945,7 +945,7 @@ void Mob::FillSpawnStruct(NewSpawn_Struct* ns, Mob* ForWho)
+ 
+ 	strn0cpy(ns->spawn.lastName, lastname, sizeof(ns->spawn.lastName));
+ 
+-	for(i = 0; i < MAX_MATERIALS; i++)
++	for(i = 0; i < MatSlot_Count; i++)
+ 	{
+ 		ns->spawn.equipment[i] = GetEquipmentMaterial(i);
+ 		if (armor_tint[i])
+@@ -1968,7 +1968,7 @@ void Mob::SetAttackTimer() {
+ 		if(i == SLOT_SECONDARY) {
+ 			//if we have a 2H weapon in our main hand, no dual
+ 			if(PrimaryWeapon != nullptr) {
+-				if(	PrimaryWeapon->ItemClass == ItemClassCommon
++				if(	PrimaryWeapon->ItemClass == ItemClass_Common
+ 					&& (PrimaryWeapon->ItemType == ItemType2HS
+ 					||	PrimaryWeapon->ItemType == ItemType2HB
+ 					||	PrimaryWeapon->ItemType == ItemType2HPierce)) {
+@@ -1996,7 +1996,7 @@ void Mob::SetAttackTimer() {
+ 		//see if we have a valid weapon
+ 		if(ItemToUse != nullptr) {
+ 			//check type and damage/delay
+-			if(ItemToUse->ItemClass != ItemClassCommon
++			if(ItemToUse->ItemClass != ItemClass_Common
+ 				|| ItemToUse->Damage == 0
+ 				|| ItemToUse->Delay == 0) {
+ 				//no weapon
+@@ -2049,7 +2049,7 @@ void Mob::SetAttackTimer() {
+ 						const ItemInst *pi = CastToClient()->GetInv().GetItem(r);
+ 						if(!pi)
+ 							continue;
+-						if(pi->IsType(ItemClassContainer) && pi->GetItem()->BagType == BagType_Quiver)
++						if(pi->IsType(ItemClass_Container) && pi->GetItem()->BagType == BagType_Quiver)
+ 						{
+ 							float temp_wr = ( pi->GetItem()->BagWR / RuleI(Combat, QuiverWRHasteDiv) );
+ 							if(temp_wr > max_quiver)
+@@ -2081,7 +2081,7 @@ bool Mob::CanThisClassDualWield(void) const
+ 	} else {
+ 		const ItemInst* inst = CastToClient()->GetInv().GetItem(SLOT_PRIMARY);
+ 		// 2HS, 2HB, or 2HP
+-		if (inst && inst->IsType(ItemClassCommon)) {
++		if (inst && inst->IsType(ItemClass_Common)) {
+ 			const Item_Struct* item = inst->GetItem();
+ 			if ((item->ItemType == ItemType2HB) || (item->ItemType == ItemType2HS) || (item->ItemType == ItemType2HPierce))
+ 				return false;
+@@ -2556,8 +2556,8 @@ int32 Mob::GetEquipmentMaterial(uint8 material_slot) const
+ 	{
+ 		if	// for primary and secondary we need the model, not the material
+ 		(
+-			material_slot == MATERIAL_PRIMARY ||
+-			material_slot == MATERIAL_SECONDARY
++			material_slot == MatSlot_Primary ||
++			material_slot == MatSlot_Secondary
+ 		)
+ 		{
+ 			if(strlen(item->IDFile) > 2)
+diff --git a/zone/mob.h b/zone/mob.h
+index dfcae9d..b3b861c 100644
+--- a/zone/mob.h
++++ b/zone/mob.h
+@@ -84,7 +84,7 @@ public:
+ 		uint32		in_drakkin_heritage,
+ 		uint32		in_drakkin_tattoo,
+ 		uint32		in_drakkin_details,
+-		uint32		in_armor_tint[MAX_MATERIALS],
++		uint32		in_armor_tint[MatSlot_Count],
+ 		uint8		in_aa_title,
+ 		uint8		in_see_invis, // see through invis
+ 		uint8		in_see_invis_undead, // see through invis vs. undead
+@@ -288,7 +288,7 @@ public:
+ 	inline uint8 GetDrakkinHeritage() const { return drakkin_heritage; }
+ 	inline uint8 GetDrakkinTattoo() const { return drakkin_tattoo; }
+ 	inline uint8 GetDrakkinDetails() const { return drakkin_details; }
+-	inline uint32 GetArmorTint(uint8 i) const { return armor_tint[(i < MAX_MATERIALS) ? i : 0]; }
++	inline uint32 GetArmorTint(uint8 i) const { return armor_tint[(i < MatSlot_Count) ? i : 0]; }
+ 	inline uint8 GetClass() const { return class_; }
+ 	inline uint8 GetLevel() const { return level; }
+ 	inline const char* GetName() const { return name; }
+@@ -1021,7 +1021,7 @@ protected:
+ 	uint32 drakkin_heritage;
+ 	uint32 drakkin_tattoo;
+ 	uint32 drakkin_details;
+-	uint32 armor_tint[MAX_MATERIALS];
++	uint32 armor_tint[MatSlot_Count];
+ 
+ 	uint8 aa_title;
+ 
+diff --git a/zone/npc.cpp b/zone/npc.cpp
+index 4d55579..4ccbdd5 100644
+--- a/zone/npc.cpp
++++ b/zone/npc.cpp
+@@ -1198,7 +1198,7 @@ uint32 ZoneDatabase::NPCSpawnDB(uint8 command, const char* zone, uint32 zone_ver
+ 
+ int32 NPC::GetEquipmentMaterial(uint8 material_slot) const
+ {
+-	if (material_slot >= MAX_MATERIALS)
++	if (material_slot >= MatSlot_Count)
+ 		return 0;
+ 
+ 	int inv_slot = Inventory::CalcSlotFromMaterial(material_slot);
+@@ -1206,13 +1206,13 @@ int32 NPC::GetEquipmentMaterial(uint8 material_slot) const
+ 		return 0;
+ 	if(equipment[inv_slot] == 0) {
+ 		switch(material_slot) {
+-		case MATERIAL_HEAD:
++		case MatSlot_Head:
+ 			return helmtexture;
+-		case MATERIAL_CHEST:
++		case MatSlot_Chest:
+ 			return texture;
+-		case MATERIAL_PRIMARY:
++		case MatSlot_Primary:
+ 			return d_meele_texture1;
+-		case MATERIAL_SECONDARY:
++		case MatSlot_Secondary:
+ 			return d_meele_texture2;
+ 		default:
+ 			//they have nothing in the slot, and its not a special slot... they get nothing.
+@@ -1295,7 +1295,7 @@ void NPC::PickPocket(Client* thief) {
+ 				bool is_arrow = (item->ItemType == ItemTypeArrow) ? true : false;
+ 				int slot_id = thief->GetInv().FindFreeSlot(false, true, inst->GetItem()->Size, is_arrow);
+ 				if (/*!Equipped(item->ID) &&*/
+-					!item->Magic && item->NoDrop != 0 && !inst->IsType(ItemClassContainer) && slot_id != SLOT_INVALID
++					!item->Magic && item->NoDrop != 0 && !inst->IsType(ItemClass_Container) && slot_id != SLOT_INVALID
+ 					/*&& steal_skill > item->StealSkill*/ )
+ 				{
+ 					slot[x] = slot_id;
+diff --git a/zone/perl_questitem.cpp b/zone/perl_questitem.cpp
+index fa5fd1c..a18021a 100644
+--- a/zone/perl_questitem.cpp
++++ b/zone/perl_questitem.cpp
+@@ -134,7 +134,7 @@ XS(XS_QuestItem_IsType)
+ 		if(THIS == nullptr)
+ 			Perl_croak(aTHX_ "THIS is nullptr, avoiding crash.");
+ 
+-		RETVAL = THIS->IsType((ItemClass)type);
++		RETVAL = THIS->IsType((ItemClasses)type);
+ 		ST(0) = boolSV(RETVAL);
+ 		sv_2mortal(ST(0));
+ 	}
+diff --git a/zone/questmgr.cpp b/zone/questmgr.cpp
+index 06cd6b2..236d4a5 100644
+--- a/zone/questmgr.cpp
++++ b/zone/questmgr.cpp
+@@ -738,7 +738,7 @@ bool QuestManager::isdisctome(int item_id) {
+ 		return(false);
+ 	}
+ 
+-	if(item->ItemClass != ItemClassCommon || item->ItemType != ItemTypeSpell) {
++	if(item->ItemClass != ItemClass_Common || item->ItemType != ItemTypeSpell) {
+ 		return(false);
+ 	}
+ 
+diff --git a/zone/special_attacks.cpp b/zone/special_attacks.cpp
+index 7873c47..44cfdd7 100644
+--- a/zone/special_attacks.cpp
++++ b/zone/special_attacks.cpp
+@@ -699,12 +699,12 @@ void Client::RangedAttack(Mob* other) {
+ 	int ammo_slot = SLOT_AMMO;
+ 	const ItemInst* Ammo = m_inv[SLOT_AMMO];
+ 
+-	if (!RangeWeapon || !RangeWeapon->IsType(ItemClassCommon)) {
++	if (!RangeWeapon || !RangeWeapon->IsType(ItemClass_Common)) {
+ 		mlog(COMBAT__RANGED, "Ranged attack canceled. Missing or invalid ranged weapon (%d) in slot %d", GetItemIDAt(SLOT_RANGE), SLOT_RANGE);
+ 		Message(0, "Error: Rangeweapon: GetItem(%i)==0, you have no bow!", GetItemIDAt(SLOT_RANGE));
+ 		return;
+ 	}
+-	if (!Ammo || !Ammo->IsType(ItemClassCommon)) {
++	if (!Ammo || !Ammo->IsType(ItemClass_Common)) {
+ 		mlog(COMBAT__RANGED, "Ranged attack canceled. Missing or invalid ammo item (%d) in slot %d", GetItemIDAt(SLOT_AMMO), SLOT_AMMO);
+ 		Message(0, "Error: Ammo: GetItem(%i)==0, you have no ammo!", GetItemIDAt(SLOT_AMMO));
+ 		return;
+@@ -733,7 +733,7 @@ void Client::RangedAttack(Mob* other) {
+ 		bool found = false;
+ 		for(r = SLOT_PERSONAL_BEGIN; r <= SLOT_PERSONAL_END; r++) {
+ 			const ItemInst *pi = m_inv[r];
+-			if(pi == nullptr || !pi->IsType(ItemClassContainer))
++			if(pi == nullptr || !pi->IsType(ItemClass_Container))
+ 				continue;
+ 			const Item_Struct* bagitem = pi->GetItem();
+ 			if(!bagitem || bagitem->BagType != BagType_Quiver)
+@@ -1131,7 +1131,7 @@ void Client::ThrowingAttack(Mob* other) { //old was 51
+ 	int ammo_slot = SLOT_RANGE;
+ 	const ItemInst* RangeWeapon = m_inv[SLOT_RANGE];
+ 
+-	if (!RangeWeapon || !RangeWeapon->IsType(ItemClassCommon)) {
++	if (!RangeWeapon || !RangeWeapon->IsType(ItemClass_Common)) {
+ 		mlog(COMBAT__RANGED, "Ranged attack canceled. Missing or invalid ranged weapon (%d) in slot %d", GetItemIDAt(SLOT_RANGE), SLOT_RANGE);
+ 		Message(0, "Error: Rangeweapon: GetItem(%i)==0, you have nothing to throw!", GetItemIDAt(SLOT_RANGE));
+ 		return;
+diff --git a/zone/spell_effects.cpp b/zone/spell_effects.cpp
+index b430466..6187736 100644
+--- a/zone/spell_effects.cpp
++++ b/zone/spell_effects.cpp
+@@ -554,7 +554,7 @@ bool Mob::SpellEffect(Mob* caster, uint16 spell_id, float partial)
+ #endif
+ 				if(IsClient()){
+ 					ItemInst* transI = CastToClient()->GetInv().GetItem(SLOT_CURSOR);
+-					if(transI && transI->IsType(ItemClassCommon) && transI->IsStackable()){
++					if(transI && transI->IsType(ItemClass_Common) && transI->IsStackable()){
+ 						uint32 fcharges = transI->GetCharges();
+ 							//Does it sound like meat... maybe should check if it looks like meat too...
+ 							if(strstr(transI->GetItem()->Name, "meat") ||
+@@ -1109,7 +1109,7 @@ bool Mob::SpellEffect(Mob* caster, uint16 spell_id, float partial)
+ #endif
+ 				uint8 slot;
+ 
+-				if (!SummonedItem || !SummonedItem->IsType(ItemClassContainer)) {
++				if (!SummonedItem || !SummonedItem->IsType(ItemClass_Container)) {
+ 					if(caster) caster->Message(13,"SE_SummonItemIntoBag but no bag has been summoned!");
+ 				} else if ((slot=SummonedItem->FirstOpenSlot())==0xff) {
+ 					if(caster) caster->Message(13,"SE_SummonItemIntoBag but no room in summoned bag!");
+diff --git a/zone/spells.cpp b/zone/spells.cpp
+index fbf9ead..f19b28d 100644
+--- a/zone/spells.cpp
++++ b/zone/spells.cpp
+@@ -257,7 +257,7 @@ bool Mob::CastSpell(uint16 spell_id, uint16 target_id, uint16 slot,
+ 		int bitmask = 1;
+ 		bitmask = bitmask << (CastToClient()->GetClass() - 1);
+ 		if( itm && itm->GetItem()->Classes != 65535 ) {
+-			if ((itm->GetItem()->Click.Type == ET_EquipClick) && !(itm->GetItem()->Classes & bitmask)) {
++			if ((itm->GetItem()->Click.Type == EffType_EquipClick) && !(itm->GetItem()->Classes & bitmask)) {
+ 				if (CastToClient()->GetClientVersion() < EQClientSoF) {
+ 					// They are casting a spell from an item that requires equipping but shouldn't let them equip it
+ 					LogFile->write(EQEMuLog::Error, "HACKER: %s (account: %s) attempted to click an equip-only effect on item %s (id: %d) which they shouldn't be able to equip!",
+@@ -269,7 +269,7 @@ bool Mob::CastSpell(uint16 spell_id, uint16 target_id, uint16 slot,
+ 				}
+ 				return(false);
+ 			}
+-			if ((itm->GetItem()->Click.Type == ET_ClickEffect2) && !(itm->GetItem()->Classes & bitmask)) {
++			if ((itm->GetItem()->Click.Type == EffType_ClickEffect2) && !(itm->GetItem()->Classes & bitmask)) {
+ 				if (CastToClient()->GetClientVersion() < EQClientSoF) {
+ 					// They are casting a spell from an item that they don't meet the race/class requirements to cast
+ 					LogFile->write(EQEMuLog::Error, "HACKER: %s (account: %s) attempted to click a race/class restricted effect on item %s (id: %d) which they shouldn't be able to click!",
+@@ -282,7 +282,7 @@ bool Mob::CastSpell(uint16 spell_id, uint16 target_id, uint16 slot,
+ 				return(false);
+ 			}
+ 		}
+-		if( itm && (itm->GetItem()->Click.Type == ET_EquipClick) && !(item_slot < 22 || item_slot == 9999) ){
++		if( itm && (itm->GetItem()->Click.Type == EffType_EquipClick) && !(item_slot < 22 || item_slot == 9999) ){
+ 			if (CastToClient()->GetClientVersion() < EQClientSoF) {
+ 				// They are attempting to cast a must equip clicky without having it equipped
+ 				LogFile->write(EQEMuLog::Error, "HACKER: %s (account: %s) attempted to click an equip-only effect on item %s (id: %d) without equiping it!", CastToClient()->GetCleanName(), CastToClient()->AccountName(), itm->GetItem()->Name, itm->GetItem()->ID);
+@@ -1147,7 +1147,7 @@ void Mob::CastedSpellFinished(uint16 spell_id, uint32 target_id, uint16 slot,
+             }
+         }
+ 
+-		if (inst && inst->IsType(ItemClassCommon) && (inst->GetItem()->Click.Effect == spell_id) && inst->GetCharges() || fromaug)
++		if (inst && inst->IsType(ItemClass_Common) && (inst->GetItem()->Click.Effect == spell_id) && inst->GetCharges() || fromaug)
+ 		{
+ 			//const Item_Struct* item = inst->GetItem();
+ 			int16 charges = inst->GetItem()->MaxCharges;
+diff --git a/zone/tradeskills.cpp b/zone/tradeskills.cpp
+index 90df725..5b97e1e 100644
+--- a/zone/tradeskills.cpp
++++ b/zone/tradeskills.cpp
+@@ -61,7 +61,7 @@ void Object::HandleAugmentation(Client* user, const AugmentItem_Struct* in_augme
+ 		if (inst)
+ 		{
+ 			const Item_Struct* item = inst->GetItem();
+-			if (item && inst->IsType(ItemClassContainer) && item->BagType == 53)
++			if (item && inst->IsType(ItemClass_Container) && item->BagType == 53)
+ 			{
+ 				// We have found an appropriate inventory augmentation sealer
+ 				container = inst;
+@@ -267,14 +267,14 @@ void Object::HandleCombine(Client* user, const NewCombine_Struct* in_combine, Ob
+ 		inst = user_inv.GetItem(in_combine->container_slot);
+ 		if (inst) {
+ 			const Item_Struct* item = inst->GetItem();
+-			if (item && inst->IsType(ItemClassContainer)) {
++			if (item && inst->IsType(ItemClass_Container)) {
+ 				c_type = item->BagType;
+ 				some_id = item->ID;
+ 			}
+ 		}
+ 	}
+ 
+-	if (!inst || !inst->IsType(ItemClassContainer)) {
++	if (!inst || !inst->IsType(ItemClass_Container)) {
+ 		user->Message(13, "Error: Server does not recognize specified tradeskill container");
+ 		return;
+ 	}
+diff --git a/zone/trading.cpp b/zone/trading.cpp
+index bc1a248..1ca53d4 100644
+--- a/zone/trading.cpp
++++ b/zone/trading.cpp
+@@ -241,7 +241,7 @@ void Trade::LogTrade()
+ 						sprintf(item_num, "%i", inst->GetItem()->ID);
+ 						strcat(logtext, item_num);
+ 
+-						if (inst->IsType(ItemClassContainer)) {
++						if (inst->IsType(ItemClass_Container)) {
+ 							for (uint8 j=0; j<10; j++) {
+ 								inst = trader->GetInv().GetItem(i, j);
+ 								if (inst) {
+@@ -284,9 +284,9 @@ void Trade::DumpTrade()
+ 		if (inst) {
+ 			LogFile->write(EQEMuLog::Debug, "Item %i (Charges=%i, Slot=%i, IsBag=%s)",
+ 				inst->GetItem()->ID, inst->GetCharges(),
+-				i, ((inst->IsType(ItemClassContainer)) ? "True" : "False"));
++				i, ((inst->IsType(ItemClass_Container)) ? "True" : "False"));
+ 
+-			if (inst->IsType(ItemClassContainer)) {
++			if (inst->IsType(ItemClass_Container)) {
+ 				for (uint8 j=0; j<10; j++) {
+ 					inst = trader->GetInv().GetItem(i, j);
+ 					if (inst) {
+@@ -317,7 +317,7 @@ void Client::ResetTrade() {
+ 		if (TempItem)
+ 		{
+ 			bool is_arrow = (TempItem->ItemType == ItemTypeArrow) ? true : false;
+-			int freeslotid = GetInv().FindFreeSlot(ins->IsType(ItemClassContainer), true, TempItem->Size, is_arrow);
++			int freeslotid = GetInv().FindFreeSlot(ins->IsType(ItemClass_Container), true, TempItem->Size, is_arrow);
+ 			if (freeslotid == SLOT_INVALID)
+ 			{
+ 				DropInst(ins);
+@@ -383,7 +383,7 @@ void Client::FinishTrade(Mob* tradingWith, ServerPacket* qspack, bool finalizer)
+ 					if(finalizer) { qsaudit->char2_count++; }
+ 					else { qsaudit->char1_count++; }
+ 
+-					if(inst->IsType(ItemClassContainer)) {
++					if(inst->IsType(ItemClass_Container)) {
+ 						// Pseudo-Slot ID's are generated based on how the db saves bag items...
+ 						for(uint8 j = 0; j < inst->GetItem()->BagSlots; j++) {
+ 							const ItemInst* baginst = inst->GetItem(j);
+@@ -413,7 +413,7 @@ void Client::FinishTrade(Mob* tradingWith, ServerPacket* qspack, bool finalizer)
+ 
+ 				if (inst->GetItem()->NoDrop != 0 || Admin() >= RuleI(Character, MinStatusForNoDropExemptions) || RuleI(World, FVNoDropFlag) == 1 || other == this) {
+ 					bool is_arrow = (inst->GetItem()->ItemType == ItemTypeArrow) ? true : false;
+-					slot_id = other->GetInv().FindFreeSlot(inst->IsType(ItemClassContainer), true, inst->GetItem()->Size, is_arrow);
++					slot_id = other->GetInv().FindFreeSlot(inst->IsType(ItemClass_Container), true, inst->GetItem()->Size, is_arrow);
+ 
+ 					mlog(TRADING__CLIENT, "Trying to put %s (%d) into slot %d", inst->GetItem()->Name, inst->GetItem()->ID, slot_id);
+ 
+@@ -423,7 +423,7 @@ void Client::FinishTrade(Mob* tradingWith, ServerPacket* qspack, bool finalizer)
+ 						if(QSPLT) {
+ 							qsaudit->items[parent_offset].to_slot = slot_id;
+ 
+-							if(inst->IsType(ItemClassContainer)) {
++							if(inst->IsType(ItemClass_Container)) {
+ 								for(uint8 bagslot_idx = 0; bagslot_idx < inst->GetItem()->BagSlots; bagslot_idx++) {
+ 									const ItemInst* bag_inst = inst->GetItem(bagslot_idx);
+ 
+@@ -443,7 +443,7 @@ void Client::FinishTrade(Mob* tradingWith, ServerPacket* qspack, bool finalizer)
+ 							qsaudit->items[parent_offset].to_id	= this->character_id;
+ 							qsaudit->items[parent_offset].to_slot = SLOT_CURSOR;
+ 
+-							if(inst->IsType(ItemClassContainer)) {
++							if(inst->IsType(ItemClass_Container)) {
+ 								for(uint8 bagslot_idx = 0; bagslot_idx < inst->GetItem()->BagSlots; bagslot_idx++) {
+ 									const ItemInst* bag_inst = inst->GetItem(bagslot_idx);
+ 
+@@ -467,7 +467,7 @@ void Client::FinishTrade(Mob* tradingWith, ServerPacket* qspack, bool finalizer)
+ 						qsaudit->items[parent_offset].to_id	= this->character_id;
+ 						qsaudit->items[parent_offset].to_slot = SLOT_CURSOR;
+ 
+-						if(inst->IsType(ItemClassContainer)) {
++						if(inst->IsType(ItemClass_Container)) {
+ 							for(uint8 bagslot_idx = 0; bagslot_idx < inst->GetItem()->BagSlots; bagslot_idx++) {
+ 								const ItemInst* bag_inst = inst->GetItem(bagslot_idx);
+ 
+@@ -546,7 +546,7 @@ void Client::FinishTrade(Mob* tradingWith, ServerPacket* qspack, bool finalizer)
+ 					qsaudit->items[qsaudit->char_count].aug_4		= trade_inst->GetAugmentItemID(4);
+ 					qsaudit->items[qsaudit->char_count++].aug_5		= trade_inst->GetAugmentItemID(5);
+ 
+-					if(trade_inst->IsType(ItemClassContainer)) {
++					if(trade_inst->IsType(ItemClass_Container)) {
+ 						for(uint8 bag_idx = 0; bag_idx < trade_inst->GetItem()->BagSlots; bag_idx++) {
+ 							const ItemInst* trade_baginst = trade_inst->GetItem(bag_idx);
+ 
+@@ -591,7 +591,7 @@ void Client::FinishTrade(Mob* tradingWith, ServerPacket* qspack, bool finalizer)
+ 				// if it was not a NO DROP or Attuned item (or if a GM is trading), let the NPC have it
+ 				if(GetGM() || (item->NoDrop != 0 && inst->IsInstNoDrop() == false)) {
+ 					// pets need to look inside bags and try to equip items found there
+-					if(item->ItemClass == ItemClassContainer && item->BagSlots > 0) {
++					if(item->ItemClass == ItemClass_Container && item->BagSlots > 0) {
+ 						for(int16 bslot=0; bslot < item->BagSlots; bslot++) {
+ 							const ItemInst* baginst = inst->GetItem(bslot);
+ 							if (baginst) {
+diff --git a/zone/zone.cpp b/zone/zone.cpp
+index 98f0126..0789f1c 100644
+--- a/zone/zone.cpp
++++ b/zone/zone.cpp
+@@ -283,7 +283,7 @@ bool Zone::LoadZoneObjects() {
+ 			}
+ 
+ 			// Load child objects if container
+-			if (inst && inst->IsType(ItemClassContainer)) {
++			if (inst && inst->IsType(ItemClass_Container)) {
+ 				database.LoadWorldContainer(id, inst);
+ 			}
+ 
+diff --git a/zone/zonedb.cpp b/zone/zonedb.cpp
+index 31e1b52..06f2b76 100644
+--- a/zone/zonedb.cpp
++++ b/zone/zonedb.cpp
+@@ -500,7 +500,7 @@ void ZoneDatabase::LoadWorldContainer(uint32 parentid, ItemInst* container)
+ 
+ 			ItemInst* inst = database.CreateItem(item_id, charges);
+ 			if (inst) {
+-				if (inst->GetItem()->ItemClass == ItemClassCommon) {
++				if (inst->GetItem()->ItemClass == ItemClass_Common) {
+ 					for(int i=0;i<5;i++) {
+ 						if (aug[i]) {
+ 								inst->PutAugment(&database, i, aug[i]);
+@@ -542,7 +542,7 @@ void ZoneDatabase::SaveWorldContainer(uint32 zone_id, uint32 parent_id, const It
+ 		if (inst) {
+ 			uint32 item_id = inst->GetItem()->ID;
+ 			uint32 augslot[5] = { 0, 0, 0, 0, 0 };
+-			if (inst->IsType(ItemClassCommon)) {
++			if (inst->IsType(ItemClass_Common)) {
+ 				for(int i=0;i<5;i++) {
+ 					ItemInst *auginst=inst->GetAugment(i);
+ 					augslot[i]=(auginst && auginst->GetItem()) ? auginst->GetItem()->ID : 0;
+@@ -1197,7 +1197,7 @@ const NPCType* ZoneDatabase::GetNPCType (uint32 id) {
+ 						{
+ 							if ((at_row = mysql_fetch_row(at_result)))
+ 							{
+-								for (i = 0; i < MAX_MATERIALS; i++)
++								for (i = 0; i < MatSlot_Count; i++)
+ 								{
+ 									tmpNPCType->armor_tint[i] = atoi(at_row[i * 3]) << 16;
+ 									tmpNPCType->armor_tint[i] |= atoi(at_row[i * 3 + 1]) << 8;
+@@ -1230,7 +1230,7 @@ const NPCType* ZoneDatabase::GetNPCType (uint32 id) {
+ 
+ 				if (armor_tint_id == 0)
+ 				{
+-					for (i = 1; i < MAX_MATERIALS; i++)
++					for (i = 1; i < MatSlot_Count; i++)
+ 					{
+ 						tmpNPCType->armor_tint[i] = tmpNPCType->armor_tint[0];
+ 					}
+@@ -1508,7 +1508,7 @@ const NPCType* ZoneDatabase::GetMercType(uint32 id, uint16 raceid, uint32 client
+ 						{
+ 							if ((at_row = mysql_fetch_row(at_result)))
+ 							{
+-								for (i = 0; i < MAX_MATERIALS; i++)
++								for (i = 0; i < MatSlot_Count; i++)
+ 								{
+ 									tmpNPCType->armor_tint[i] = atoi(at_row[i * 3]) << 16;
+ 									tmpNPCType->armor_tint[i] |= atoi(at_row[i * 3 + 1]) << 8;
+@@ -1541,7 +1541,7 @@ const NPCType* ZoneDatabase::GetMercType(uint32 id, uint16 raceid, uint32 client
+ 
+ 				if (armor_tint_id == 0)
+ 				{
+-					for (i = 1; i < MAX_MATERIALS; i++)
++					for (i = 1; i < MatSlot_Count; i++)
+ 					{
+ 						tmpNPCType->armor_tint[i] = tmpNPCType->armor_tint[0];
+ 					}
+diff --git a/zone/zonedump.h b/zone/zonedump.h
+index 6033351..996f8b3 100644
+--- a/zone/zonedump.h
++++ b/zone/zonedump.h
+@@ -85,7 +85,7 @@ struct NPCType
+ 	uint32	drakkin_heritage;
+ 	uint32	drakkin_tattoo;
+ 	uint32	drakkin_details;
+-	uint32	armor_tint[MAX_MATERIALS];
++	uint32	armor_tint[MatSlot_Count];
+ 	uint32	min_dmg;
+ 	uint32	max_dmg;
+ 	int16	attack_count;
