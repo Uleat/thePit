@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<svg width="203" height="36" xmlns="http://www.w3.org/2000/svg" version="1.1">
- <polyline points="69,18 73,18 113,18" stroke="#8C2020" fill="none"/>
- <polygon points="7,18 12,7 64,7 69,18 64,29 12,29 7,18" stroke="#20208C" fill="#FFFFFF"/>
- <text x="15" y="20" fill="#8C2020" font-family="Arial" font-size="10">ItemInst</text>
- <ellipse cx="73" cy="18" rx="4" ry="4" stroke="#8C2020" fill="#8C2020"/>
- <polygon points="113,18 118,7 191,7 196,18 191,29 118,29 113,18" stroke="#20208C" fill="#FFFFFF"/>
- <text x="121" y="20" fill="#000000" font-family="Arial" font-size="10">EvoItemInst</text>
-</svg>

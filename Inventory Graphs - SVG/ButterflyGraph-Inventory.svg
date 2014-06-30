@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<svg width="84" height="44" xmlns="http://www.w3.org/2000/svg" version="1.1">
- <polygon points="80,3 4,3 4,39 80,39 80,3" stroke="#FF0000" fill="#FFFFFF"/>
- <text x="12" y="24" fill="#000000" font-family="Arial" font-size="12">Inventory</text>
-</svg>
