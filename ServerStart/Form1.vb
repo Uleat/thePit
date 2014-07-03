@@ -1,9 +1,6 @@
 ﻿Imports System.IO
 Imports System.Diagnostics
 Public Class Form1
-    ' There are currently no handlers assigned to clear running processes...
-    ' You will need to manually kill these processes in 'Task Manager' is you choose to run this program
-    ' (right-click the solution to build..no need to publish)
 
     ' This program captures message traffic from the process instead of letting a console display it.
     ' Obviously, the downfall is that messages the console would normally catch do not appear in the
@@ -36,6 +33,23 @@ Public Class Form1
                                                                          (MainTab.Height / 2) - 25),
                                                    .Anchor = AnchorStyles.None}
 
+    Dim ReportTab As New TabPage With {.Name = "Tab_ProcessReport",
+                                     .Text = "ProcessReport",
+                                     .BorderStyle = BorderStyle.Fixed3D}
+    Dim WithEvents ReportButton As New Button With {.Name = "btn_ShowProcessNames",
+                                                   .Text = "Show Processes",
+                                                   .Font = New Font(System.Drawing.FontFamily.GenericSansSerif, 12),
+                                                   .Size = New Size(120, 50),
+                                                   .Location = New Point((ReportTab.Width / 2) - 60, 0),
+                                                   .Anchor = AnchorStyles.Top,
+                                                   .Enabled = False}
+    Dim _reportwindow As New TextBox With {.ReadOnly = True,
+                                           .Multiline = True,
+                                           .ScrollBars = ScrollBars.Vertical,
+                                           .Location = New Point(0, ReportButton.Height),
+                                           .Width = Me.ReportTab.Width,
+                                           .Height = Me.ReportTab.Height - ReportButton.Height,
+                                           .Anchor = AnchorStyles.Left Or AnchorStyles.Top Or AnchorStyles.Right Or AnchorStyles.Bottom}
 
     Dim LoginServerTab As New Shell_TabPage With {.Name = "Tab_ConsoleLoginServer",
                                                   .Text = "Login Server Echo",
@@ -72,6 +86,10 @@ Public Class Form1
         MainTab.Controls.Add(StartButton)
         ConsoleTabControl.TabPages.Add(MainTab)
 
+        ReportTab.Controls.Add(ReportButton)
+        ReportTab.Controls.Add(_reportwindow)
+        ConsoleTabControl.TabPages.Add(ReportTab)
+
         ConsoleTabControl.TabPages.Add(LoginServerTab)
         ConsoleTabControl.TabPages.Add(WorldServerTab)
         ConsoleTabControl.TabPages.Add(UCSServerTab)
@@ -85,15 +103,35 @@ Public Class Form1
         sender.Enabled = False
 
         LoginServerTab.ShellProgram = "loginserver.exe"
+        LoginServerTab.ShellArguments = vbNullString
         LoginServerTab.ShellStart()
 
         WorldStartTimer.Start()
+    End Sub
+
+    Private Sub btn_ShowProcessNames_Click(sender As System.Object, e As System.EventArgs) Handles ReportButton.Click
+        sender.Enabled = False
+
+        _reportwindow.Text = ""
+
+        _reportwindow.AppendText("'loginserver.exe' - " & LoginServerTab.GetProcessName & " [handle: " & LoginServerTab.GetProcessHandle & "]" & vbCrLf)
+        _reportwindow.AppendText("'world.exe' - " & WorldServerTab.GetProcessName & " [handle: " & WorldServerTab.GetProcessHandle & "]" & vbCrLf)
+        _reportwindow.AppendText("'ucs.exe' - " & UCSServerTab.GetProcessName & " [handle: " & UCSServerTab.GetProcessHandle & "]" & vbCrLf)
+        _reportwindow.AppendText("'queryserv.exe' - " & QueryServerTab.GetProcessName & " [handle: " & QueryServerTab.GetProcessHandle & "]" & vbCrLf)
+        _reportwindow.AppendText("'eqlaunch.exe' - " & LauncherTab.GetProcessName & " [handle: " & LauncherTab.GetProcessHandle & "]" & vbCrLf)
+
+        _reportwindow.AppendText(vbCrLf)
+
+        _reportwindow.AppendText("(individual zone instances are not trackable using this method)" & vbCrLf)
+
+        sender.Enabled = True
     End Sub
 
     Private Sub WorldStartTimer_Tick() Handles WorldStartTimer.Tick
         WorldStartTimer.Stop()
 
         WorldServerTab.ShellProgram = "world.exe"
+        WorldServerTab.ShellArguments = vbNullString
         WorldServerTab.ShellStart()
 
         UCSStartTimer.Start()
@@ -103,6 +141,7 @@ Public Class Form1
         UCSStartTimer.Stop()
 
         UCSServerTab.ShellProgram = "ucs.exe"
+        UCSServerTab.ShellArguments = vbNullString
         UCSServerTab.ShellStart()
 
         QueryStartTimer.Start()
@@ -112,6 +151,7 @@ Public Class Form1
         QueryStartTimer.Stop()
 
         QueryServerTab.ShellProgram = "queryserv.exe"
+        QueryServerTab.ShellArguments = vbNullString
         QueryServerTab.ShellStart()
 
         ZoneStartTimer.Start()
@@ -120,17 +160,16 @@ Public Class Form1
     Private Sub ZoneStartTimer_Tick() Handles ZoneStartTimer.Tick
         ZoneStartTimer.Stop()
 
-        LauncherTab.ShellProgram = "eqlaunch.exe zone"
+        LauncherTab.ShellProgram = "eqlaunch.exe"
+        LauncherTab.ShellArguments = "zone"
         LauncherTab.ShellStart()
+
+        ReportButton.Enabled = True
     End Sub
 
 
     Public Class Shell_TabPage
         Inherits TabPage
-
-        ' Program termination results in processes being orphaned..
-        ' Multiple restarts of program results in multiple copies of orphaned processes..
-        ' Need to find proper exit method for process upon form/me.disposing
 
         ' Larger buffers seem to be 'locking' process and causing initialization issues..
         ' Launcher.exe appears to be restarting zone (1) in excess of 100 times..
@@ -144,6 +183,9 @@ Public Class Form1
 
         Dim _isrunning As Boolean
         Dim _executable As String = vbNullString
+        Dim _arguments As String = vbNullString
+
+        Dim cmd As New CmdProcessor
 
         Public Event IsUpdating(ByVal sender As Object)
         Public Event HasTerminated(ByVal sender As Object)
@@ -161,6 +203,23 @@ Public Class Form1
                     ' Exit Property
                 Else
                     _executable = value
+                End If
+            End Set
+        End Property
+
+        Public Property ShellArguments() As String
+            Get
+                Return _arguments
+            End Get
+            Set(ByVal value As String)
+                If _isrunning Then
+                    ' Already running message
+                    Exit Property
+                    'ElseIf _arguments.Equals(Not Nothing) Then
+                    ' Already assigned message
+                    ' Exit Property
+                Else
+                    _arguments = value
                 End If
             End Set
         End Property
@@ -194,7 +253,7 @@ Public Class Form1
         End Sub
 
         Private Sub TabPage_Finalize() Handles Me.Disposed
-            ' Reserverd
+            cmd.KillProcess()
         End Sub
 
         Public Sub ShellStart()
@@ -208,9 +267,8 @@ Public Class Form1
             _titlewindow.Text = _executable
             _outputwindow.Text = "Starting: " & _executable & vbCrLf & vbCrLf
 
-            Dim cmd As New CmdProcessor
             AddHandler cmd.TextReceived, AddressOf Me.cmd_TextReceived
-            cmd.Execute(_executable)
+            cmd.Execute(_executable, _arguments)
         End Sub
 
         Public Sub ShellStop()
@@ -223,6 +281,14 @@ Public Class Form1
             ' _isrunning = False
         End Sub
 
+        Public Function GetProcessName() As String
+            Return cmd.ProcessName
+        End Function
+
+        Public Function GetProcessHandle() As String
+            Return cmd.ProcessHandle
+        End Function
+
         Private Sub cmd_TextReceived(ByVal sender As Object, ByVal e As CmdProcessorEventArgs)
 
             If (Me.InvokeRequired) Then
@@ -234,10 +300,11 @@ Public Class Form1
 
         Public Class CmdProcessor
 
-            Public Sub Execute(ByVal command As String)
+            Public Sub Execute(ByVal command As String, Optional ByVal arguments As String = vbNullString)
 
-                _process = Me.InitializeProcess(command)
+                _process = Me.InitializeProcess(command, arguments)
                 _executing = True
+
                 _process.Start()
 
                 Me.AttachStreams()
@@ -257,31 +324,56 @@ Public Class Form1
                      _errorReady,
                      _errorState)
 
+
+
             End Sub
+
+            Public Sub KillProcess()
+                _standardOutput.Close()
+                _standardOutput = Nothing
+
+                _standardError.Close()
+                _standardError = Nothing
+
+                _process.CloseMainWindow()
+                _process = Nothing
+
+                _executing = False
+            End Sub
+
+            Public Function ProcessName() As String
+                Return _process.ToString
+            End Function
+
+            Public Function ProcessHandle() As String
+                Return _process.Handle.ToString
+            End Function
 
             Public Event TextReceived As CmdProcessorEventHandler
 
-            Private Function GetStartInfo(ByVal command As String) As ProcessStartInfo
+            Private Function GetStartInfo(ByVal command As String, Optional ByVal arguments As String = vbNullString) As ProcessStartInfo
                 Dim psi As New ProcessStartInfo
-                psi.FileName = "cmd.exe"
-
-                psi.Arguments = "/c " + command
+                psi.FileName = command ' test
+                psi.Arguments = arguments ' test
+                'psi.FileName = "cmd.exe"
+                'psi.Arguments = "/c " + command
                 psi.UseShellExecute = False
                 psi.RedirectStandardError = True
                 psi.RedirectStandardOutput = True
-                psi.CreateNoWindow = True
+                psi.CreateNoWindow = False ' True - should be true..but, causes orphaned processes
 
                 Return psi
             End Function
 
-            Private Function InitializeProcess(ByVal command As String) As Process
+            Private Function InitializeProcess(ByVal command As String, Optional ByVal arguments As String = vbNullString) As Process
                 If (_executing) Then
                     Throw New ApplicationException("Another process is currently executing")
                 End If
 
-                _process = New Process
-                _process.StartInfo = GetStartInfo(command)
+                '_process = New Process
+                _process.StartInfo = GetStartInfo(command, arguments)
                 _process.EnableRaisingEvents = True
+                _process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden
                 AddHandler _process.Exited, AddressOf _process_Exited
 
                 Return _process
@@ -339,7 +431,7 @@ Public Class Form1
             End Sub
 
             Private _executing As Boolean
-            Private _process As Process
+            Private _process As New Process
             Private _standardOutput As StreamReader
             Private _standardError As StreamReader
 
