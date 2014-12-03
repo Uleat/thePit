@@ -32,6 +32,14 @@ Public Class Form1
                                                    .Location = New Point((MainTab.Width / 2) - 60,
                                                                          (MainTab.Height / 2) - 25),
                                                    .Anchor = AnchorStyles.None}
+    Dim WithEvents StopButton As New Button With {.Name = "btn_StopServer",
+                                                  .Text = "Stop Server",
+                                                  .Font = New Font(System.Drawing.FontFamily.GenericSansSerif, 12),
+                                                  .Size = New Size(120, 50),
+                                                  .Location = New Point((MainTab.Width / 2) - 60,
+                                                                        StartButton.Bottom),
+                                                  .Anchor = AnchorStyles.None,
+                                                  .Enabled = False}
 
     Dim ReportTab As New TabPage With {.Name = "Tab_ProcessReport",
                                      .Text = "ProcessReport",
@@ -84,6 +92,7 @@ Public Class Form1
 
 
         MainTab.Controls.Add(StartButton)
+        MainTab.Controls.Add(StopButton)
         ConsoleTabControl.TabPages.Add(MainTab)
 
         ReportTab.Controls.Add(ReportButton)
@@ -99,6 +108,14 @@ Public Class Form1
         'Me.ResumeLayout()
     End Sub
 
+    Private Sub Form1_Closing(sender As System.Object, e As System.EventArgs) Handles Me.FormClosing
+        'LoginServerTab.TabPage_Finalize()
+        'WorldServerTab.TabPage_Finalize()
+        'UCSServerTab.TabPage_Finalize()
+        'QueryServerTab.TabPage_Finalize()
+        'LauncherTab.TabPage_Finalize()
+    End Sub
+
     Private Sub btn_StartServer_Click(sender As System.Object, e As System.EventArgs) Handles StartButton.Click
         sender.Enabled = False
 
@@ -107,6 +124,19 @@ Public Class Form1
         LoginServerTab.ShellStart()
 
         WorldStartTimer.Start()
+    End Sub
+
+    Private Sub btn_StopServer_Click(sender As System.Object, e As System.EventArgs) Handles StopButton.Click
+        sender.Enabled = False
+        ReportButton.Enabled = False
+
+        LoginServerTab.TabPage_Finalize()
+        WorldServerTab.TabPage_Finalize()
+        UCSServerTab.TabPage_Finalize()
+        QueryServerTab.TabPage_Finalize()
+        LauncherTab.TabPage_Finalize()
+
+        'sender.Enabled = True
     End Sub
 
     Private Sub btn_ShowProcessNames_Click(sender As System.Object, e As System.EventArgs) Handles ReportButton.Click
@@ -165,6 +195,7 @@ Public Class Form1
         LauncherTab.ShellStart()
 
         ReportButton.Enabled = True
+        StopButton.Enabled = True
     End Sub
 
 
@@ -252,7 +283,7 @@ Public Class Form1
             Me.ResumeLayout()
         End Sub
 
-        Private Sub TabPage_Finalize() Handles Me.Disposed
+        Public Sub TabPage_Finalize() 'Handles Me.Disposed
             cmd.KillProcess()
         End Sub
 
@@ -302,9 +333,11 @@ Public Class Form1
 
             Public Sub Execute(ByVal command As String, Optional ByVal arguments As String = vbNullString)
 
-                _process = Me.InitializeProcess(command, arguments)
+                Me.InitializeProcess(command, arguments)
+                '_process = Me.InitializeProcess(command, arguments)
                 _executing = True
 
+                '_process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden
                 _process.Start()
 
                 Me.AttachStreams()
@@ -335,7 +368,50 @@ Public Class Form1
                 _standardError.Close()
                 _standardError = Nothing
 
-                _process.CloseMainWindow()
+                '_process.CloseMainWindow()
+                '_process.Close()
+
+                'For Each pro As Process In Process.GetProcessesByName(_process.ProcessName)
+                'If (Process.Equals(_process, pro)) Then
+                'RaiseEvent TextReceived(Me,
+                '                        New CmdProcessorEventArgs("equal processes : closing " & pro.ProcessName))
+                '_process.Close()
+                'Else
+                'RaiseEvent TextReceived(Me,
+                '                        New CmdProcessorEventArgs("non-equal processes : _process(" & _process.ProcessName & ") pro(" & pro.ProcessName & ")"))
+                '
+                'pro.Close()
+                'pro.Dispose()
+                'pro = Nothing
+                '_process.Close()
+                'End If
+                'Next
+
+                For Each pro As Process In Process.GetProcesses
+                    Try
+                        If (String.Equals(pro.ProcessName, "conhost")) Then
+                            RaiseEvent TextReceived(Me,
+                                                    New CmdProcessorEventArgs("process name: " &
+                                                                              pro.ProcessName &
+                                                                              " [ " & pro.Handle.ToString &
+                                                                              " ] -- handles: " &
+                                                                              pro.Handle.GetType.ToString &
+                                                                              vbCrLf))
+                            If (pro.Modules.Contains(_process.MainModule)) Then
+                                pro.Modules.Item(pro.Modules.IndexOf(_process.MainModule)).Dispose()
+                            End If
+                        Else
+                            RaiseEvent TextReceived(Me,
+                                                    New CmdProcessorEventArgs("process name: " & pro.ProcessName & " [ " & pro.Handle.ToString & " ]" & vbCrLf))
+                        End If
+                    Catch ex As Exception
+                        'RaiseEvent TextReceived(Me,
+                        '                        New CmdProcessorEventArgs("process name: <unauthorized> [ ???? ]" & vbCrLf))
+                    End Try
+                    
+                Next
+
+                _process.Dispose()
                 _process = Nothing
 
                 _executing = False
@@ -360,12 +436,12 @@ Public Class Form1
                 psi.UseShellExecute = False
                 psi.RedirectStandardError = True
                 psi.RedirectStandardOutput = True
-                psi.CreateNoWindow = False ' True - should be true..but, causes orphaned processes
+                psi.CreateNoWindow = True ' True - should be true..but, causes orphaned processes
 
                 Return psi
             End Function
 
-            Private Function InitializeProcess(ByVal command As String, Optional ByVal arguments As String = vbNullString) As Process
+            Private Sub InitializeProcess(ByVal command As String, Optional ByVal arguments As String = vbNullString) 'As Process
                 If (_executing) Then
                     Throw New ApplicationException("Another process is currently executing")
                 End If
@@ -373,11 +449,10 @@ Public Class Form1
                 '_process = New Process
                 _process.StartInfo = GetStartInfo(command, arguments)
                 _process.EnableRaisingEvents = True
-                _process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden
                 AddHandler _process.Exited, AddressOf _process_Exited
 
-                Return _process
-            End Function
+                'Return _process
+            End Sub
 
             Private Sub _process_Exited(ByVal sender As Object, ByVal e As EventArgs)
 
@@ -490,6 +565,4 @@ Public Class Form1
             Protected _text As String
         End Class
     End Class
-
-
 End Class
