@@ -1,0 +1,2985 @@
+>> 'Opcode-Handler' analysis for 'RoF' client
+>> file generated @ Fri Feb 19 21:22:08 2016
+
+Opcode: OP_AAAction (0x719a) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0004) | Handler: ../zone/aa.cpp(937:55) '[TX] Near Client::SendAlternateAdvancementTimer'
+  Server: Zone  (0004) | Handler: ../zone/aa.cpp(949:55) '[TX] Near Client::SendAlternateAdvancementTimers'
+  Server: Zone  (0004) | Handler: ../zone/aa.cpp(978:55) '[TX] Near Client::ResetAlternateAdvancementTimers'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AAExpUpdate (0x25c5) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0005) | Handler: ../zone/aa.cpp(902:55) '[TX] Near Client::SendAlternateAdvancementStats'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AcceptNewTask (0x394d) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AckPacket (0x47a6) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0007) | Handler: ../world/client.cpp(955:20) '[RX] Near Client::HandlePacket'
+  Server: Zone  (0007) | Handler: ../zone/client_packet.cpp(424:15) '[RX] Near Client::HandlePacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Action (0x0ea7) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0008) | Handler: ../zone/spell_effects.cpp(892:67) '[TX] Near Mob::SpellEffect'
+  Server: Zone  (0008) | Handler: ../zone/spell_effects.cpp(941:69) '[TX] Near Mob::SpellEffect'
+  Server: Zone  (0008) | Handler: ../zone/spell_effects.cpp(977:68) '[TX] Near Mob::SpellEffect'
+  Server: Zone  (0008) | Handler: ../zone/spells.cpp(2521:57) '[TX] Near Mob::BardPulse'
+  Server: Zone  (0008) | Handler: ../zone/spells.cpp(3366:41) '[TX] Near Mob::SpellOnTarget'
+  Server: Zone  (0008) | Handler: ../zone/spells.cpp(4686:56) '[TX] Near Mob::Spin'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AdventureData (0x729b) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0010) | Handler: ../zone/client.cpp(5879:56) '[TX] Near Client::SendAdventureDetails'
+  Server: Zone  (0010) | Handler: ../zone/client.cpp(5908:56) '[TX] Near Client::SendAdventureDetails'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AdventureDetails (0x4975) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0011) | Handler: ../zone/client.cpp(5925:55) '[TX] Near Client::NewAdventure'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AdventureFinish (0x3d8b) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0012) | Handler: ../zone/client.cpp(6004:55) '[TX] Near Client::AdventureFinish'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AdventureInfo (0x1036) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0013) | Handler: ../zone/client.cpp(5869:55) '[TX] Near Client::SendAdventureError'
+  Server: Zone  (0013) | Handler: ../zone/client_packet.cpp(1816:57) '[TX] Near Client::Handle_OP_AdventureInfoRequest'
+  Server: Zone  (0013) | Handler: ../zone/client_packet.cpp(1825:58) '[TX] Near Client::Handle_OP_AdventureInfoRequest'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AdventureInfoRequest (0x38db) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AdventureLeaderboardReply (0x2533) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0015) | Handler: ../zone/worldserver.cpp(1734:58) '[TX] Near WorldServer::Process'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AdventureLeaderboardRequest (0x577a) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AdventureMerchantPurchase (0x725e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AdventureMerchantRequest (0x2aa0) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AdventureMerchantResponse (0x5aed) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0019) | Handler: ../zone/client_packet.cpp(2120:55) '[TX] Near Client::Handle_OP_AdventureMerchantRequest'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AdventureMerchantSell (0x7882) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0020) | Handler: ../zone/client_packet.cpp(2224:55) '[TX] Near Client::Handle_OP_AdventureMerchantSell'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AdventurePointsUpdate (0x37cb) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0021) | Handler: ../zone/client.cpp(1420:55) '[TX] Near Client::UpdateLDoNPoints'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AdventureRequest (0x325c) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AdventureStatsReply (0x62fa) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0023) | Handler: ../zone/client_packet.cpp(2378:55) '[TX] Near Client::Handle_OP_AdventureStatsRequest'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AdventureStatsRequest (0x68c2) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AdventureUpdate (0x2df4) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0025) | Handler: ../zone/client.cpp(5915:55) '[TX] Near Client::SendAdventureCount'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AltCurrency (0x8fcb) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0026) | Handler: ../zone/client.cpp(6902:56) '[TX] Near Client::SendAltCurrencies'
+  Server: Zone  (0026) | Handler: ../zone/client.cpp(6990:56) '[TX] Near Client::SendAlternateCurrencyValue'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AltCurrencyMerchantReply (0x0b60) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0027) | Handler: ../zone/client_packet.cpp(2471:56) '[TX] Near Client::Handle_OP_AltCurrencyMerchantRequest'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AltCurrencyMerchantRequest (0x7e3e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AltCurrencyPurchase (0x74a8) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AltCurrencyReclaim (0x46ed) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AltCurrencySell (0x3167) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AltCurrencySellSelection (0x3c47) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0032) | Handler: ../zone/client_packet.cpp(2776:56) '[TX] Near Client::Handle_OP_AltCurrencySellSelection'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Animation (0x5e0c) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0033) | Handler: ../zone/mob.cpp(1505:55) '[TX] Near Mob::DoAnim'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ApplyPoison (0x1499) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0035) | Handler: ../zone/client_packet.cpp(2850:55) '[TX] Near Client::Handle_OP_ApplyPoison'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ApproveName (0x213a) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0036) | Handler: ../world/client.cpp(505:19) '[TX] Near Client::HandleNameApprovalPacket'
+  Server: World (0036) | Handler: ../world/client.cpp(676:40) '[TX] Near Client::HandleCharacterCreatePacket'
+  Server: World (0036) | Handler: ../world/client.cpp(975:7) '[RX] Near Client::HandlePacket'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ApproveWorld (0x7e47) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0037) | Handler: ../world/client.cpp(1015:7) '[RX] Near Client::HandlePacket'
+  Server: World (0037) | Handler: ../world/client.cpp(1312:34) '[TX] Near Client::SendApproveWorld'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Assist (0x4cd1) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AssistGroup (0x63df) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AugmentInfo (0x7812) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AugmentItem (0x1627) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AutoAttack (0x0d14) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AutoAttack2 (0x3912) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AutoFire (0x314e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_AvaliableTask (0x2bf8) | Handled: False | Encoded: N/A | Decoded: N/A
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Bandolier (0x2b6f) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_BankerChange (0x4e20) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0047) | Handler: ../zone/client_packet.cpp(3336:55) '[TX] Near Client::Handle_OP_BankerChange'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Barter (0x6854) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0048) | Handler: ../zone/trading.cpp(2398:56) '[TX] Near Client::SendBuyerResults'
+  Server: Zone  (0048) | Handler: ../zone/trading.cpp(2464:55) '[TX] Near Client::ShowBuyLines'
+  Server: Zone  (0048) | Handler: ../zone/trading.cpp(2490:56) '[TX] Near Client::ShowBuyLines'
+  Server: Zone  (0048) | Handler: ../zone/trading.cpp(2740:55) '[TX] Near Client::SellToBuyer'
+  Server: Zone  (0048) | Handler: ../zone/trading.cpp(2795:56) '[TX] Near Client::SellToBuyer'
+  Server: Zone  (0048) | Handler: ../zone/trading.cpp(2829:56) '[TX] Near Client::SellToBuyer'
+  Server: Zone  (0048) | Handler: ../zone/trading.cpp(2864:55) '[TX] Near Client::SendBuyerPacket'
+  Server: Zone  (0048) | Handler: ../zone/trading.cpp(2879:55) '[TX] Near Client::ToggleBuyerMode'
+  Server: Zone  (0048) | Handler: ../zone/trading.cpp(2960:56) '[TX] Near Client::UpdateBuyLine'
+  Server: Zone  (0048) | Handler: ../zone/trading.cpp(2987:55) '[TX] Near Client::BuyerItemSearch'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_BazaarSearch (0x2ad2) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0051) | Handler: ../zone/trading.cpp(1707:36) '[TX] Near Client::SendBazaarWelcome'
+  Server: Zone  (0051) | Handler: ../zone/trading.cpp(1930:57) '[TX] Near Client::SendBazaarResults'
+  Server: Zone  (0051) | Handler: ../zone/trading.cpp(1999:55) '[TX] Near Client::SendBazaarResults'
+  Server: Zone  (0051) | Handler: ../zone/trading.cpp(2009:56) '[TX] Near Client::SendBazaarResults'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_BecomeTrader (0x74bc) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0053) | Handler: ../zone/trading.cpp(1014:54) '[TX] Near Client::SendTraderPacket'
+  Server: Zone  (0053) | Handler: ../zone/trading.cpp(1065:33) '[TX] Near Client::Trader_StartTrader'
+  Server: Zone  (0053) | Handler: ../zone/trading.cpp(1124:54) '[TX] Near Client::Trader_EndTrader'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Begging (0x54ac) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0054) | Handler: ../zone/client_packet.cpp(3625:56) '[TX] Near Client::Handle_OP_Begging'
+  Server: Zone  (0054) | Handler: ../zone/client_packet.cpp(3640:55) '[TX] Near Client::Handle_OP_Begging'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_BeginCast (0x17ff) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0055) | Handler: ../zone/attack.cpp(3716:43) '[TX] Near Mob::TrySpellProc'
+  Server: Zone  (0055) | Handler: ../zone/spells.cpp(480:34) '[TX] Near Mob::DoCastSpell'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Bind_Wound (0x585d) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_BlockedBuffs (0x5a71) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0057) | Handler: ../zone/client_packet.cpp(3747:56) '[TX] Near Client::Handle_OP_BlockedBuffs'
+  Server: Zone  (0057) | Handler: ../zone/client_packet.cpp(3775:56) '[TX] Near Client::Handle_OP_BlockedBuffs'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_BoardBoat (0x2731) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Buff (0x08ed) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0059) | Handler: ../zone/spells.cpp(4831:34) '[TX] Near Client::MakeBuffFadePacket'
+  Server: Zone  (0059) | Handler: ../zone/spells.cpp(5311:34) '[TX] Near Client::SendBuffDurationPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_BuffCreate (0x71f5) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0060) | Handler: ../zone/spells.cpp(5397:34) '[TX] Near Client::SendBuffNumHitPacket'
+  Server: Zone  (0060) | Handler: ../zone/spells.cpp(5476:35) '[TX] Near Mob::MakeBuffsPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_BuffRemoveRequest (0x7efd) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Bug (0x0c07) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_CameraEffect (0x5712) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0063) | Handler: ../zone/entity.cpp(4526:55) '[TX] Near EntityList::CameraEffect'
+  Server: Zone  (0063) | Handler: ../zone/mob.cpp(2117:55) '[TX] Near Mob::CameraEffect'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Camp (0x41cd) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_CancelInvite (0x2b26) | Handled: False | Encoded: N/A | Decoded: N/A
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_CancelTask (0x0c7f) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0065) | Handler: ../zone/tasks.cpp(2927:55) '[TX] Near ClientTaskState::CancelTask'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_CancelTrade (0x0234) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0066) | Handler: ../zone/client.cpp(488:55) '[TX] Near Client::SendLogoutPackets'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_CastSpell (0x1cb5) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ChangeSize (0x355c) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ChannelMessage (0x33bc) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0069) | Handler: ../ucs/clientlist.cpp(1092:34) '[TX] Near Client::JoinChannels'
+  Server: UCS   (0069) | Handler: ../ucs/clientlist.cpp(1177:34) '[TX] Near Client::LeaveChannels'
+  Server: UCS   (0069) | Handler: ../ucs/clientlist.cpp(1260:39) '[TX] Near Client::SendChannelList'
+  Server: UCS   (0069) | Handler: ../ucs/clientlist.cpp(1497:39) '[TX] Near Client::SendChannelMessage'
+  Server: UCS   (0069) | Handler: ../ucs/clientlist.cpp(1582:39) '[TX] Near Client::GeneralChannelMessage'
+
+Opcode: OP_CharInventory (0x786e) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0072) | Handler: ../zone/client_process.cpp(832:55) '[TX] Near Client::BulkSendInventoryItems'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_CharacterCreate (0x0afc) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0070) | Handler: ../world/client.cpp(988:7) '[RX] Near Client::HandlePacket'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_CharacterCreateRequest (0x006b) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0071) | Handler: ../world/client.cpp(623:39) '[TX] Near Client::HandleCharacterCreateRequestPacket'
+  Server: World (0071) | Handler: ../world/client.cpp(983:7) '[RX] Near Client::HandlePacket'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Charm (0x7118) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0073) | Handler: ../zone/mob_ai.cpp(565:52) '[TX] Near Client::AI_Stop'
+  Server: Zone  (0073) | Handler: ../zone/spell_effects.cpp(3922:56) '[TX] Near Mob::BuffFadeBySlot'
+  Server: Zone  (0073) | Handler: ../zone/spell_effects.cpp(765:56) '[TX] Near Mob::SpellEffect'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ClearAA (0x422e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0075) | Handler: ../zone/aa.cpp(483:34) '[TX] Near Client::SendClearAA'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ClearBlockedBuffs (0x5d3c) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ClearLeadershipAbilities (0xb978) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0077) | Handler: ../zone/aa.cpp(481:55) '[TX] Near Client::SendClearAA'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ClearNPCMarks (0x0d2d) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ClearObject (0x2ead) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0079) | Handler: ../zone/tradeskills.cpp(215:57) '[TX] Near Object::HandleAugmentation'
+  Server: Zone  (0079) | Handler: ../zone/tradeskills.cpp(397:35) '[TX] Near Object::HandleCombine'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ClearRaidNPCMarks (0x433a) | Handled: False | Encoded: N/A | Decoded: N/A
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ClearSurname (0x17b6) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ClickDoor (0x7cc0) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ClickObject (0x7992) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0082) | Handler: ../zone/object.cpp(416:16) '[TX] Near Object::CreateDeSpawnPacket'
+  Server: Zone  (0082) | Handler: ../zone/object.cpp(428:56) '[TX] Near Object::Process'
+  Server: Zone  (0082) | Handler: ../zone/object.cpp(490:58) '[TX] Near Object::HandleClick'
+  Server: Zone  (0082) | Handler: ../zone/object.cpp(521:56) '[TX] Near Object::HandleClick'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ClickObjectAction (0x5507) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0083) | Handler: ../zone/object.cpp(532:56) '[TX] Near Object::HandleClick'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ClientReady (0x3f83) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0085) | Handler: ../zone/client_packet.cpp(1050:35) '[TX] Near Client::Handle_Connect_OP_ReqClientSpawn'
+  Server: Zone  (0085) | Handler: ../zone/object.cpp(583:55) '[TX] Near Object::HandleClick'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ClientUpdate (0x455d) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0087) | Handler: ../zone/client_packet.cpp(4338:57) '[TX] Near Client::Handle_OP_ClientUpdate'
+  Server: Zone  (0087) | Handler: ../zone/client_packet.cpp(4571:56) '[TX] Near Client::Handle_OP_ClientUpdate'
+  Server: Zone  (0087) | Handler: ../zone/entity.cpp(2532:36) '[TX] Near EntityList::SendPositionUpdates'
+  Server: Zone  (0087) | Handler: ../zone/mob.cpp(1386:52) '[TX] Near Mob::SendPosition'
+  Server: Zone  (0087) | Handler: ../zone/mob.cpp(1396:52) '[TX] Near Mob::SendPosUpdate'
+  Server: Zone  (0087) | Handler: ../zone/mob.cpp(4491:61) '[TX] Near Mob::DoKnockback'
+  Server: Zone  (0087) | Handler: ../zone/spell_effects.cpp(2062:63) '[TX] Near Mob::SpellEffect'
+  Server: Zone  (0087) | Handler: ../zone/spells.cpp(2549:65) '[TX] Near Mob::BardPulse'
+  Server: Zone  (0087) | Handler: ../zone/spells.cpp(3824:63) '[TX] Near Mob::SpellOnTarget'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ColoredText (0x41cb) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0090) | Handler: ../zone/client.cpp(8414:55) '[TX] Near Client::SendColoredText'
+  Server: Zone  (0090) | Handler: ../zone/spells.cpp(4865:35) '[TX] Near Client::MakeBuffFadePacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_CombatAbility (0x6e4c) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_CompletedTasks (0x9495) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0093) | Handler: ../zone/tasks.cpp(2453:55) '[TX] Near TaskManager::SendCompletedTasksToClient'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ConfirmDelete (0x78e0) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Consent (0x400e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ConsentDeny (0x34c1) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ConsentResponse (0x183d) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0097) | Handler: ../zone/worldserver.cpp(1390:58) '[TX] Near WorldServer::Process'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Consider (0x4d8d) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0098) | Handler: ../zone/client_packet.cpp(4684:55) '[TX] Near Client::Handle_OP_Consider'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ConsiderCorpse (0x06c5) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Consume (0x4692) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ControlBoat (0x4aa0) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0101) | Handler: ../zone/client_packet.cpp(4924:55) '[TX] Near Client::Handle_OP_ControlBoat'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_CorpseDrag (0x0be7) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_CorpseDrop (0xdf77) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_CrystalCountUpdate (0x5a82) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0105) | Handler: ../zone/client.cpp(4493:55) '[TX] Near Client::SendCrystalCounts'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_CrystalCreate (0x7616) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_CrystalReclaim (0x73db) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_CustomTitles (0x471a) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Damage (0x5428) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0109) | Handler: ../zone/attack.cpp(2512:56) '[TX] Near Mob::DamageShield'
+  Server: Zone  (0109) | Handler: ../zone/attack.cpp(3278:56) '[TX] Near Mob::CommonDamage'
+  Server: Zone  (0109) | Handler: ../zone/spell_effects.cpp(894:68) '[TX] Near Mob::SpellEffect'
+  Server: Zone  (0109) | Handler: ../zone/spell_effects.cpp(943:70) '[TX] Near Mob::SpellEffect'
+  Server: Zone  (0109) | Handler: ../zone/spell_effects.cpp(979:69) '[TX] Near Mob::SpellEffect'
+  Server: Zone  (0109) | Handler: ../zone/spells.cpp(2593:65) '[TX] Near Mob::BardPulse'
+  Server: Zone  (0109) | Handler: ../zone/spells.cpp(3876:42) '[TX] Near Mob::SpellOnTarget'
+  Server: Zone  (0109) | Handler: ../zone/trap.cpp(190:58) '[TX] Near Trap::Trigger'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Death (0x3a65) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0110) | Handler: ../zone/attack.cpp(1937:51) '[TX] Near NPC::Death'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DelegateAbility (0x7820) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0111) | Handler: ../zone/groups.cpp(1613:56) '[TX] Near Group::NotifyMainAssist'
+  Server: Zone  (0111) | Handler: ../zone/groups.cpp(1727:56) '[TX] Near Group::UnDelegateMainAssist'
+  Server: Zone  (0111) | Handler: ../zone/groups.cpp(1958:55) '[TX] Near Group::NotifyMarkNPC'
+  Server: Zone  (0111) | Handler: ../zone/groups.cpp(2000:55) '[TX] Near Group::UnDelegateMarkNPC'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DeleteCharacter (0x0ab4) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0112) | Handler: ../world/client.cpp(996:7) '[RX] Near Client::HandlePacket'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DeleteCharge (0x2d5b) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0113) | Handler: ../zone/inventory.cpp(808:37) '[TX] Near Client::DeleteItemInInventory'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DeleteItem (0x3eb5) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0114) | Handler: ../zone/command.cpp(3184:62) '[TX] Near command_equipitem'
+  Server: Zone  (0114) | Handler: ../zone/inventory.cpp(1847:59) '[TX] Near Client::SwapItemResync'
+  Server: Zone  (0114) | Handler: ../zone/inventory.cpp(1889:59) '[TX] Near Client::SwapItemResync'
+  Server: Zone  (0114) | Handler: ../zone/inventory.cpp(729:36) '[TX] Near Client::DeleteItemInInventory'
+  Server: Zone  (0114) | Handler: ../zone/inventory.cpp(812:37) '[TX] Near Client::DeleteItemInInventory'
+  Server: Zone  (0114) | Handler: ../zone/trading.cpp(1380:36) '[TX] Near Client::NukeTraderItem'
+  Server: Zone  (0114) | Handler: ../zone/trading.cpp(2706:59) '[TX] Near Client::SellToBuyer'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DeleteSpawn (0x3b06) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0116) | Handler: ../zone/client_packet.cpp(5172:34) '[TX] Near Client::Handle_OP_DeleteSpawn'
+  Server: Zone  (0116) | Handler: ../zone/mob.cpp(1227:16) '[TX] Near Mob::CreateDespawnPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DeleteSpell (0x305c) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0117) | Handler: ../zone/spells.cpp(4964:56) '[TX] Near Client::UnscribeSpell'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DenyResponse (0x344a) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Disarm (0x70a9) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DisciplineTimer (0x4933) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0121) | Handler: ../zone/client.cpp(4509:55) '[TX] Near Client::SendDisciplineTimers'
+  Server: Zone  (0121) | Handler: ../zone/effects.cpp(706:56) '[TX] Near Client::SendDisciplineTimer'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DisciplineUpdate (0x2483) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DoGroupLeadershipAbility (0x17d7) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DuelResponse (0x0dee) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DuelResponse2 (0x5e04) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0126) | Handler: ../zone/client_packet.cpp(5354:20) '[TX] Near Client::Handle_OP_DuelResponse2'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Dye (0x62d8) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0128) | Handler: ../zone/inventory.cpp(2050:53) '[TX] Near Client::DyeArmor'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzAddPlayer (0x5ca2) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzChooseZone (0x6e5e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzCompass (0x0e01) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0132) | Handler: ../zone/client.cpp(6100:55) '[TX] Near Client::MarkSingleCompassLoc'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzExpeditionEndsWarning (0x32eb) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0133) | Handler: ../zone/entity.cpp(4560:55) '[TX] Near EntityList::ExpeditionWarning'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzExpeditionInfo (0x3861) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzExpeditionList (0x0b3b) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzJoinExpeditionConfirm (0x30df) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzJoinExpeditionReply (0x15d4) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzLeaderStatus (0x4021) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzListTimers (0x67b9) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzMakeLeader (0x17b2) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzMemberList (0x348f) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzMemberStatus (0x26c2) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzPlayerList (0x1aff) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzQuit (0x5fc8) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzRemovePlayer (0x0dc1) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_DzSwapPlayer (0x4995) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Emote (0x37fd) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0147) | Handler: ../zone/client.cpp(1126:56) '[TX] Near Client::ChannelMessageReceived'
+  Server: Zone  (0147) | Handler: ../zone/client_packet.cpp(5415:55) '[TX] Near Client::Handle_OP_Emote'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_EndLootRequest (0x3d8c) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_EnduranceUpdate (0x71fb) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0149) | Handler: ../zone/client.cpp(1859:56) '[TX] Near Client::SendEnduranceUpdate'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_EnterWorld (0x57c3) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0151) | Handler: ../world/client.cpp(146:39) '[TX] Near Client::SendEnterWorld'
+  Server: World (0151) | Handler: ../world/client.cpp(992:7) '[RX] Near Client::HandlePacket'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_EnvDamage (0x52e9) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ExpUpdate (0x47e3) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0154) | Handler: ../zone/client.cpp(450:34) '[TX] Near Client::SendZoneInPackets'
+  Server: Zone  (0154) | Handler: ../zone/exp.cpp(525:56) '[TX] Near Client::SetEXP'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ExpansionInfo (0x711a) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0153) | Handler: ../world/client.cpp(153:39) '[TX] Near Client::SendExpansionInfo'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_FaceChange (0x5b06) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Feedback (0x45ca) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_FeignDeath (0x677d) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_FindPersonReply (0x44f7) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0159) | Handler: ../zone/pathing.cpp(1314:55) '[TX] Near Client::SendPathPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_FindPersonRequest (0x2f3b) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_FinishTrade (0x3fbf) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0161) | Handler: ../zone/client_packet.cpp(13327:57) '[TX] Near Client::Handle_OP_TradeAcceptClick'
+  Server: Zone  (0161) | Handler: ../zone/client_packet.cpp(13334:56) '[TX] Near Client::Handle_OP_TradeAcceptClick'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_FinishWindow (0x1939) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_FinishWindow2 (0x68df) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Fishing (0x53c2) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_FloatListThing (0x7a19) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Forage (0x416d) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_FormattedMessage (0x6afe) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0168) | Handler: ../zone/client.cpp(2923:55) '[TX] Near Client::Message_StringID'
+  Server: Zone  (0168) | Handler: ../zone/client.cpp(3037:55) '[TX] Near Client::FilteredMessage_StringID'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_FriendsWho (0x3dac) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMApproval (0x0e37) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMBecomeNPC (0x5201) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMDelCorpse (0x6034) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMEmoteWorld (0x1f8c) | Handled: False | Encoded: N/A | Decoded: N/A
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMEmoteZone (0x1b39) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMEndTraining (0x7ffe) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMFind (0x6160) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0180) | Handler: ../zone/client_packet.cpp(5889:55) '[TX] Near Client::Handle_OP_GMFind'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMGoto (0x0345) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMHideMe (0x4c65) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMKick (0x5646) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0183) | Handler: ../zone/client.cpp(2488:55) '[TX] Near Client::WorldKick'
+  Server: Zone  (0183) | Handler: ../zone/command.cpp(3059:58) '[TX] Near command_kick'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMKill (0x507e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0184) | Handler: ../zone/client.cpp(2497:55) '[TX] Near Client::GMKill'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMLastName (0x4dd7) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0185) | Handler: ../zone/client.cpp(1932:55) '[TX] Near Client::ChangeLastName'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMNameChange (0x3077) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0186) | Handler: ../zone/client.cpp(1965:55) '[TX] Near Client::ChangeFirstName'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMSearchCorpse (0x5bed) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMServers (0x2612) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMSummon (0x0655) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMToggle (0x1276) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMTrainSkill (0x444c) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMTrainSkillConfirm (0x35cc) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0193) | Handler: ../zone/client_process.cpp(1741:56) '[TX] Near Client::OPGMTrainSkill'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMTraining (0x6e8f) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMZoneRequest (0x69e5) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0194) | Handler: ../zone/client_packet.cpp(6290:55) '[TX] Near Client::Handle_OP_GMZoneRequest'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GMZoneRequest2 (0x65d6) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GetGuildMOTD (0x7ba3) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GetGuildMOTDReply (0x42a2) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0171) | Handler: ../zone/guild.cpp(41:20) '[TX] Near Client::SendGuildMOTD'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroundSpawn (0x4286) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0196) | Handler: ../zone/object.cpp(408:16) '[TX] Near Object::CreateSpawnPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupAcknowledge (0x5fae) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0197) | Handler: ../zone/client.cpp(5862:53) '[TX] Near Client::SendGroupJoinAcknowledge'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupCancelInvite (0x2b26) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0198) | Handler: ../zone/worldserver.cpp(1014:58) '[TX] Near WorldServer::Process'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupDelete (0x33ca) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupDisband (0x1ed0) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupDisbandOther (0x74fa) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupDisbandYou (0x623d) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupFollow (0x2789) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0203) | Handler: ../zone/worldserver.cpp(892:56) '[TX] Near WorldServer::Process'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupFollow2 (0x4964) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupInvite (0x1602) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0205) | Handler: ../zone/client_packet.cpp(6630:59) '[TX] Near Client::Handle_OP_GroupInvite2'
+  Server: Zone  (0205) | Handler: ../zone/worldserver.cpp(828:58) '[TX] Near WorldServer::Process'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupInvite2 (0x6e80) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0206) | Handler: ../zone/client_packet.cpp(6626:28) '[RX] Near Client::Handle_OP_GroupInvite2'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupLeaderChange (0x46fc) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0207) | Handler: ../zone/client.cpp(5850:53) '[TX] Near Client::SendGroupLeaderChangePacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupLeadershipAAUpdate (0x6567) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupMakeLeader (0x4129) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupMentor (0x56db) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupRoles (0x047c) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0211) | Handler: ../zone/groups.cpp(1580:56) '[TX] Near Group::NotifyMainTank'
+  Server: Zone  (0211) | Handler: ../zone/groups.cpp(1633:56) '[TX] Near Group::NotifyMainAssist'
+  Server: Zone  (0211) | Handler: ../zone/groups.cpp(1675:56) '[TX] Near Group::NotifyPuller'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupUpdate (0x0ba4) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0212) | Handler: ../world/client.cpp(830:43) '[TX] Near Client::HandleEnterWorldPacket'
+  Server: Zone  (0212) | Handler: ../zone/bot.cpp(5087:59) '[TX] Near Bot::Death'
+  Server: Zone  (0212) | Handler: ../zone/client.cpp(4124:58) '[TX] Near Client::GroupFollow'
+  Server: Zone  (0212) | Handler: ../zone/entity.cpp(3759:59) '[TX] Near EntityList::SendGroupLeave'
+  Server: Zone  (0212) | Handler: ../zone/entity.cpp(3788:59) '[TX] Near EntityList::SendGroupJoin'
+  Server: Zone  (0212) | Handler: ../zone/groups.cpp(2219:55) '[TX] Near Group::ChangeLeader'
+  Server: Zone  (0212) | Handler: ../zone/groups.cpp(274:55) '[TX] Near Group::AddMember'
+  Server: Zone  (0212) | Handler: ../zone/groups.cpp(645:55) '[TX] Near Group::DelMember'
+  Server: Zone  (0212) | Handler: ../zone/groups.cpp(874:55) '[TX] Near Group::DisbandGroup'
+  Server: Zone  (0212) | Handler: ../zone/groups.cpp(954:55) '[TX] Near Group::SendUpdate'
+  Server: Zone  (0212) | Handler: ../zone/groups.cpp(988:55) '[TX] Near Group::SendLeadershipAAUpdate'
+  Server: Zone  (0212) | Handler: ../zone/raids.cpp(1158:55) '[TX] Near Raid::SendGroupUpdate'
+  Server: Zone  (0212) | Handler: ../zone/raids.cpp(1278:55) '[TX] Near Raid::SendGroupDisband'
+  Server: Zone  (0212) | Handler: ../zone/worldserver.cpp(1237:59) '[TX] Near WorldServer::Process'
+  Server: Zone  (0212) | Handler: ../zone/worldserver.cpp(1255:59) '[TX] Near WorldServer::Process'
+  Server: Zone  (0212) | Handler: ../zone/worldserver.cpp(1286:59) '[TX] Near WorldServer::Process'
+  Server: Zone  (0212) | Handler: ../zone/worldserver.cpp(869:58) '[TX] Near WorldServer::Process'
+  Server: Zone  (0212) | Handler: ../zone/zonedb.cpp(2793:55) '[TX] Near ZoneDatabase::RefreshGroupFromDB'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GroupUpdateB (0x5a07) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0213) | Handler: ../zone/client.cpp(5824:53) '[TX] Near Client::SendGroupCreatePacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildBank (0x2ab0) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0215) | Handler: ../zone/client.cpp(5784:55) '[TX] Near Client::GuildBankAck'
+  Server: Zone  (0215) | Handler: ../zone/client.cpp(5796:55) '[TX] Near Client::GuildBankDepositAck'
+  Server: Zone  (0215) | Handler: ../zone/client.cpp(5809:55) '[TX] Near Client::ClearGuildBank'
+  Server: Zone  (0215) | Handler: ../zone/entity.cpp(1952:55) '[TX] Near EntityList::QueueClientsGuildBankItemUpdate'
+  Server: Zone  (0215) | Handler: ../zone/guild_mgr.cpp(757:57) '[TX] Near GuildBankManager::SendGuildBank'
+  Server: Zone  (0215) | Handler: ../zone/guild_mgr.cpp(795:57) '[TX] Near GuildBankManager::SendGuildBank'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildBankItemList (0x1cbf) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0216) | Handler: ../zone/guild_mgr.cpp(695:40) '[TX] Near GuildBankManager::SendGuildBank'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildCreate (0xd2d1) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildDelete (0x241b) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildDemote (0x3100) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildInvite (0x5f8e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildInviteAccept (0x78a5) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildLeader (0x7c6f) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildList (0x2d38) | Handled: False | Encoded: N/A | Decoded: N/A
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildMOTD (0x0561) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0230) | Handler: ../zone/guild.cpp(29:55) '[TX] Near Client::SendGuildMOTD'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildManageBanker (0x389c) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildMemberList (0x4053) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0228) | Handler: ../zone/guild.cpp(190:55) '[TX] Near Client::SendGuildMembers'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildMemberUpdate (0x0048) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0229) | Handler: ../zone/guild_mgr.cpp(393:57) '[TX] Near ZoneGuildManager::ProcessWorldPacket'
+  Server: Zone  (0229) | Handler: ../zone/guild_mgr.cpp(424:57) '[TX] Near ZoneGuildManager::ProcessWorldPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildPeace (0x17eb) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildPromote (0x2945) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildPublicNote (0x3c2c) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildRemove (0x296d) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildStatus (0x25a5) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildUpdateURLAndChannel (0x7851) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0238) | Handler: ../zone/guild.cpp(122:58) '[TX] Near Client::SendGuildRanks'
+  Server: Zone  (0238) | Handler: ../zone/guild.cpp(71:56) '[TX] Near Client::SendGuildURL'
+  Server: Zone  (0238) | Handler: ../zone/guild.cpp(92:56) '[TX] Near Client::SendGuildChannel'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildWar (0x395a) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_GuildsList (0x2d38) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0235) | Handler: ../world/client.cpp(1294:34) '[TX] Near Client::SendGuildList'
+  Server: Zone  (0235) | Handler: ../zone/guild.cpp(169:34) '[TX] Near Client::SendGuildList'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_HPUpdate (0x07b8) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0243) | Handler: ../zone/mob.cpp(1371:57) '[TX] Near Mob::SendHPUpdate'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Hide (0x2da1) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_HideCorpse (0x3c4b) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Illusion (0x6c43) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0244) | Handler: ../zone/mob.cpp(1741:55) '[TX] Near Mob::SendIllusionPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_IncreaseStats (0x0711) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0245) | Handler: ../zone/client.cpp(1612:55) '[TX] Near Client::SetStats'
+  Server: Zone  (0245) | Handler: ../zone/client.cpp(1695:55) '[TX] Near Client::IncStats'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_InspectAnswer (0x5794) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0248) | Handler: ../zone/bot.cpp(8736:56) '[TX] Near Bot::ProcessBotInspectionRequest'
+  Server: Zone  (0248) | Handler: ../zone/client.cpp(5712:56) '[TX] Near Client::ProcessInspectRequest'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_InspectBuffs (0x01f3) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0249) | Handler: ../zone/aa.cpp(737:55) '[TX] Near Client::InspectBuffs'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_InspectMessageUpdate (0x3064) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_InspectRequest (0x23f1) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_InstillDoubt (0x63a5) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_InterruptCast (0x7470) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0253) | Handler: ../zone/spells.cpp(834:35) '[TX] Near Mob::InterruptSpell'
+  Server: Zone  (0253) | Handler: ../zone/spells.cpp(867:34) '[TX] Near Mob::InterruptSpell'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ItemLinkClick (0x0353) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ItemLinkResponse (0x2fdb) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0255) | Handler: ../zone/command.cpp(1764:55) '[TX] Near command_itemtest'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ItemPacket (0x5e0e) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0258) | Handler: ../zone/inventory.cpp(2681:10) '[TX] Near Client::ReturnItemPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ItemPreview (0x05cf) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0259) | Handler: ../zone/client_packet.cpp(8215:56) '[TX] Near Client::Handle_OP_ItemPreview'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ItemRecastDelay (0x57ed) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0260) | Handler: ../zone/spells.cpp(2326:57) '[TX] Near Mob::SpellFinished'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ItemVerifyReply (0x40de) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0261) | Handler: ../zone/client_packet.cpp(8402:34) '[TX] Near Client::Handle_OP_ItemVerifyRequest'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ItemVerifyRequest (0x2c0c) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ItemViewUnknown (0x0b64) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Jump (0x1d47) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_KeyRing (0x04ba) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LDoNButton (0x596e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LDoNOpen (0x3567) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LFGCommand (0x4463) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LFGGetMatchesRequest (0x1373) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LFGGetMatchesResponse (0x31d8) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0282) | Handler: ../zone/worldserver.cpp(2162:56) '[TX] Near WorldServer::HandleLFGMatches'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LFPCommand (0x6e8b) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LFPGetMatchesRequest (0x7fd9) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LFPGetMatchesResponse (0x4111) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0287) | Handler: ../zone/worldserver.cpp(2209:56) '[TX] Near WorldServer::HandleLFPMatches'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LeadershipExpToggle (0x3ea6) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LeadershipExpUpdate (0x6922) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0274) | Handler: ../zone/exp.cpp(841:55) '[TX] Near Client::SendLeadershipEXPUpdate'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LeaveAdventure (0x18b3) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LeaveBoat (0x6cc1) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LevelAppearance (0x7c4d) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0277) | Handler: ../zone/mob.cpp(2024:55) '[TX] Near Mob::SendLevelAppearance'
+  Server: Zone  (0277) | Handler: ../zone/mob.cpp(2045:55) '[TX] Near Mob::SendStunAppearance'
+  Server: Zone  (0277) | Handler: ../zone/mob.cpp(2059:55) '[TX] Near Mob::SendAppearanceEffect'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LevelUpdate (0x7ce0) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0278) | Handler: ../zone/exp.cpp(548:55) '[TX] Near Client::SetLevel'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LoadSpellSet (0x38b4) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LogServer (0x19ab) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0298) | Handler: ../world/client.cpp(111:39) '[TX] Near Client::SendLogServer'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Logout (0x64bd) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LootComplete (0x256d) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0299) | Handler: ../zone/client_packet.cpp(9126:35) '[TX] Near Client::Handle_OP_LootItem'
+  Server: Zone  (0299) | Handler: ../zone/corpse.cpp(1267:19) '[TX] Near Corpse::EndLoot'
+  Server: Zone  (0299) | Handler: ../zone/corpse.cpp(61:55) '[TX] Near Corpse::SendEndLootErrorPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LootItem (0x515b) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_LootRequest (0x43a7) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MOTD (0x1ae3) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0330) | Handler: ../world/client.cpp(841:34) '[TX] Near Client::HandleEnterWorldPacket'
+  Server: Zone  (0330) | Handler: ../zone/worldserver.cpp(452:36) '[TX] Near WorldServer::Process'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ManaChange (0x1e3b) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0302) | Handler: ../zone/client.cpp(1801:56) '[TX] Near Client::SendManaUpdatePacket'
+  Server: Zone  (0302) | Handler: ../zone/command.cpp(1745:55) '[TX] Near command_spoff'
+  Server: Zone  (0302) | Handler: ../zone/spells.cpp(4733:55) '[TX] Near Mob::SendSpellBarEnable'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ManaUpdate (0x6675) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0303) | Handler: ../zone/client.cpp(1846:57) '[TX] Near Client::SendManaUpdate'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MarkNPC (0x1a6c) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0304) | Handler: ../zone/groups.cpp(1395:55) '[TX] Near Group::MarkNPC'
+  Server: Zone  (0304) | Handler: ../zone/groups.cpp(2084:55) '[TX] Near Group::SendMarkedNPCsToMember'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MarkRaidNPC (0x2d9f) | Handled: False | Encoded: N/A | Decoded: N/A
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Marquee (0x288a) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MemorizeSpell (0x2fac) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0306) | Handler: ../zone/client.cpp(2512:55) '[TX] Near Client::MemorizeSpell'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Mend (0x324f) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MercenaryCommand (0x7b21) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MercenaryDataRequest (0x612e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MercenaryDataResponse (0x0768) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0312) | Handler: ../zone/client.cpp(7495:58) '[TX] Near Client::SendMercPersonalInfo'
+  Server: Zone  (0312) | Handler: ../zone/client_packet.cpp(9416:56) '[TX] Near Client::Handle_OP_MercenaryDataRequest'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MercenaryDataUpdate (0x5a7c) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0313) | Handler: ../zone/client.cpp(7451:58) '[TX] Near Client::SendMercPersonalInfo'
+  Server: Zone  (0313) | Handler: ../zone/client.cpp(7547:55) '[TX] Near Client::SendClearMercInfo'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MercenaryDataUpdateRequest (0x6774) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MercenaryDismiss (0x7ff4) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MercenaryHire (0x18ba) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0316) | Handler: ../zone/merc.cpp(6057:56) '[TX] Near Client::SendMercMerchantResponsePacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MercenarySuspendRequest (0x61b3) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MercenarySuspendResponse (0x5975) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0318) | Handler: ../zone/merc.cpp(6085:55) '[TX] Near Client::SendMercSuspendResponsePacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MercenaryTimer (0x6f9e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0319) | Handler: ../zone/merc.cpp(6096:55) '[TX] Near Client::SendMercTimerPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MercenaryTimerRequest (0x4326) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MercenaryUnknown1 (0x7db4) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0321) | Handler: ../zone/merc.cpp(6067:55) '[TX] Near Client::SendMercenaryUnknownPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MercenaryUnsuspendResponse (0x68b1) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0322) | Handler: ../zone/merc.cpp(6076:55) '[TX] Near Client::SendMercenaryUnsuspendPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MobEnduranceUpdate (0x7cb5) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0323) | Handler: ../zone/client.cpp(1815:58) '[TX] Near Client::SendManaUpdatePacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MobHealth (0x218d) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0324) | Handler: ../zone/mob.cpp(1240:16) '[TX] Near Mob::CreateHPPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MobManaUpdate (0x48b5) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0325) | Handler: ../zone/client.cpp(1814:36) '[TX] Near Client::SendManaUpdatePacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MobRename (0x5040) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0326) | Handler: ../zone/mob.cpp(2184:55) '[TX] Near Mob::TempName'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MobUpdate (0x6b5a) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MoneyOnCorpse (0x1837) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0328) | Handler: ../zone/corpse.cpp(67:55) '[TX] Near Corpse::SendLootReqErrorPacket'
+  Server: Zone  (0328) | Handler: ../zone/corpse.cpp(948:56) '[TX] Near Corpse::MakeLootRequestPackets'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MoneyUpdate (0x6e42) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0329) | Handler: ../zone/client.cpp(2244:55) '[TX] Near Client::SendMoneyUpdate'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MoveCoin (0x765a) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MoveDoor (0x5611) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0332) | Handler: ../zone/doors.cpp(118:57) '[TX] Near Doors::Process'
+  Server: Zone  (0332) | Handler: ../zone/doors.cpp(140:55) '[TX] Near Doors::HandleClick'
+  Server: Zone  (0332) | Handler: ../zone/doors.cpp(450:56) '[TX] Near Doors::NPCOpen'
+  Server: Zone  (0332) | Handler: ../zone/doors.cpp(476:55) '[TX] Near Doors::ForceOpen'
+  Server: Zone  (0332) | Handler: ../zone/doors.cpp(501:55) '[TX] Near Doors::ForceClose'
+  Server: Zone  (0332) | Handler: ../zone/doors.cpp(530:55) '[TX] Near Doors::ToggleState'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_MoveItem (0x62a2) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0333) | Handler: ../zone/command.cpp(3150:57) '[TX] Near command_equipitem'
+  Server: Zone  (0333) | Handler: ../zone/inventory.cpp(825:36) '[TX] Near Client::DeleteItemInInventory'
+  Server: Zone  (0333) | Handler: ../zone/trading.cpp(1382:36) '[TX] Near Client::NukeTraderItem'
+  Server: Zone  (0333) | Handler: ../zone/trading.cpp(2620:58) '[TX] Near Client::SellToBuyer'
+  Server: Zone  (0333) | Handler: ../zone/trading.cpp(2674:59) '[TX] Near Client::SellToBuyer'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_NPCMoveUpdate (0x5bd9) | Handled: False | Encoded: N/A | Decoded: N/A
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_NewSpawn (0x3f5b) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0337) | Handler: ../zone/horse.cpp(173:16) '[TX] Near Mob::CreateHorseSpawnPacket'
+  Server: Zone  (0337) | Handler: ../zone/mob.cpp(913:16) '[TX] Near Mob::CreateSpawnPacket'
+  Server: Zone  (0337) | Handler: ../zone/mob.cpp(988:16) '[TX] Near Mob::CreateSpawnPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_NewTitlesAvailable (0x45d1) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0338) | Handler: ../zone/client.cpp(4930:55) '[TX] Near Client::NotifyNewTitlesAvailable'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_NewZone (0x7fff) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0339) | Handler: ../zone/client_packet.cpp(1075:34) '[TX] Near Client::Handle_Connect_OP_ReqNewZone'
+  Server: Zone  (0339) | Handler: ../zone/command.cpp(1506:56) '[TX] Near command_zclip'
+  Server: Zone  (0339) | Handler: ../zone/command.cpp(1691:56) '[TX] Near command_zheader'
+  Server: Zone  (0339) | Handler: ../zone/command.cpp(1707:56) '[TX] Near command_zsky'
+  Server: Zone  (0339) | Handler: ../zone/command.cpp(1731:56) '[TX] Near command_zcolor'
+  Server: Zone  (0339) | Handler: ../zone/command.cpp(3996:56) '[TX] Near command_zuwcoords'
+  Server: Zone  (0339) | Handler: ../zone/command.cpp(4028:56) '[TX] Near command_zsafecoords'
+  Server: Zone  (0339) | Handler: ../zone/questmgr.cpp(1256:55) '[TX] Near QuestManager::setsky'
+  Server: Zone  (0339) | Handler: ../zone/questmgr.cpp(3162:55) '[TX] Near QuestManager::UpdateZoneHeader'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_OnLevelMessage (0x09cd) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0340) | Handler: ../zone/client.cpp(3804:55) '[TX] Near Client::SendPopupToClient'
+  Server: Zone  (0340) | Handler: ../zone/client.cpp(3839:52) '[TX] Near Client::SendWindow'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_OpenContainer (0x654f) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_OpenGuildTributeMaster (0x107b) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_OpenNewTasksWindow (0x436c) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0345) | Handler: ../zone/tasks.cpp(1042:55) '[TX] Near TaskManager::SendTaskSelector'
+  Server: Zone  (0345) | Handler: ../zone/tasks.cpp(1167:55) '[TX] Near TaskManager::SendTaskSelectorNew'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_OpenTributeMaster (0x6fed) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PVPLeaderBoardDetailsReply (0x6a60) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0379) | Handler: ../zone/client_packet.cpp(10665:55) '[TX] Near Client::Handle_OP_PVPLeaderBoardDetailsRequest'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PVPLeaderBoardDetailsRequest (0x46f4) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PVPLeaderBoardReply (0x3e78) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0381) | Handler: ../zone/client_packet.cpp(10693:55) '[TX] Near Client::Handle_OP_PVPLeaderBoardRequest'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PVPLeaderBoardRequest (0x1bce) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PVPStats (0x3034) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0383) | Handler: ../zone/client.cpp(4474:55) '[TX] Near Client::SendPVPStats'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PetBuffWindow (0x7197) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0348) | Handler: ../zone/spells.cpp(5419:55) '[TX] Near Mob::SendPetBuffsToClient'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PetCommands (0x0093) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PetHoTT (0x0df4) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Petition (0x2885) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PickPocket (0x047b) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0365) | Handler: ../zone/client.cpp(3774:56) '[TX] Near Client::SendPickPocketResponse'
+  Server: Zone  (0365) | Handler: ../zone/client_packet.cpp(10455:56) '[TX] Near Client::Handle_OP_PickPocket'
+  Server: Zone  (0365) | Handler: ../zone/client_packet.cpp(10468:56) '[TX] Near Client::Handle_OP_PickPocket'
+  Server: Zone  (0365) | Handler: ../zone/client_packet.cpp(10484:56) '[TX] Near Client::Handle_OP_PickPocket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PlayMP3 (0x277c) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0371) | Handler: ../zone/client.cpp(8353:55) '[TX] Near Client::PlayMP3'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PlayerProfile (0x46bb) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0366) | Handler: ../zone/client_packet.cpp(1619:34) '[TX] Near Client::Handle_Connect_OP_ZoneEntry'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PlayerStateAdd (0x012f) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0367) | Handler: ../zone/mob.cpp(5654:36) '[TX] Near Mob::SendAddPlayerState'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PlayerStateRemove (0x1076) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0368) | Handler: ../zone/mob.cpp(5667:36) '[TX] Near Mob::SendRemovePlayerState'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PopupResponse (0x2fa1) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PostEnterWorld (0x0c3d) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0375) | Handler: ../world/client.cpp(371:39) '[TX] Near Client::SendPostEnterWorld'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PotionBelt (0x2d1b) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_PurchaseLeadershipAA (0x1962) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RaidInvite (0x5fb2) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RaidUpdate (0x1bd1) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0387) | Handler: ../zone/client.cpp(466:34) '[TX] Near Client::SendZoneInPackets'
+  Server: Zone  (0387) | Handler: ../zone/client_packet.cpp(10729:56) '[TX] Near Client::Handle_OP_RaidCommand'
+  Server: Zone  (0387) | Handler: ../zone/raids.cpp(1012:57) '[TX] Near Raid::SendRaidRemoveAll'
+  Server: Zone  (0387) | Handler: ../zone/raids.cpp(1030:55) '[TX] Near Raid::SendRaidDisband'
+  Server: Zone  (0387) | Handler: ../zone/raids.cpp(1042:55) '[TX] Near Raid::SendRaidDisbandAll'
+  Server: Zone  (0387) | Handler: ../zone/raids.cpp(1113:55) '[TX] Near Raid::SendMakeLeaderPacket'
+  Server: Zone  (0387) | Handler: ../zone/raids.cpp(1128:55) '[TX] Near Raid::SendMakeLeaderPacketTo'
+  Server: Zone  (0387) | Handler: ../zone/raids.cpp(1225:55) '[TX] Near Raid::SendRaidLock'
+  Server: Zone  (0387) | Handler: ../zone/raids.cpp(1236:55) '[TX] Near Raid::SendRaidUnlock'
+  Server: Zone  (0387) | Handler: ../zone/raids.cpp(1250:55) '[TX] Near Raid::SendRaidLockTo'
+  Server: Zone  (0387) | Handler: ../zone/raids.cpp(1264:55) '[TX] Near Raid::SendRaidUnlockTo'
+  Server: Zone  (0387) | Handler: ../zone/raids.cpp(1312:55) '[TX] Near Raid::SendRaidMOTD'
+  Server: Zone  (0387) | Handler: ../zone/raids.cpp(1346:55) '[TX] Near Raid::SendGroupLeadershipAA'
+  Server: Zone  (0387) | Handler: ../zone/raids.cpp(946:57) '[TX] Near Raid::SendRaidAdd'
+  Server: Zone  (0387) | Handler: ../zone/raids.cpp(968:57) '[TX] Near Raid::SendRaidAddAll'
+  Server: Zone  (0387) | Handler: ../zone/raids.cpp(993:57) '[TX] Near Raid::SendRaidRemove'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RandomNameGenerator (0x4453) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0388) | Handler: ../world/client.cpp(979:7) '[RX] Near Client::HandlePacket'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RandomReply (0x6525) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0389) | Handler: ../zone/client_packet.cpp(11305:55) '[TX] Near Client::Handle_OP_RandomReq'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RandomReq (0x59db) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ReadBook (0x383c) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0391) | Handler: ../zone/client.cpp(2006:56) '[TX] Near Client::ReadBook'
+  Server: Zone  (0391) | Handler: ../zone/client.cpp(2034:56) '[TX] Near Client::QuestReadBook'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RecipeAutoCombine (0x46a4) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0392) | Handler: ../zone/tradeskills.cpp(444:55) '[TX] Near Object::HandleAutoCombine'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RecipeDetails (0x7ad0) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0393) | Handler: ../zone/tradeskills.cpp(828:55) '[TX] Near Client::SendTradeskillDetails'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RecipeReply (0x544e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0394) | Handler: ../zone/tradeskills.cpp(716:56) '[TX] Near Client::TradeskillSearchResults'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RecipesFavorite (0x6960) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RecipesSearch (0x30f7) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RemoveAllDoors (0x39c9) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0399) | Handler: ../zone/entity.cpp(2135:55) '[TX] Near EntityList::DespawnAllDoors'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RemoveBlockedBuffs (0x78ba) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0400) | Handler: ../zone/client_packet.cpp(11508:56) '[TX] Near Client::Handle_OP_RemoveBlockedBuffs'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RemoveNimbusEffect (0x3ba7) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0401) | Handler: ../zone/mob.cpp(4880:55) '[TX] Near Mob::RemoveNimbusEffect'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Report (0x6d94) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ReqClientSpawn (0x5a4f) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ReqNewZone (0x3dec) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0404) | Handler: ../zone/client_packet.cpp(1701:35) '[TX] Near Client::Handle_Connect_OP_ZoneEntry'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RequestClientZoneChange (0x647a) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0405) | Handler: ../zone/zoning.cpp(610:57) '[TX] Near Client::ZonePC'
+  Server: Zone  (0405) | Handler: ../zone/zoning.cpp(626:57) '[TX] Near Client::ZonePC'
+  Server: Zone  (0405) | Handler: ../zone/zoning.cpp(668:57) '[TX] Near Client::ZonePC'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RequestDuel (0x1ea9) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0406) | Handler: ../zone/client_packet.cpp(5347:56) '[TX] Near Client::Handle_OP_DuelResponse2'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RequestTitles (0x1b5a) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RespawnWindow (0x7767) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0409) | Handler: ../zone/client.cpp(4573:55) '[TX] Near Client::SendRespawnBinds'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RespondAA (0x379d) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0410) | Handler: ../zone/aa.cpp(912:55) '[TX] Near Client::SendAlternateAdvancementPoints'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RestState (0x3ad5) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0411) | Handler: ../zone/client.cpp(4413:56) '[TX] Near Client::IncrementAggroCount'
+  Server: Zone  (0411) | Handler: ../zone/client.cpp(4458:56) '[TX] Near Client::DecrementAggroCount'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Rewind (0x5521) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RezzAnswer (0x004e) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RezzComplete (0x3297) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0414) | Handler: ../zone/client_packet.cpp(11693:20) '[TX] Near Client::Handle_OP_RezzAnswer'
+  Server: Zone  (0414) | Handler: ../zone/worldserver.cpp(705:26) '[RX] Near WorldServer::Process'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_RezzRequest (0x521b) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0415) | Handler: ../zone/spells.cpp(3914:55) '[TX] Near Corpse::CastRezz'
+  Server: Zone  (0415) | Handler: ../zone/worldserver.cpp(675:26) '[RX] Near WorldServer::Process'
+  Server: Zone  (0415) | Handler: ../zone/worldserver.cpp(697:59) '[TX] Near WorldServer::Process'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Sacrifice (0x76ab) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0416) | Handler: ../zone/client.cpp(3650:55) '[TX] Near Client::SacrificeConfirm'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SafeFallSuccess (0x6d27) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Save (0x2e6f) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SaveOnZoneReq (0x36b1) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SelectTribute (0x5513) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SendAAStats (0x3d1c) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0422) | Handler: ../zone/client_packet.cpp(1039:34) '[TX] Near Client::Handle_Connect_OP_ReqClientSpawn'
+  Server: Zone  (0422) | Handler: ../zone/client_packet.cpp(1088:55) '[TX] Near Client::Handle_Connect_OP_SendAAStats'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SendAATable (0x7791) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0423) | Handler: ../zone/aa.cpp(851:55) '[TX] Near Client::SendAlternateAdvancementRank'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SendCharInfo (0x06a2) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SendExpZonein (0x25ab) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0425) | Handler: ../zone/client_packet.cpp(1045:34) '[TX] Near Client::Handle_Connect_OP_ReqClientSpawn'
+  Server: Zone  (0425) | Handler: ../zone/client_packet.cpp(1102:55) '[TX] Near Client::Handle_Connect_OP_SendExpZonein'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SendFindableNPCs (0x34c3) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0426) | Handler: ../zone/entity.cpp(4356:55) '[TX] Near EntityList::SendFindableNPCList'
+  Server: Zone  (0426) | Handler: ../zone/entity.cpp(4391:55) '[TX] Near EntityList::UpdateFindableNPCState'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SendGuildTributes (0x1781) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SendLoginInfo (0x11b6) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0428) | Handler: ../world/client.cpp(971:7) '[RX] Near Client::HandlePacket'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SendMaxCharacters (0x5349) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0429) | Handler: ../world/client.cpp(193:39) '[TX] Near Client::SendMaxCharCreate'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SendMembership (0x03b2) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0430) | Handler: ../world/client.cpp(205:39) '[TX] Near Client::SendMembership'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SendMembershipDetails (0x0b1f) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0431) | Handler: ../world/client.cpp(262:39) '[TX] Near Client::SendMembershipSettings'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SendTitleList (0x0d64) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0433) | Handler: ../zone/titles.cpp(94:55) '[TX] Near TitleManager::MakeTitlesPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SendTributes (0x0a1c) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SendZonepoints (0x7922) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0435) | Handler: ../zone/client.cpp(6131:55) '[TX] Near Client::SendZonePoints'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SenseHeading (0x46c8) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SenseTraps (0x7462) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SetChatServer (0x2a81) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0441) | Handler: ../world/client.cpp(871:40) '[TX] Near Client::HandleEnterWorldPacket'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SetChatServer2 (0x4099) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0442) | Handler: ../world/client.cpp(888:35) '[TX] Near Client::HandleEnterWorldPacket'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SetGroupTarget (0x118a) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0443) | Handler: ../zone/groups.cpp(1885:55) '[TX] Near Group::NotifyAssistTarget'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SetGuildMOTD (0x44d0) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SetGuildRank (0x3599) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0445) | Handler: ../zone/guild.cpp(238:57) '[TX] Near Client::RefreshGuildInfo'
+  Server: Zone  (0445) | Handler: ../zone/guild_mgr.cpp(349:57) '[TX] Near ZoneGuildManager::ProcessWorldPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SetRunMode (0x2ce6) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SetServerFilter (0x5b27) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SetStartCity (0x7936) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SetTitle (0x0bfc) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SetTitleReply (0x7e20) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0450) | Handler: ../zone/titles.cpp(309:55) '[TX] Near Client::SetAATitle'
+  Server: Zone  (0450) | Handler: ../zone/titles.cpp(326:55) '[TX] Near Client::SetTitleSuffix'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Shielding (0x17d9) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ShopDelItem (0x509c) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0452) | Handler: ../zone/client_packet.cpp(12160:63) '[TX] Near Client::Handle_OP_ShopPlayerBuy'
+  Server: Zone  (0452) | Handler: ../zone/client_packet.cpp(12274:64) '[TX] Near Client::Handle_OP_ShopPlayerBuy'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ShopEnd (0x0d07) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ShopEndConfirm (0x1860) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ShopPlayerBuy (0x3bab) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0456) | Handler: ../zone/client_packet.cpp(12187:55) '[TX] Near Client::Handle_OP_ShopPlayerBuy'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ShopPlayerSell (0x6b4d) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0457) | Handler: ../zone/client_packet.cpp(12503:55) '[TX] Near Client::Handle_OP_ShopPlayerSell'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ShopRequest (0x16ba) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0458) | Handler: ../zone/client_packet.cpp(12529:57) '[TX] Near Client::Handle_OP_ShopRequest'
+  Server: Zone  (0458) | Handler: ../zone/client_packet.cpp(12545:56) '[TX] Near Client::Handle_OP_ShopRequest'
+  Server: Zone  (0458) | Handler: ../zone/client_packet.cpp(12580:55) '[TX] Near Client::Handle_OP_ShopRequest'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SimpleMessage (0x02a5) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0459) | Handler: ../zone/client.cpp(2861:55) '[TX] Near Client::Message_StringID'
+  Server: Zone  (0459) | Handler: ../zone/client.cpp(2989:55) '[TX] Near Client::FilteredMessage_StringID'
+  Server: Zone  (0459) | Handler: ../zone/client_packet.cpp(12643:35) '[TX] Near Client::Handle_OP_Sneak'
+  Server: Zone  (0459) | Handler: ../zone/client_packet.cpp(7895:56) '[TX] Near Client::Handle_OP_Hide'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SkillUpdate (0x52c6) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0460) | Handler: ../zone/client.cpp(1443:55) '[TX] Near Client::SetSkill'
+  Server: Zone  (0460) | Handler: ../zone/client.cpp(1463:55) '[TX] Near Client::IncreaseLanguageSkill'
+  Server: Zone  (0460) | Handler: ../zone/client.cpp(3115:55) '[TX] Near Client::SetLanguageSkill'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Sneak (0x62f4) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SomeItemPacketMaybe (0x11a0) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0464) | Handler: ../zone/special_attacks.cpp(1581:55) '[TX] Near Mob::SendItemAnimation'
+  Server: Zone  (0464) | Handler: ../zone/special_attacks.cpp(1671:55) '[TX] Near Mob::ProjectileAnimation'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Sound (0x3cec) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0465) | Handler: ../zone/client.cpp(1484:55) '[TX] Near Client::SendSound'
+  Server: Zone  (0465) | Handler: ../zone/client.cpp(8672:55) '[TX] Near Client::QuestReward'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SpawnAppearance (0x7360) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0466) | Handler: ../zone/attack.cpp(4455:56) '[TX] Near Mob::CommonBreakInvisibleFromCombat'
+  Server: Zone  (0466) | Handler: ../zone/bot.cpp(2396:56) '[TX] Near Bot::BotRangedAttack'
+  Server: Zone  (0466) | Handler: ../zone/bot.cpp(5365:56) '[TX] Near Bot::Attack'
+  Server: Zone  (0466) | Handler: ../zone/bot_command.cpp(5160:57) '[TX] Near bot_subcommand_bot_toggle_helm'
+  Server: Zone  (0466) | Handler: ../zone/client.cpp(427:55) '[TX] Near Client::SendZoneInPackets'
+  Server: Zone  (0466) | Handler: ../zone/client_packet.cpp(12619:56) '[TX] Near Client::Handle_OP_Sneak'
+  Server: Zone  (0466) | Handler: ../zone/client_packet.cpp(12635:55) '[TX] Near Client::Handle_OP_Sneak'
+  Server: Zone  (0466) | Handler: ../zone/client_packet.cpp(4536:58) '[TX] Near Client::Handle_OP_ClientUpdate'
+  Server: Zone  (0466) | Handler: ../zone/client_packet.cpp(7880:56) '[TX] Near Client::Handle_OP_Hide'
+  Server: Zone  (0466) | Handler: ../zone/client_packet.cpp(9185:57) '[TX] Near Client::Handle_OP_LootRequest'
+  Server: Zone  (0466) | Handler: ../zone/client_process.cpp(1197:56) '[TX] Near Client::BreakInvis'
+  Server: Zone  (0466) | Handler: ../zone/merc.cpp(4162:55) '[TX] Near Merc::TryHide'
+  Server: Zone  (0466) | Handler: ../zone/mob.cpp(2009:55) '[TX] Near Mob::SendAppearancePacket'
+  Server: Zone  (0466) | Handler: ../zone/spell_effects.cpp(6777:56) '[TX] Near Client::BreakSneakWhenCastOn'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SpawnDoor (0x7b6c) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0467) | Handler: ../zone/command.cpp(9392:33) '[TX] Near command_object'
+  Server: Zone  (0467) | Handler: ../zone/entity.cpp(918:16) '[TX] Near EntityList::MakeDoorSpawnPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SpecialMesg (0x362c) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0469) | Handler: ../zone/client.cpp(1234:52) '[TX] Near Client::Message'
+  Server: Zone  (0469) | Handler: ../zone/client.cpp(1265:52) '[TX] Near Client::QuestJournalledMessage'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SpellEffect (0x72b6) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0470) | Handler: ../zone/mob.cpp(2132:55) '[TX] Near Mob::SendSpellEffect'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Split (0x269e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Stamina (0x1949) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0472) | Handler: ../zone/client.cpp(8241:34) '[TX] Near Client::SetHunger'
+  Server: Zone  (0472) | Handler: ../zone/client.cpp(8255:34) '[TX] Near Client::SetThirst'
+  Server: Zone  (0472) | Handler: ../zone/client.cpp(8269:34) '[TX] Near Client::SetConsumption'
+  Server: Zone  (0472) | Handler: ../zone/client_packet.cpp(4833:36) '[TX] Near Client::Handle_OP_Consume'
+  Server: Zone  (0472) | Handler: ../zone/client_packet.cpp(4848:36) '[TX] Near Client::Handle_OP_Consume'
+  Server: Zone  (0472) | Handler: ../zone/client_packet.cpp(4881:34) '[TX] Near Client::Handle_OP_Consume'
+  Server: Zone  (0472) | Handler: ../zone/client_packet.cpp(8602:40) '[TX] Near Client::Handle_OP_ItemVerifyRequest'
+  Server: Zone  (0472) | Handler: ../zone/client_process.cpp(1841:55) '[TX] Near Client::DoStaminaUpdate'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Stun (0x53c0) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0473) | Handler: ../zone/spells.cpp(4777:55) '[TX] Near Client::Stun'
+  Server: Zone  (0473) | Handler: ../zone/spells.cpp(4788:55) '[TX] Near Client::UnStun'
+  Server: Zone  (0473) | Handler: ../zone/spells.cpp(4816:56) '[TX] Near Mob::Mesmerize'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Surname (0x1a87) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_SwapSpell (0x4736) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TGB (0x10a6) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TargetBuffs (0x1c71) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0476) | Handler: ../zone/spells.cpp(5472:35) '[TX] Near Mob::MakeBuffsPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TargetCommand (0x000a) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0477) | Handler: ../zone/client.cpp(6158:55) '[TX] Near Client::SendTargetCommand'
+  Server: Zone  (0477) | Handler: ../zone/client_packet.cpp(13036:25) '[RX] Near Client::Handle_OP_TargetCommand'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TargetHoTT (0x3af5) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0478) | Handler: ../zone/client.cpp(3795:55) '[TX] Near Client::SetHoTT'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TargetMouse (0x0e25) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TaskActivity (0x7181) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0481) | Handler: ../zone/tasks.cpp(2490:56) '[TX] Near TaskManager::SendTaskActivityShort'
+  Server: Zone  (0481) | Handler: ../zone/tasks.cpp(2503:55) '[TX] Near TaskManager::SendTaskActivityShort'
+  Server: Zone  (0481) | Handler: ../zone/tasks.cpp(2541:55) '[TX] Near TaskManager::SendTaskActivityLong'
+  Server: Zone  (0481) | Handler: ../zone/tasks.cpp(2622:55) '[TX] Near TaskManager::SendTaskActivityNew'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TaskActivityComplete (0x71cd) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0482) | Handler: ../zone/tasks.cpp(2373:55) '[TX] Near Client::SendTaskActivityComplete'
+  Server: Zone  (0482) | Handler: ../zone/tasks.cpp(2403:55) '[TX] Near Client::SendTaskFailed'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TaskDescription (0x2294) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0483) | Handler: ../zone/tasks.cpp(2808:55) '[TX] Near TaskManager::SendActiveTaskDescription'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TaskHistoryReply (0x25eb) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0484) | Handler: ../zone/tasks.cpp(2330:55) '[TX] Near ClientTaskState::SendTaskHistory'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TaskHistoryRequest (0x6cf6) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TaskMemberList (0x748e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Taunt (0x0af6) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TestBuff (0x046e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TimeOfDay (0x3be2) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0490) | Handler: ../zone/client_packet.cpp(1668:34) '[TX] Near Client::Handle_Connect_OP_ZoneEntry'
+  Server: Zone  (0490) | Handler: ../zone/command.cpp(1393:56) '[TX] Near command_timezone'
+  Server: Zone  (0490) | Handler: ../zone/worldserver.cpp(744:58) '[TX] Near WorldServer::Process'
+  Server: Zone  (0490) | Handler: ../zone/zone.cpp(1546:57) '[TX] Near Zone::SetTime'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Track (0x7d43) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0491) | Handler: ../zone/entity.cpp(3037:55) '[TX] Near EntityList::MakeTrackPacket'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TrackTarget (0x4c42) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TrackUnknown (0x2395) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TradeAcceptClick (0x13db) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TradeBusy (0x7c6d) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TradeCoins (0x584d) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0496) | Handler: ../zone/client_process.cpp(1510:56) '[TX] Near Client::OPMoveCoin'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TradeMoneyUpdate (0x65f6) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0497) | Handler: ../zone/client.cpp(2046:55) '[TX] Near Client::SendClientMoneyUpdate'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TradeRequest (0x5f9e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TradeRequestAck (0x6852) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0502) | Handler: ../zone/client_packet.cpp(13631:56) '[TX] Near Client::Handle_OP_TradeRequest'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TradeSkillCombine (0x7447) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0505) | Handler: ../zone/tradeskills.cpp(308:56) '[TX] Near Object::HandleCombine'
+  Server: Zone  (0505) | Handler: ../zone/tradeskills.cpp(326:56) '[TX] Near Object::HandleCombine'
+  Server: Zone  (0505) | Handler: ../zone/tradeskills.cpp(335:56) '[TX] Near Object::HandleCombine'
+  Server: Zone  (0505) | Handler: ../zone/tradeskills.cpp(350:56) '[TX] Near Object::HandleCombine'
+  Server: Zone  (0505) | Handler: ../zone/tradeskills.cpp(359:56) '[TX] Near Object::HandleCombine'
+  Server: Zone  (0505) | Handler: ../zone/tradeskills.cpp(390:55) '[TX] Near Object::HandleCombine'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Trader (0x6a6a) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0498) | Handler: ../zone/client_packet.cpp(13525:58) '[TX] Near Client::Handle_OP_Trader'
+  Server: Zone  (0498) | Handler: ../zone/trading.cpp(1034:54) '[TX] Near Client::Trader_CustomerBrowsing'
+  Server: Zone  (0498) | Handler: ../zone/trading.cpp(1050:54) '[TX] Near Client::Trader_StartTrader'
+  Server: Zone  (0498) | Handler: ../zone/trading.cpp(1139:33) '[TX] Near Client::Trader_EndTrader'
+  Server: Zone  (0498) | Handler: ../zone/trading.cpp(1561:55) '[TX] Near Client::BuyTraderItem'
+  Server: Zone  (0498) | Handler: ../zone/trading.cpp(993:54) '[TX] Near Client::Trader_ShowItems'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TraderDelItem (0x63c8) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0500) | Handler: ../zone/trading.cpp(1090:57) '[TX] Near Client::Trader_EndTrader'
+  Server: Zone  (0500) | Handler: ../zone/trading.cpp(1349:56) '[TX] Near Client::NukeTraderItem'
+  Server: Zone  (0500) | Handler: ../zone/trading.cpp(2083:56) '[TX] Near UpdateTraderCustomerPriceChanged'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TraderShop (0x0a5e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0504) | Handler: ../zone/client_packet.cpp(13681:57) '[TX] Near Client::Handle_OP_TraderShop'
+  Server: Zone  (0504) | Handler: ../zone/trading.cpp(1492:35) '[TX] Near Client::ReturnTraderReq'
+  Server: Zone  (0504) | Handler: ../zone/trading.cpp(1703:36) '[TX] Near Client::SendBazaarWelcome'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Translocate (0x6f01) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0506) | Handler: ../zone/client.cpp(3739:55) '[TX] Near Client::SendOPTranslocateConfirm'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TributeInfo (0x5dd2) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TributeItem (0x105b) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TributeMoney (0x4b6d) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TributePointUpdate (0x01ec) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TributeTimer (0x3294) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TributeToggle (0x1f50) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_TributeUpdate (0x2691) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Untargetable (0x7717) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0515) | Handler: ../zone/mob.cpp(2089:55) '[TX] Near Mob::SendTargetable'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_UpdateAA (0x504f) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_UpdateLeadershipAA (0x56aa) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0517) | Handler: ../zone/client_packet.cpp(10617:55) '[TX] Near Client::Handle_OP_PurchaseLeadershipAA'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_VetClaimReply (0x361b) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0518) | Handler: ../zone/client_packet.cpp(13958:55) '[TX] Near Client::Handle_OP_VetClaimRequest'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_VetClaimRequest (0xcdde) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_VetRewardsAvaliable (0x05d9) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0520) | Handler: ../zone/client.cpp(5362:55) '[TX] Near Client::SendRewards'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_VoiceMacroIn (0x202e) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_VoiceMacroOut (0x3920) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0522) | Handler: ../zone/questmgr.cpp(2904:57) '[TX] Near QuestManager::voicetell'
+  Server: Zone  (0522) | Handler: ../zone/worldserver.cpp(228:57) '[TX] Near WorldServer::Process'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_WeaponEquip1 (0x35c3) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_WearChange (0x1ad3) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0524) | Handler: ../world/client.cpp(1013:7) '[RX] Near Client::HandlePacket'
+  Server: Zone  (0524) | Handler: ../zone/bot.cpp(4321:55) '[TX] Near Bot::SendBotArcheryWearChange'
+  Server: Zone  (0524) | Handler: ../zone/loottables.cpp(240:35) '[TX] Near NPC::AddLootDrop'
+  Server: Zone  (0524) | Handler: ../zone/mob.cpp(2773:55) '[TX] Near Mob::SendWearChange'
+  Server: Zone  (0524) | Handler: ../zone/mob.cpp(2797:55) '[TX] Near Mob::SendTextureWC'
+  Server: Zone  (0524) | Handler: ../zone/mob.cpp(2827:55) '[TX] Near Mob::SetSlotTint'
+  Server: Zone  (0524) | Handler: ../zone/mob.cpp(2844:55) '[TX] Near Mob::WearChange'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Weather (0x0bd7) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0525) | Handler: ../zone/client_packet.cpp(1718:34) '[TX] Near Client::Handle_Connect_OP_ZoneEntry'
+  Server: Zone  (0525) | Handler: ../zone/command.cpp(1620:58) '[TX] Near command_weather'
+  Server: Zone  (0525) | Handler: ../zone/command.cpp(1633:57) '[TX] Near command_weather'
+  Server: Zone  (0525) | Handler: ../zone/command.cpp(1642:57) '[TX] Near command_weather'
+  Server: Zone  (0525) | Handler: ../zone/command.cpp(1652:57) '[TX] Near command_weather'
+  Server: Zone  (0525) | Handler: ../zone/command.cpp(1660:57) '[TX] Near command_weather'
+  Server: Zone  (0525) | Handler: ../zone/command.cpp(1669:57) '[TX] Near command_weather'
+  Server: Zone  (0525) | Handler: ../zone/questmgr.cpp(883:55) '[TX] Near QuestManager::rain'
+  Server: Zone  (0525) | Handler: ../zone/questmgr.cpp(892:55) '[TX] Near QuestManager::snow'
+  Server: Zone  (0525) | Handler: ../zone/zone.cpp(1840:55) '[TX] Near Zone::weatherSend'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_Weblink (0x7cce) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0526) | Handler: ../zone/client.cpp(7418:56) '[TX] Near Client::SendWebLink'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_WhoAllRequest (0x78eb) | Handled: True | Encoded: False | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_WhoAllResponse (0x3393) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0528) | Handler: ../zone/entity.cpp(4036:55) '[TX] Near EntityList::ZoneWho'
+  Server: Zone  (0528) | Handler: ../zone/worldserver.cpp(403:59) '[TX] Near WorldServer::Process'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_WorldClientReady (0x43b0) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0531) | Handler: ../world/client.cpp(1016:7) '[RX] Near Client::HandlePacket'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_WorldComplete (0x12d4) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0532) | Handler: ../world/client.cpp(1000:7) '[RX] Near Client::HandlePacket'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_WorldObjectsSent (0x7fa8) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0534) | Handler: ../zone/client_packet.cpp(1055:34) '[TX] Near Client::Handle_Connect_OP_ReqClientSpawn'
+  Server: Zone  (0534) | Handler: ../zone/client_packet.cpp(1169:55) '[TX] Near Client::Handle_Connect_OP_WorldObjectsSent'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_WorldUnknown001 (0x6be3) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_World_Client_CRC1 (0x0044) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_World_Client_CRC2 (0x26df) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_XTargetAutoAddHaters (0x5f51) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_XTargetOpen (0x7423) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_XTargetOpenResponse (0x27e8) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0538) | Handler: ../zone/client_packet.cpp(14043:39) '[TX] Near Client::Handle_OP_XTargetOpen'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_XTargetRequest (0x6753) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_XTargetResponse (0x7f64) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0540) | Handler: ../zone/client.cpp(7188:55) '[TX] Near Client::SendXTargetPacket'
+  Server: Zone  (0540) | Handler: ../zone/client.cpp(7228:39) '[TX] Near Client::SendXTargetUpdates'
+  Server: Zone  (0540) | Handler: ../zone/client.cpp(7326:55) '[TX] Near Client::SetMaxXTargets'
+  Server: Zone  (0540) | Handler: ../zone/client_packet.cpp(1707:35) '[TX] Near Client::Handle_Connect_OP_ZoneEntry'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_YellForHelp (0x0017) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0541) | Handler: ../zone/client_packet.cpp(14282:55) '[TX] Near Client::Handle_OP_YellForHelp'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ZoneChange (0x1eb4) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0542) | Handler: ../world/client.cpp(1005:7) '[RX] Near Client::HandlePacket'
+  Server: Zone  (0542) | Handler: ../zone/worldserver.cpp(328:37) '[TX] Near WorldServer::Process'
+  Server: Zone  (0542) | Handler: ../zone/zoning.cpp(301:34) '[TX] Near Client::SendZoneCancel'
+  Server: Zone  (0542) | Handler: ../zone/zoning.cpp(320:34) '[TX] Near Client::SendZoneError'
+  Server: Zone  (0542) | Handler: ../zone/zoning.cpp(368:56) '[TX] Near Client::DoZoneSuccess'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ZoneEntry (0x1665) | Handled: True | Encoded: True | Decoded: True
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0544) | Handler: ../zone/client_packet.cpp(1652:34) '[TX] Near Client::Handle_Connect_OP_ZoneEntry'
+  Server: Zone  (0544) | Handler: ../zone/client_process.cpp(2166:55) '[TX] Near Client::ClearHover'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ZonePlayerToBind (0x7f99) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0547) | Handler: ../zone/client_process.cpp(2067:57) '[TX] Near Client::HandleRespawnFromHover'
+  Server: Zone  (0547) | Handler: ../zone/client_process.cpp(2099:57) '[TX] Near Client::HandleRespawnFromHover'
+  Server: Zone  (0547) | Handler: ../zone/zoning.cpp(585:57) '[TX] Near Client::ZonePC'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ZoneServerInfo (0x49d9) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0548) | Handler: ../world/client.cpp(1221:34) '[TX] Near Client::Clearance'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ZoneSpawns (0x0980) | Handled: True | Encoded: True | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0000) | Handler: N/A
+  Server: Zone  (0550) | Handler: ../zone/entity.cpp(2870:55) '[TX] Near BulkZoneSpawnPacket::SendBuffer'
+  Server: UCS   (0000) | Handler: N/A
+
+Opcode: OP_ZoneUnavail (0x6281) | Handled: True | Encoded: False | Decoded: False
+  Server: Login (0000) | Handler: N/A
+  Server: World (0551) | Handler: ../world/client.cpp(1264:39) '[TX] Near Client::ZoneUnavail'
+  Server: Zone  (0000) | Handler: N/A
+  Server: UCS   (0000) | Handler: N/A
+

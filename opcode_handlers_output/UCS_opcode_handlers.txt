@@ -1,0 +1,117 @@
+>> 'Opcode-Handler' analysis for 'UCS' server
+>> file generated @ Fri Feb 19 21:22:08 2016
+
+Opcode: OP_Buddy (0553) | Handler: ../ucs/clientlist.cpp(2318:35) '[TX] Near Client::SendFriends'
+Opcode: OP_Buddy (0553) | Handler: ../ucs/clientlist.cpp(409:39) '[TX] Near ProcessCommandBuddy'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_ChannelAnnounceJoin (0554) | Handler: ../ucs/clientlist.cpp(1538:39) '[TX] Near Client::AnnounceJoin'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_ChannelAnnounceLeave (0555) | Handler: ../ucs/clientlist.cpp(1557:39) '[TX] Near Client::AnnounceLeave'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_ChannelMessage (0069) | Handler: ../ucs/clientlist.cpp(1092:34) '[TX] Near Client::JoinChannels'
+Opcode: OP_ChannelMessage (0069) | Handler: ../ucs/clientlist.cpp(1177:34) '[TX] Near Client::LeaveChannels'
+Opcode: OP_ChannelMessage (0069) | Handler: ../ucs/clientlist.cpp(1260:39) '[TX] Near Client::SendChannelList'
+Opcode: OP_ChannelMessage (0069) | Handler: ../ucs/clientlist.cpp(1497:39) '[TX] Near Client::SendChannelMessage'
+Opcode: OP_ChannelMessage (0069) | Handler: ../ucs/clientlist.cpp(1582:39) '[TX] Near Client::GeneralChannelMessage'
+  Client: Titanium (0x1004) | Handled: True  | Encoded: True  | Decoded: True 
+  Client: SoF      (0x3c7d) | Handled: True  | Encoded: True  | Decoded: True 
+  Client: SoD      (0x2e79) | Handled: True  | Encoded: True  | Decoded: True 
+  Client: UF       (0x2e79) | Handled: True  | Encoded: True  | Decoded: True 
+  Client: RoF      (0x33bc) | Handled: True  | Encoded: True  | Decoded: True 
+  Client: RoF2     (0x2b2d) | Handled: True  | Encoded: True  | Decoded: True 
+
+Opcode: OP_Ignore (0556) | Handler: ../ucs/clientlist.cpp(2340:35) '[TX] Near Client::SendFriends'
+Opcode: OP_Ignore (0556) | Handler: ../ucs/clientlist.cpp(459:39) '[TX] Near ProcessCommandIgnore'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_Mail (0557) | Handler: ../ucs/clientlist.cpp(1078:39) '[TX] Near Client::JoinChannels'
+Opcode: OP_Mail (0557) | Handler: ../ucs/clientlist.cpp(1163:39) '[TX] Near Client::LeaveChannels'
+Opcode: OP_Mail (0557) | Handler: ../ucs/clientlist.cpp(690:9) '[RX] Near Clientlist::Process'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_MailDeliveryStatus (0559) | Handler: ../ucs/clientlist.cpp(314:41) '[TX] Near ProcessMailTo'
+Opcode: OP_MailDeliveryStatus (0559) | Handler: ../ucs/clientlist.cpp(337:40) '[TX] Near ProcessMailTo'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_MailHeader (0560) | Handler: ../ucs/database.cpp(347:35) '[TX] Near Database::SendHeaders'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_MailHeaderCount (0561) | Handler: ../ucs/database.cpp(316:39) '[TX] Near Database::SendHeaders'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_MailLogin (0562) | Handler: ../ucs/clientlist.cpp(630:9) '[RX] Near Clientlist::Process'
+Opcode: OP_MailLogin (0562) | Handler: ../ucs/clientlist.cpp(930:39) '[TX] Near Client::SendMailBoxes'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_MailNew (0563) | Handler: ../ucs/clientlist.cpp(2267:39) '[TX] Near Client::SendNotification'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_MailSendBody (0564) | Handler: ../ucs/database.cpp(395:39) '[TX] Near Database::SendBody'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_MailboxChange (0558) | Handler: ../ucs/clientlist.cpp(2292:39) '[TX] Near Client::ChangeMailBox'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+

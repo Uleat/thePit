@@ -1,0 +1,248 @@
+>> 'Opcode-Handler' analysis for 'World' server
+>> file generated @ Fri Feb 19 21:22:08 2016
+
+Opcode: OP_AckPacket (0007) | Handler: ../world/client.cpp(955:20) '[RX] Near Client::HandlePacket'
+  Client: Titanium (0x7752) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x4d38) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x3594) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x3594) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x47a6) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x471d) | Handled: True  | Encoded: False | Decoded: False
+
+Opcode: OP_ApproveName (0036) | Handler: ../world/client.cpp(505:19) '[TX] Near Client::HandleNameApprovalPacket'
+Opcode: OP_ApproveName (0036) | Handler: ../world/client.cpp(676:40) '[TX] Near Client::HandleCharacterCreatePacket'
+Opcode: OP_ApproveName (0036) | Handler: ../world/client.cpp(975:7) '[RX] Near Client::HandlePacket'
+  Client: Titanium (0x3ea6) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x2037) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x413f) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x4f1f) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x213a) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x56a2) | Handled: True  | Encoded: False | Decoded: False
+
+Opcode: OP_ApproveWorld (0037) | Handler: ../world/client.cpp(1015:7) '[RX] Near Client::HandlePacket'
+Opcode: OP_ApproveWorld (0037) | Handler: ../world/client.cpp(1312:34) '[TX] Near Client::SendApproveWorld'
+  Client: Titanium (0x3c25) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x7fc0) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x701f) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x86c7) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x7e47) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x7499) | Handled: True  | Encoded: False | Decoded: False
+
+Opcode: OP_CharacterCreate (0070) | Handler: ../world/client.cpp(988:7) '[RX] Near Client::HandlePacket'
+  Client: Titanium (0x10b2) | Handled: True  | Encoded: False | Decoded: True 
+  Client: SoF      (0x009b) | Handled: True  | Encoded: False | Decoded: True 
+  Client: SoD      (0x1513) | Handled: True  | Encoded: False | Decoded: True 
+  Client: UF       (0x1b85) | Handled: True  | Encoded: False | Decoded: True 
+  Client: RoF      (0x0afc) | Handled: True  | Encoded: False | Decoded: True 
+  Client: RoF2     (0x6bbf) | Handled: True  | Encoded: False | Decoded: True 
+
+Opcode: OP_CharacterCreateRequest (0071) | Handler: ../world/client.cpp(623:39) '[TX] Near Client::HandleCharacterCreateRequestPacket'
+Opcode: OP_CharacterCreateRequest (0071) | Handler: ../world/client.cpp(983:7) '[RX] Near Client::HandlePacket'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x7e32) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x4463) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x53a3) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x006b) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x6773) | Handled: True  | Encoded: False | Decoded: False
+
+Opcode: OP_CrashDump (0104) | Handler: ../world/client.cpp(1012:7) '[RX] Near Client::HandlePacket'
+  Client: Titanium (0x7825) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_DeleteCharacter (0112) | Handler: ../world/client.cpp(996:7) '[RX] Near Client::HandlePacket'
+  Client: Titanium (0x26c9) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x789f) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x0254) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x5ca5) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x0ab4) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x1808) | Handled: True  | Encoded: False | Decoded: False
+
+Opcode: OP_EnterWorld (0151) | Handler: ../world/client.cpp(146:39) '[TX] Near Client::SendEnterWorld'
+Opcode: OP_EnterWorld (0151) | Handler: ../world/client.cpp(992:7) '[RX] Near Client::HandlePacket'
+  Client: Titanium (0x7cba) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x1340) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x1c20) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x51b9) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x57c3) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x578f) | Handled: True  | Encoded: False | Decoded: False
+
+Opcode: OP_ExpansionInfo (0153) | Handler: ../world/client.cpp(153:39) '[TX] Near Client::SendExpansionInfo'
+  Client: Titanium (0x04ec) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x0a1b) | Handled: True  | Encoded: True  | Decoded: False
+  Client: SoD      (0x7519) | Handled: True  | Encoded: True  | Decoded: False
+  Client: UF       (0x7e4d) | Handled: True  | Encoded: True  | Decoded: False
+  Client: RoF      (0x711a) | Handled: True  | Encoded: True  | Decoded: False
+  Client: RoF2     (0x590d) | Handled: True  | Encoded: True  | Decoded: False
+
+Opcode: OP_GroupUpdate (0212) | Handler: ../world/client.cpp(830:43) '[TX] Near Client::HandleEnterWorldPacket'
+  Client: Titanium (0x2dd6) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x2e5c) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x21be) | Handled: True  | Encoded: True  | Decoded: False
+  Client: UF       (0x5331) | Handled: True  | Encoded: True  | Decoded: False
+  Client: RoF      (0x0ba4) | Handled: True  | Encoded: True  | Decoded: False
+  Client: RoF2     (0x3abb) | Handled: True  | Encoded: True  | Decoded: False
+
+Opcode: OP_GuildsList (0235) | Handler: ../world/client.cpp(1294:34) '[TX] Near Client::SendGuildList'
+  Client: Titanium (0x6957) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x04fb) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x5b0b) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x5b0b) | Handled: True  | Encoded: True  | Decoded: False
+  Client: RoF      (0x2d38) | Handled: True  | Encoded: True  | Decoded: False
+  Client: RoF2     (0x507a) | Handled: True  | Encoded: True  | Decoded: False
+
+Opcode: OP_LogServer (0298) | Handler: ../world/client.cpp(111:39) '[TX] Near Client::SendLogServer'
+  Client: Titanium (0x0fa6) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x129a) | Handled: True  | Encoded: True  | Decoded: False
+  Client: SoD      (0x4762) | Handled: True  | Encoded: True  | Decoded: False
+  Client: UF       (0x6f79) | Handled: True  | Encoded: True  | Decoded: False
+  Client: RoF      (0x19ab) | Handled: True  | Encoded: True  | Decoded: False
+  Client: RoF2     (0x7ceb) | Handled: True  | Encoded: True  | Decoded: False
+
+Opcode: OP_LoginComplete (0293) | Handler: ../world/client.cpp(1014:7) '[RX] Near Client::HandlePacket'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_LoginUnknown1 (0294) | Handler: ../world/client.cpp(1010:7) '[RX] Near Client::HandlePacket'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x22cf) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_LoginUnknown2 (0295) | Handler: ../world/client.cpp(1011:7) '[RX] Near Client::HandlePacket'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x43ba) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_MOTD (0330) | Handler: ../world/client.cpp(841:34) '[TX] Near Client::HandleEnterWorldPacket'
+  Client: Titanium (0x024d) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x5711) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x192e) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x7629) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x1ae3) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x0c22) | Handled: True  | Encoded: False | Decoded: False
+
+Opcode: OP_PostEnterWorld (0375) | Handler: ../world/client.cpp(371:39) '[TX] Near Client::SendPostEnterWorld'
+  Client: Titanium (0x52a4) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x1aee) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x7c94) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x5d32) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x0c3d) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x6259) | Handled: True  | Encoded: False | Decoded: False
+
+Opcode: OP_RandomNameGenerator (0388) | Handler: ../world/client.cpp(979:7) '[RX] Near Client::HandlePacket'
+  Client: Titanium (0x23d4) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x0149) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x3604) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x647a) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x4453) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x5954) | Handled: True  | Encoded: False | Decoded: False
+
+Opcode: OP_SendLoginInfo (0428) | Handler: ../world/client.cpp(971:7) '[RX] Near Client::HandlePacket'
+  Client: Titanium (0x4dd0) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x6c3c) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x0ff4) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x13da) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x11b6) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x7a09) | Handled: True  | Encoded: False | Decoded: False
+
+Opcode: OP_SendMaxCharacters (0429) | Handler: ../world/client.cpp(193:39) '[TX] Near Client::SendMaxCharCreate'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x5349) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x5475) | Handled: True  | Encoded: False | Decoded: False
+
+Opcode: OP_SendMembership (0430) | Handler: ../world/client.cpp(205:39) '[TX] Near Client::SendMembership'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x03b2) | Handled: True  | Encoded: True  | Decoded: False
+  Client: RoF2     (0x7acc) | Handled: True  | Encoded: True  | Decoded: False
+
+Opcode: OP_SendMembershipDetails (0431) | Handler: ../world/client.cpp(262:39) '[TX] Near Client::SendMembershipSettings'
+  Client: Titanium (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: SoD      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: UF       (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF      (0x0b1f) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x057b) | Handled: True  | Encoded: True  | Decoded: False
+
+Opcode: OP_SetChatServer (0441) | Handler: ../world/client.cpp(871:40) '[TX] Near Client::HandleEnterWorldPacket'
+  Client: Titanium (0x00d7) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x71b8) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x7f2b) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x7d90) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x2a81) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x1bc5) | Handled: True  | Encoded: False | Decoded: False
+
+Opcode: OP_SetChatServer2 (0442) | Handler: ../world/client.cpp(888:35) '[TX] Near Client::HandleEnterWorldPacket'
+  Client: Titanium (0x6536) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x32cc) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x11f3) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x158f) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x4099) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x7eec) | Handled: True  | Encoded: False | Decoded: False
+
+Opcode: OP_WearChange (0524) | Handler: ../world/client.cpp(1013:7) '[RX] Near Client::HandlePacket'
+  Client: Titanium (0x7441) | Handled: True  | Encoded: True  | Decoded: True 
+  Client: SoF      (0x25f0) | Handled: True  | Encoded: True  | Decoded: True 
+  Client: SoD      (0x231f) | Handled: True  | Encoded: True  | Decoded: True 
+  Client: UF       (0x0400) | Handled: True  | Encoded: True  | Decoded: True 
+  Client: RoF      (0x1ad3) | Handled: True  | Encoded: True  | Decoded: False
+  Client: RoF2     (0x7994) | Handled: True  | Encoded: True  | Decoded: False
+
+Opcode: OP_WorldClientReady (0531) | Handler: ../world/client.cpp(1016:7) '[RX] Near Client::HandlePacket'
+  Client: Titanium (0x5e99) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x2ebd) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x1a84) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x7d05) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x43b0) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x23c1) | Handled: True  | Encoded: False | Decoded: False
+
+Opcode: OP_WorldComplete (0532) | Handler: ../world/client.cpp(1000:7) '[RX] Near Client::HandlePacket'
+  Client: Titanium (0x509d) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x2486) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x37db) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x441c) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x12d4) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x4493) | Handled: True  | Encoded: False | Decoded: False
+
+Opcode: OP_ZoneChange (0542) | Handler: ../world/client.cpp(1005:7) '[RX] Near Client::HandlePacket'
+  Client: Titanium (0x5dd8) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x201e) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x051b) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x6d37) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x1eb4) | Handled: True  | Encoded: True  | Decoded: True 
+  Client: RoF2     (0x2d18) | Handled: True  | Encoded: True  | Decoded: True 
+
+Opcode: OP_ZoneServerInfo (0548) | Handler: ../world/client.cpp(1221:34) '[TX] Near Client::Clearance'
+  Client: Titanium (0x61b6) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x18b1) | Handled: True  | Encoded: True  | Decoded: False
+  Client: SoD      (0x5da4) | Handled: True  | Encoded: True  | Decoded: False
+  Client: UF       (0x1190) | Handled: True  | Encoded: True  | Decoded: False
+  Client: RoF      (0x49d9) | Handled: True  | Encoded: True  | Decoded: False
+  Client: RoF2     (0x4c44) | Handled: True  | Encoded: True  | Decoded: False
+
+Opcode: OP_ZoneUnavail (0551) | Handler: ../world/client.cpp(1264:39) '[TX] Near Client::ZoneUnavail'
+  Client: Titanium (0x407c) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x07a2) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x7930) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x3288) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x6281) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF2     (0x4cb4) | Handled: True  | Encoded: False | Decoded: False
+

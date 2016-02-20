@@ -1,0 +1,69 @@
+>> 'Opcode-Handler' analysis for 'Login' server
+>> file generated @ Fri Feb 19 21:22:08 2016
+
+Opcode: OP_ChatMessage (0074) | Handler: ../loginserver/client.cpp(144:56) '[TX] Near Client::Handle_SessionReady'
+Opcode: OP_ChatMessage (0074) | Handler: ../loginserver/client.cpp(160:56) '[TX] Near Client::Handle_SessionReady'
+  Client: Titanium (0x0016) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x0016) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x0016) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x0016) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_Login (0291) | Handler: ../loginserver/client.cpp(63:7) '[RX] Near Client::Process'
+  Client: Titanium (0x0002) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x0002) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x0002) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x0002) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_LoginAccepted (0292) | Handler: ../loginserver/client.cpp(264:56) '[TX] Near Client::Handle_Login'
+Opcode: OP_LoginAccepted (0292) | Handler: ../loginserver/client.cpp(316:56) '[TX] Near Client::Handle_Login'
+  Client: Titanium (0x0017) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x0017) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x0017) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x0017) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_PlayEverquestRequest (0369) | Handler: ../loginserver/client.cpp(89:7) '[RX] Near Client::Process'
+  Client: Titanium (0x000d) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x000d) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x000d) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x000d) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_PlayEverquestResponse (0370) | Handler: ../loginserver/world_server.cpp(150:59) '[TX] Near WorldServer::Process'
+  Client: Titanium (0x0021) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x0021) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x0021) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x0021) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_ServerListRequest (0438) | Handler: ../loginserver/client.cpp(79:7) '[RX] Near Client::Process'
+  Client: Titanium (0x0004) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x0004) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x0004) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x0004) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_ServerListResponse (0439) | Handler: ../loginserver/server_manager.cpp(151:55) '[TX] Near ServerManager::CreateServerListPacket'
+  Client: Titanium (0x0018) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x0018) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x0018) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x0018) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
+Opcode: OP_SessionReady (0440) | Handler: ../loginserver/client.cpp(54:7) '[RX] Near Client::Process'
+  Client: Titanium (0x0001) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoF      (0x0001) | Handled: True  | Encoded: False | Decoded: False
+  Client: SoD      (0x0001) | Handled: True  | Encoded: False | Decoded: False
+  Client: UF       (0x0001) | Handled: True  | Encoded: False | Decoded: False
+  Client: RoF      (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+  Client: RoF2     (0x0000) | Handled: False | Encoded: N/A   | Decoded: N/A  
+
